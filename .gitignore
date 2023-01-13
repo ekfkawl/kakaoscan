@@ -1,0 +1,21 @@
+﻿*.local
+*.identcache
+window server/__history
+window server/Win32
+window server/__recovery
+commonlib/__history
+web/.idea
+__history
+web/src/main/resources/static/mdb
+web/src/main/resources/static/img
+web/src/main/resources/application-link.properties
+web/src/main/resources/application-db.properties
+web/src/main/resources/application-key.properties
+web/.ebextensions
+window server/checkhung
+window server/KakaoServer.dproj
+*.dproj
+web/src/main/resources/application-prod.properties
+window server/checkhung
+sdk
+common
