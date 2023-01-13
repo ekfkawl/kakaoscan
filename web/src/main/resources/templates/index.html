@@ -93,16 +93,14 @@
         </div>
 
         <div id="limit_info" class="help note note-light mb-7">
-            <span>오늘 남은 사용권:</span>
-            <span th:text="${todayRemainingCount}"></span>
+            <span th:text="@{|오늘 남은 사용권: ${todayRemainingCount}|}"></span>
         </div>
 
         <div id="queue_info" class="help note note-light mb-7 hide">
             <span class="me-3 search_spinner hide" id="spinner">
                 <span class="spinner-grow text-dark spinner-grow-sm" role="status" aria-hidden="true"></span>
             </span>
-            <span>대기 인원:</span>
-            <span id="spinner_text">-</span>
+            <span id="spinner_text">대기 인원: -</span>
         </div>
 
         <div id="help_info" class="help">

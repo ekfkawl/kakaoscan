@@ -75,7 +75,7 @@ function init(server) {
 
                         spinner.addClass('hide');
 
-                        spinnerText.text('-');
+                        spinnerText.text('대기 인원: -');
                     }
 
                     if (res.hasOwnProperty('Error')) {
@@ -87,7 +87,7 @@ function init(server) {
 
                     // find user & message
                     else if (res.hasOwnProperty('OriginName')) {
-                        spinnerText.text('-');
+                        spinnerText.text('대기 인원: -');
 
                         helpInfo.addClass('hide');
 
