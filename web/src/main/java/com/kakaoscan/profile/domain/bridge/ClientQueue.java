@@ -15,6 +15,10 @@ public class ClientQueue {
      */
     private long lastReceivedTick;
     /**
+     * 마지막 send tick
+     */
+    private long lastSendTick;
+    /**
      * 요청 전화번호
      */
     private String request;

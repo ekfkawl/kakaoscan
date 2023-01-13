@@ -53,9 +53,11 @@ public class NettyClientInstance {
                 setStartTime(-1);
                 log.error("[server connect fail] " + future.cause());
 
-                ClientQueue clientQueue = bi.getClients().get(session);
-                clientQueue.setFail(true);
-                bi.getClients().put(session, clientQueue);
+                if (bi.getClients().containsKey(session)) {
+                    ClientQueue clientQueue = bi.getClients().get(session);
+                    clientQueue.setFail(true);
+                    bi.getClients().put(session, clientQueue);
+                }
             }
         });
     }

@@ -23,10 +23,10 @@ import java.nio.charset.Charset;
 @ChannelHandler.Sharable
 public class NettyClientHandler extends ChannelInboundHandlerAdapter {
     private static final int RECONNECT_DELAY = 5;
+    private static final int REQUEST_TIMEOUT_TICK = 3 * 1000;
+
     private final NettyClientInstance nettyClientInstance;
     private final BridgeInstance bi;
-
-    private static final int REQUEST_TIMEOUT_TICK = 3 * 1000;
 
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         if (!nettyClientInstance.isConnected()) {
@@ -70,7 +70,7 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
             buf.release();
         }
 
-        log.info("[received] " + receivedMessage);
+//        log.info("[received] " + receivedMessage);
     }
 
     /**

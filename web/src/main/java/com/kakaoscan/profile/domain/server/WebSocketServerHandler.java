@@ -34,7 +34,7 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
     private static final Map<WebSocketSession, String> clientsRemoteAddress = new ConcurrentHashMap<>();
 
     private static final int EVG_WAITING_SEC = 20;
-    private static final int REQUEST_TIMEOUT_TICK = 5 * 1000;
+    private static final int REQUEST_TIMEOUT_TICK = 3 * 1000;
 
     @Value("${kakaoscan.all.date.maxcount}")
     private int allLimitCount;
@@ -63,6 +63,14 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
             return;
         }
 
+        ClientQueue clientQueue = bi.getClients().get(session.getId());
+
+        if (clientQueue.getLastSendTick() != 0 && System.currentTimeMillis() > clientQueue.getLastSendTick()) {
+            session.sendMessage(new TextMessage(MessageSendType.REQUEST_TIME_OUT.getType()));
+            removeSessionHash(session);
+            return;
+        }
+
         if (isNumeric(receive) && receive.length() == 11) { // receive phone number
             // 전체 일일 사용 제한
             UseCount useCount = accessLimitService.getUseCount();
@@ -77,17 +85,18 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
                 return;
             }
 
-            long connectTick = bi.getClients().get(session.getId()).getRequestTick();
-
-            if (connectTick == Long.MAX_VALUE) {
-                bi.getClients().put(session.getId(), new ClientQueue(System.currentTimeMillis(), Long.MAX_VALUE, receive, "", false, false));
+            // put turn
+            if (clientQueue.getRequestTick() == Long.MAX_VALUE) {
+                bi.getClients().put(session.getId(), new ClientQueue(System.currentTimeMillis(), 0, System.currentTimeMillis() + REQUEST_TIMEOUT_TICK, receive, "", false, false));
             }
 
         } else if (MessageSendType.HEARTBEAT.getType().equals(receive)) {
             try {
-                long turn = bi.getTurn(session.getId());
+                // update
+                clientQueue.setLastSendTick(System.currentTimeMillis() + REQUEST_TIMEOUT_TICK);
+                bi.getClients().put(session.getId(), clientQueue);
 
-                ClientQueue clientQueue = bi.getClients().get(session.getId());
+                long turn = bi.getTurn(session.getId());
 
                 // 남은 평균 시간
                 String viewMessage = String.format(MessageSendType.REMAINING_QUEUE.getType(), turn, turn * EVG_WAITING_SEC);
@@ -110,7 +119,7 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
                     }
 
                     // time out
-                    if (clientQueue.getLastReceivedTick() != Long.MAX_VALUE) {
+                    if (clientQueue.getLastReceivedTick() != 0) {
                         if (System.currentTimeMillis() > clientQueue.getLastReceivedTick()) {
                             session.sendMessage(new TextMessage(MessageSendType.REQUEST_TIME_OUT.getType()));
                             removeSessionHash(session);
@@ -171,7 +180,7 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
             }
         }
 
-        bi.getClients().put(session.getId(), new ClientQueue(Long.MAX_VALUE, Long.MAX_VALUE, "", "", false, false));
+        bi.getClients().put(session.getId(), new ClientQueue(Long.MAX_VALUE, 0, 0, "", "", false, false));
 
         clientsRemoteAddress.put(session, remoteAddress);
 
