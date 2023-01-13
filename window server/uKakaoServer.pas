@@ -47,7 +47,7 @@ var
 
   ServerIndex: Integer;
 
-  HostPath: String;
+  HostPath, CachePath: String;
 
 implementation
 
@@ -83,30 +83,6 @@ begin
       FindClose(srSchRec);
     end;
   end;
-end;
-
-procedure Remove(const Dir: String);
-var
-  sDir: String;
-  Rec: TSearchRec;
-begin
-  sDir := IncludeTrailingPathDelimiter(Dir);
-  if FindFirst(sDir + '*.*', faAnyFile, Rec) = 0 then
-  try
-    repeat
-      if (Rec.Attr and faDirectory) = faDirectory then
-      begin
-        if (Rec.Name <> '.') and (Rec.Name <> '..') then
-          Remove(sDir + Rec.Name);
-      end else
-      begin
-        DeleteFile(sDir + Rec.Name);
-      end;
-    until FindNext(Rec) <> 0;
-  finally
-    FindClose(Rec);
-  end;
-  RemoveDir(sDir);
 end;
 
 procedure TForm1.Log(s: String);
@@ -145,21 +121,28 @@ end;
 
 procedure RemoveDataThread;
 var
-  Dirs: TArray<String>;
+  Dirs, Files: TArray<String>;
   OlderThan: TDateTime;
 begin
   while True do
   begin
     Sleep(60 * 1000);
 
-    // 한시간 지난 디렉터리 삭제
     OlderThan:= Now() - 1/24;
-
+    // 한시간 지난 디렉터리 삭제
     Dirs:= TDirectory.GetDirectories(ROOT);
     for var DName in Dirs do
     begin
       if TDirectory.GetCreationTime(DName) < OlderThan then
-        Remove(DName);
+        TDirectory.Delete(DName, True);
+    end;
+
+    // 캐시 파일 삭제
+    Files:= TDirectory.GetFiles(CachePath);
+    for var DName in Files do
+    begin
+      if TFile.GetCreationTime(DName) < OlderThan then
+        TFile.Delete(DName);
     end;
   end;
 end;
@@ -176,6 +159,7 @@ begin
   Ini:= TiniFile.Create(IniPath);
   try
     ServerIndex:= Ini.ReadString(APP_NAME, 'index', '0').ToInteger;
+    CachePath:= Ini.ReadString(APP_NAME, 'cache', '0');
   finally
     Ini.Free;
   end;
