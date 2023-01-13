@@ -45,7 +45,7 @@ var
 
   IsMacroRun: Boolean = True;
 
-  ServerIndex: Integer;
+  StorageIndex, ServerIndex: Integer;
 
   HostPath, CachePath: String;
 
@@ -158,13 +158,14 @@ begin
   const IniPath = 'C:\config.ini';
   Ini:= TiniFile.Create(IniPath);
   try
-    ServerIndex:= Ini.ReadString(APP_NAME, 'index', '0').ToInteger;
+    ServerIndex:= Ini.ReadString(APP_NAME, 'server_index', '0').ToInteger;
+    StorageIndex:= Ini.ReadString(APP_NAME, 'storage_index', '0').ToInteger;
     CachePath:= Ini.ReadString(APP_NAME, 'cache', '0');
   finally
     Ini.Free;
   end;
 
-  HostPath:= Format('https://storage%d.kakaoscan.com/%s', [ServerIndex, PATH_WEB]);
+  HostPath:= Format('https://storage%d.kakaoscan.com/%s', [StorageIndex, PATH_WEB]);
 end;
 
 procedure TForm1.InjectKakaoSDKThread;
