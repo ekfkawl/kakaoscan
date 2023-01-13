@@ -34,7 +34,7 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
     private static final Map<WebSocketSession, String> clientsRemoteAddress = new ConcurrentHashMap<>();
 
     private static final int EVG_WAITING_SEC = 20;
-    private static final int REQUEST_TIMEOUT_TICK = 50 * 1000;
+    private static final int REQUEST_TIMEOUT_TICK = 5 * 1000;
 
     @Value("${kakaoscan.all.date.maxcount}")
     private int allLimitCount;
@@ -110,14 +110,14 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
                     }
 
                     // time out
-                    if (clientQueue.getConnectedTick() != Long.MAX_VALUE) {
-                        if (System.currentTimeMillis() > clientQueue.getConnectedTick() + REQUEST_TIMEOUT_TICK) {
+                    if (clientQueue.getLastReceivedTick() != Long.MAX_VALUE) {
+                        if (System.currentTimeMillis() > clientQueue.getLastReceivedTick()) {
                             session.sendMessage(new TextMessage(MessageSendType.REQUEST_TIME_OUT.getType()));
                             removeSessionHash(session);
                             return;
                         }
                     } else {
-                        clientQueue.setConnectedTick(System.currentTimeMillis());
+                        clientQueue.setLastReceivedTick(System.currentTimeMillis() + REQUEST_TIMEOUT_TICK);
                         bi.getClients().put(session.getId(), clientQueue);
                     }
 

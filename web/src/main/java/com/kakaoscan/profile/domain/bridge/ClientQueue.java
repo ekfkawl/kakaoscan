@@ -11,9 +11,9 @@ public class ClientQueue {
      */
     private long requestTick;
     /**
-     * 연결 시점
+     * 마지막 수신 tick
      */
-    private long connectedTick;
+    private long lastReceivedTick;
     /**
      * 요청 전화번호
      */

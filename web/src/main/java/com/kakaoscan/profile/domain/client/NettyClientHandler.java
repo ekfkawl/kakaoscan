@@ -2,6 +2,7 @@ package com.kakaoscan.profile.domain.client;
 
 import com.kakaoscan.profile.domain.bridge.BridgeInstance;
 import com.kakaoscan.profile.domain.bridge.ClientQueue;
+import com.kakaoscan.profile.domain.server.WebSocketServerHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
@@ -25,6 +26,8 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
     private final NettyClientInstance nettyClientInstance;
     private final BridgeInstance bi;
 
+    private static final int REQUEST_TIMEOUT_TICK = 3 * 1000;
+
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         if (!nettyClientInstance.isConnected()) {
             nettyClientInstance.setStartTime(System.currentTimeMillis()); //서버 접속 tick
@@ -43,12 +46,26 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
             if (!bi.getClients().containsKey(s[0])) {
                 bi.getClients().remove(s[0]);
                 ctx.close();
-            } else if (s.length >= 2 && s[1].length() > 0) {
-                ClientQueue clientQueue = bi.getClients().get(s[0]);
-                bi.getClients().put(s[0], new ClientQueue(clientQueue.getRequestTick(), clientQueue.getConnectedTick(), "", s[1], true, false));
 
-                bi.socketSend("");
+            }else {
+                ClientQueue clientQueue = bi.getClients().get(s[0]);
+
+                clientQueue.setLastReceivedTick(System.currentTimeMillis() + REQUEST_TIMEOUT_TICK);
+
+                // response
+                if (s.length >= 2 && s[1].length() > 0) {
+                    clientQueue.setRequest("");
+                    clientQueue.setResponse(s[1]);
+                    clientQueue.setConnected(true);
+                    clientQueue.setFail(false);
+
+                    bi.socketSend("");
+                }
+
+                bi.getClients().put(s[0], clientQueue);
             }
+
+
         }finally {
             buf.release();
         }
