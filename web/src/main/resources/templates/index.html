@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, minimum-scale=1.0, user-scalable=no" />
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="카카오스캔 - 번호 저장 없이 카카오톡 기본 프로필을 조회">
+    <meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
+    <meta itemprop="name" content="카카오스캔 - 번호 저장 없이 카카오톡 기본 프로필을 조회" />
+    <meta itemprop="url" content="https://kakaoscan.com/" />
+    <meta name="description" content="번호 저장 없이 카카오톡 기본 프로필을 조회 할 수 있습니다. 상대방은 조회 사실을 알 수 없습니다." />
+    <link rel="canonical" href="https://kakaoscan.com/" />
+    <meta property="og:locale" content="ko_KR" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="카카오스캔 - 번호 저장 없이 카카오톡 기본 프로필을 조회" />
+    <meta property="og:description" content="번호 저장 없이 카카오톡 기본 프로필을 조회 할 수 있습니다. 상대방은 조회 사실을 알 수 없습니다." />
+    <meta property="og:url" content="https://kakaoscan.com/" />
+    <meta property="og:site_name" content="카카오스캔 - 카톡 프로필 조회" />
+    <meta property="og:image" content="/img/og_image.png">
+    <meta name="google" content="notranslate">
+    <title>카카오스캔</title>
+    <link href="/img/title.png" rel="shortcut icon" type="image/x-icon">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
+
+    <!-- jquery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- MDB -->
+    <link rel="stylesheet" href="/mdb/css/mdb.min.css"/>
+    <!-- style -->
+    <link rel="stylesheet" th:href="@{|/css/style.css?t=${tick}|}"/>
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E01KBBPRE7"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-E01KBBPRE7');
+    </script>
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1544509220864413"
+            crossorigin="anonymous"></script>
+</head>
+<body>
+
+<div class="container my-2">
+    <div class="body_search mb-7 m-2">
+        <nav class="navbar navbar-light shadow-0">
+            <div><a class="" href="#" onClick="top.location='javascript:location.reload()'">kakaoscan</a></div>
+
+            <ul class="navbar-nav ms-auto">
+                <!-- Icon dropdown -->
+                <li class="nav-item dropdown">
+                    <a
+                            class="nav-link"
+                            href="#"
+                            id="navbarDropdown"
+                            role="button"
+                            data-mdb-toggle="dropdown"
+                            aria-expanded="false"
+                    >
+                        <i class="fas fa-bars"></i>
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li>
+                            <a class="dropdown-item" th:href="${lGithub}" target="_blank"><i class="fab fa-github me-2"></i>Github</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" th:href="${lSns}" target="_blank"><i class="fab fa-instagram me-2"></i></i>Instagram</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" th:href="${lBlog}" target="_blank"><i class="fas fa-pen me-2"></i></i>Blog</a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+
+        </nav>
+
+        <div class="container_search">
+            <div class="search">
+                <span class="search_ico">
+                    <i class="fas fa-search fa-lg"></i>
+                </span>
+                <input type="text" id="number" th:value="${phoneNumber}" placeholder="전화번호 -없이 입력" maxlength="11" onKeyup="this.value=this.value.replace(/[^-0-9]/g,'');">
+            </div>
+        </div>
+
+        <div id="limit_info" class="help note note-light mb-7">
+            <span>오늘 남은 사용권:</span>
+            <span th:text="${todayRemainingCount}"></span>
+        </div>
+
+        <div id="queue_info" class="help note note-light mb-7 hide">
+            <span class="me-3 search_spinner hide" id="spinner">
+                <span class="spinner-grow text-dark spinner-grow-sm" role="status" aria-hidden="true"></span>
+            </span>
+            <span>대기 인원:</span>
+            <span id="spinner_text">-</span>
+        </div>
+
+        <div id="help_info" class="help">
+            <div class="row">
+                <div class="col-md-8 mt-3 d-flex align-items-center">
+                    <div>
+                        <p class="h3 mb-2">카카오톡 프로필 조회</p>
+                        <p class="text-start text-break">
+                            카카오스캔 웹 사이트는 전화번호 저장 없이 카카오톡 프로필 이미지와 영상을 고품질로 조회하고, 상대방의 멀티 프로필 적용 여부를 확인할 수 있는 무료 온라인 서비스입니다. 프로필 정보를 조회하기 위해 카카오톡에 가입된 상대방의 전화번호를 텍스트 박스에 입력하고 엔터 키를 누르세요. 대기 중인 인원이 없다는 가정하에 20초 내외로 조회 결과를 확인할 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex justify-content-center">
+                    <img src="/img/sample4.png" alt="" class=""/>
+                </div>
+            </div>
+
+            <div class="mt-5">
+                <p class="h3 mb-2">자주하는 질문</p>
+                <ul class="list-unstyled">
+                    <li class="mb-1"><i class="fas fa-question-circle me-2 text-warning"></i>제공하는 프로필 정보는 무엇인가요?</li>
+                    <li class="mb-1 mb-4"><i class="fas fa-long-arrow-alt-right me-2 text-info"></i>프로필 및 배경 사진, mp4, 이름, 상태 메세지, 뮤직 상태 등의 정보를 제공합니다.</li>
+                    <li class="mb-1"><i class="fas fa-question-circle me-2 text-warning"></i>상대방이 프로필 조회 사실을 알 수 있나요?</li>
+                    <li class="mb-1 mb-4"><i class="fas fa-long-arrow-alt-right me-2 text-info"></i>아니요, 상대방은 절대로 조회 사실을 알 수 없습니다.</li>
+                    <li class="mb-1"><i class="fas fa-question-circle me-2 text-warning"></i>일일 이용 횟수 제한이 있나요?</li>
+                    <li class="mb-1 mb-4"><i class="fas fa-long-arrow-alt-right me-2 text-info"></i>예, 한 IP 당 일일 최대 5번까지 조회 가능하며 매일 자정에 초기화됩니다. 유효하지 않은 전화번호는 횟수 차감되지 않습니다.</li>
+                    <li class="mb-1"><i class="fas fa-question-circle me-2 text-warning"></i>모바일 환경에서 조회 대기시간 동안 화면을 전환해도 되나요?</li>
+                    <li class="mb-1 mb-4"><i class="fas fa-long-arrow-alt-right me-2 text-info"></i>아니요, 새로고침 또는 화면을 전환하면 작업이 취소됩니다.</li>
+                    <li class="mb-1"><i class="fas fa-question-circle me-2 text-warning"></i>전화번호에 대한 데이터를 영구 보관하나요?</li>
+                    <li class="mb-1 mb-4"><i class="fas fa-long-arrow-alt-right me-2 text-info"></i>아니요, 사용자 개인 데이터의 프라이버시는 우리의 철학에 위배됩니다. 조회 시간 기준으로 한 시간이 지나면 자동으로 서버에서 삭제됩니다.</li>
+                    <hr>
+                    <li class="mb-1 mb-11">사용에 문제가 발생하거나, 기타 문의사항은 <a th:href="${lBlog}" target="_blank">제작자 블로그</a>에 댓글 작성해주세요.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div id="result" class="hide">
+
+            <!-- current profile -->
+            <div id="current_profile" class="mt-3 mb-4">
+                <img src="/img/empty_profile.png" alt="" class="rounded-circle img-fluid" style="width: 110px;" />
+            </div>
+            <h4 id="target_name" class="mb-2">-</h4>
+            <p id="target_status" class="text-break text-muted mb-4 text-default">-</p>
+
+            <div id="preview_profile" class="lightbox hide" data-mdb-zoom-level="0.25">
+                <div class="row">
+                    <div class="col-lg-4">
+                        <img
+                                src="/img/empty_profile.png"
+                                class="w-100"
+                        />
+                    </div>
+                </div>
+            </div>
+            <!-- -->
+
+            <div id="current_profile_music" class="hide">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="flex-shrink-0">
+                        <img src="" alt="" class="img-fluid border border-dark border-1" style="width: 50px;">
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <div class="d-flex flex-row align-items-center">
+                            <div>
+                                <strong class="mb-0 me-2">-</strong>
+                                <p class="text-break text-muted mb-0 me-2 text-default">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- -->
+
+            <!-- Tabs navs -->
+            <ul class="nav nav-tabs mb-3" id="ex-with-icons" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link active" id="ex-with-icons-tab-1" data-mdb-toggle="tab" href="#ex-with-icons-tabs-1" role="tab"
+                       aria-controls="ex-with-icons-tabs-1" aria-selected="true"><i class="fas fa-user-alt fa-fw me-2 a-ico"></i><span>프로필</span></a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="ex-with-icons-tab-2" data-mdb-toggle="tab" href="#ex-with-icons-tabs-2" role="tab"
+                       aria-controls="ex-with-icons-tabs-2" aria-selected="false"><i class="fas fa-image fa-fw me-2 a-ico"></i><span>배경사진</span></a>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <a class="nav-link" id="ex-with-icons-tab-3" data-mdb-toggle="tab" href="#ex-with-icons-tabs-3" role="tab"
+                       aria-controls="ex-with-icons-tabs-3" aria-selected="false"><i class="fas fa-video fa-fw me-3 a-ico"></i><span>동영상</span></a>
+                </li>
+            </ul>
+            <!-- Tabs navs -->
+
+            <!-- Tabs content -->
+            <div class="tab-content" id="ex-with-icons-content">
+                <!-- 1 -->
+                <div class="tab-pane fade show active" id="ex-with-icons-tabs-1" role="tabpanel" aria-labelledby="ex-with-icons-tab-1">
+                    <div id="lightbox" class="lightbox" data-mdb-zoom-level="0.25">
+                        <div class="row" id="tab1_res">
+                            <!---->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2 -->
+                <div class="tab-pane fade" id="ex-with-icons-tabs-2" role="tabpanel" aria-labelledby="ex-with-icons-tab-2">
+                    <div class="lightbox" data-mdb-zoom-level="0.25">
+                        <div class="row" id="tab2_res">
+                            <!---->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3 -->
+                <div class="tab-pane fade" id="ex-with-icons-tabs-3" role="tabpanel" aria-labelledby="ex-with-icons-tab-3">
+                    <div class="row" id="tab3_res">
+                        <!---->
+                    </div>
+                </div>
+
+            </div>
+            <!-- Tabs content -->
+
+            <div id="move-top" class="float-end my-2 mb-11 hide">
+                <a href="#result"><small class="text-muted">맨 위로</small></a>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+    <script th:src="@{|/js/run.js?t=${tick}|}"></script>
+    <script th:src="@{|/js/common.js?t=${tick}|}"></script>
+    <!-- MDB -->
+    <script type="text/javascript" src="/mdb/js/mdb.min.js"></script>
+    <script th:inline="javascript">
+        window.onload = function(){
+            init([[${server}]]);
+        }
+    </script>
+</body>
+<footer class="fixed-bottom">
+    <script src="https://ads-partners.coupang.com/g.js"></script>
+    <script>
+        new PartnersCoupang.G({"id":629548,"template":"carousel","trackingCode":"AF0842842","width":"100%","height":"140"});
+    </script>
+</footer>
+
+</html>
