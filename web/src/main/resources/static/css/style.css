@@ -205,10 +205,17 @@ body nav a {
 }
 
 img {
-    cursor: pointer;
     max-width: 100%;
     height: auto;
     display: block;
+}
+
+#result img {
+    cursor: pointer;
+}
+
+.cursor-hand {
+    cursor: pointer;
 }
 
 ol li {
