@@ -17,5 +17,13 @@ window server/KakaoServer.dproj
 *.dproj
 web/src/main/resources/application-prod.properties
 window server/checkhung
-sdk
 common
+sdk/Test
+sdk/Win32
+sdk/AOBScanAPI.pas
+sdk/FileUtils.pas
+sdk/KakaoSDK32.res
+sdk/uKakaoHandle.pas
+sdk/uHookSignature.pas
+sdk/MemAPI.pas
+sdk/KakaoSDK32.dpr
