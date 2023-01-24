@@ -106,7 +106,7 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
                     UseCount useCount = accessLimitService.getUseCount();
 
                     int connectIndex = 0;
-                    for (int i = 0; i < useCount.getCount().length; i++) {
+                    for (int i = 0; i < serverCount; i++) {
                         if (useCount.getCount()[i] < allLimitCount) {
                             connectIndex = i;
                             break;
