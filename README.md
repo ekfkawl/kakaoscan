@@ -19,7 +19,7 @@
 사용 언어/스택
 --------------------------------------
 * __Pascal__  
-  * 윈도우 TCP Socket Server
+  * TCP Socket Server
   * 카카오톡 시뮬레이션
   
 * __Java/Spring Boot__  
