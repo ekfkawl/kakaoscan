@@ -8,6 +8,7 @@
 * 상대방의 멀티 프로필이 아닌 기본 프로필을 확인하고 싶음
 * 상대방이 나를 차단했는지 확인하고 싶음
 * 번호 저장 없이 프로필을 확인하고 싶음<br/><br/>
+<img src="https://github.com/ekfkawl/kakaoscan/blob/main/preview.gif?raw=true" width="375"/>
 
 카카오스캔은 어떻게 작동합니까?
 --------------------------------------
