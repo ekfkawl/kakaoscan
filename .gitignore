@@ -27,3 +27,4 @@ sdk/uKakaoHandle.pas
 sdk/uHookSignature.pas
 sdk/MemAPI.pas
 sdk/KakaoSDK32.dpr
+web/app_logs
