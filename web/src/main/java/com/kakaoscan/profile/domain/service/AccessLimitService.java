@@ -17,13 +17,13 @@ public class AccessLimitService {
     private final AccessLimitRepository accessLimitRepository;
 
     public UseCount getUseCount() {
-        long res[] = new long[2];
+        long res[] = new long[1];
 
         Optional<AccessLimit> accessLimit = accessLimitRepository.findById(LocalDate.now());
         res[0] = accessLimit.map(AccessLimit::getUseCount).orElse(0L);
-        res[1] = accessLimit.map(AccessLimit::getUseCount2).orElse(0L);
+//        res[1] = accessLimit.map(AccessLimit::getUseCount2).orElse(0L);
 
-        return new UseCount(res, res[0] + res[1]);
+        return new UseCount(res, res[0]);
     }
 
     @Transactional

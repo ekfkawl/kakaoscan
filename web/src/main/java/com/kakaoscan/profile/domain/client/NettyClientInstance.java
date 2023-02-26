@@ -18,7 +18,7 @@ import static java.util.Objects.nonNull;
 @Component
 public class NettyClientInstance {
     private static final ReentrantLock lock = new ReentrantLock();
-    private static final Bootstrap bootstrap[] = {new Bootstrap(), new Bootstrap()};
+    private static final Bootstrap bootstrap[] = {new Bootstrap()};
 
     private final BridgeInstance bi;
 
