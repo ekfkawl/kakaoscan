@@ -28,3 +28,4 @@ sdk/uHookSignature.pas
 sdk/MemAPI.pas
 sdk/KakaoSDK32.dpr
 web/app_logs
+web/src/main/resources/application-smtp.properties
