@@ -1,5 +1,6 @@
 package com.kakaoscan.profile;
 
+import com.kakaoscan.profile.config.KafkaProperties;
 import com.kakaoscan.profile.domain.client.NettyClient;
 import com.kakaoscan.profile.domain.client.NettyClientInstance;
 import lombok.RequiredArgsConstructor;
@@ -7,12 +8,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.event.EventListener;
 
 @RequiredArgsConstructor
 @SpringBootApplication
 @PropertySource("classpath:application-db.properties")
+@EnableConfigurationProperties(value = {KafkaProperties.class})
 public class ProfileApplication {
 	@Value("${tcp.host}")
 	private String[] hosts;
