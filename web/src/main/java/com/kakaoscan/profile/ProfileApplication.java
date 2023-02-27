@@ -14,7 +14,7 @@ import org.springframework.context.event.EventListener;
 
 @RequiredArgsConstructor
 @SpringBootApplication
-@PropertySource("classpath:application-db.properties")
+@PropertySource({"classpath:application-db.properties", "classpath:application-smtp.properties"})
 @EnableConfigurationProperties(value = {KafkaProperties.class})
 public class ProfileApplication {
 	@Value("${tcp.host}")
