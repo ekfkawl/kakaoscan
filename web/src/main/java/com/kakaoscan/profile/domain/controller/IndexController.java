@@ -1,7 +1,8 @@
-package com.kakaoscan.profile.domain.client.controller;
+package com.kakaoscan.profile.domain.controller;
 
 import com.kakaoscan.profile.domain.model.UseCount;
 import com.kakaoscan.profile.domain.service.AccessLimitService;
+import com.kakaoscan.profile.domain.service.kafka.ProducerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.UUID;
 
 /**
  * view
@@ -21,6 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 public class IndexController {
 
     private final AccessLimitService accessLimitService;
+
+    private final ProducerService produceMessage;
 
     @Value("${websocket.server}")
     private String server;
@@ -58,6 +62,9 @@ public class IndexController {
         mv.addObject("todayRemainingCount", String.format("%d/%d", remainingCount, allLimitCount * serverCount));
 
         mv.addObject("phoneNumber", phoneNumber);
+
+        produceMessage.send(UUID.randomUUID().toString(), "111");
+
 
         return mv;
     }

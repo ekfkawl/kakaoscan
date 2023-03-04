@@ -1,8 +1,7 @@
 package com.kakaoscan.profile.domain.respon.exception;
 
-import com.kakaoscan.profile.domain.client.dto.ApiErrorDTO;
+import com.kakaoscan.profile.domain.dto.ApiErrorDTO;
 import com.kakaoscan.profile.domain.respon.enums.ApiErrorCase;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

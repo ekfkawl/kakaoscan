@@ -1,4 +1,4 @@
-package com.kakaoscan.profile.config;
+package com.kakaoscan.profile.global.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;

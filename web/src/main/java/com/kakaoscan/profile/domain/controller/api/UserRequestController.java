@@ -1,6 +1,6 @@
-package com.kakaoscan.profile.domain.client.controller.api;
+package com.kakaoscan.profile.domain.controller.api;
 
-import com.kakaoscan.profile.domain.service.AccessLimitService;
+import com.kakaoscan.profile.domain.service.UserRequestService;
 import com.kakaoscan.profile.domain.validator.annotation.CheckKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.PropertySource;
@@ -13,13 +13,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Validated
 @PropertySource("classpath:application-key.properties")
-public class AccessLimitController extends ApiBaseController {
+public class UserRequestController extends ApiBaseController {
 
-    private final AccessLimitService accessLimitService;
+    private final UserRequestService userRequestService;
 
-    @PostMapping("/limit")
-    public boolean updateUseCount(@RequestParam Integer serverIndex, @RequestParam @CheckKey String key) {
-
-        return accessLimitService.updateUseCount(serverIndex);
+    @PostMapping("/use")
+    public boolean updateUseCount(@RequestParam String remoteAddress, @RequestParam @CheckKey String key) {
+        return userRequestService.updateUseCount(remoteAddress);
     }
 }

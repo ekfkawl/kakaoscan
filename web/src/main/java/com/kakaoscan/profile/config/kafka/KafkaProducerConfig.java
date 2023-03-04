@@ -1,4 +1,4 @@
-package com.kakaoscan.profile.config;
+package com.kakaoscan.profile.config.kafka;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.producer.ProducerConfig;

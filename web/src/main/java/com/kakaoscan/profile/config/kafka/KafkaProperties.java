@@ -1,4 +1,4 @@
-package com.kakaoscan.profile.config;
+package com.kakaoscan.profile.config.kafka;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;

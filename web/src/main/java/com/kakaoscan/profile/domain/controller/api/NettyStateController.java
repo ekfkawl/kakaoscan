@@ -1,4 +1,4 @@
-package com.kakaoscan.profile.domain.client.controller.api;
+package com.kakaoscan.profile.domain.controller.api;
 
 import com.kakaoscan.profile.domain.client.NettyClientInstance;
 import com.kakaoscan.profile.domain.respon.enums.ApiErrorCase;
