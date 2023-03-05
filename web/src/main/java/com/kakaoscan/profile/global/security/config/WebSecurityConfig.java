@@ -46,8 +46,7 @@ public class WebSecurityConfig {
 
                 .authorizeRequests()
                 .antMatchers("/", "/css/**", "/img/**", "/js/**", "/mdb/**").permitAll()
-                .antMatchers("/api/**").hasRole("USER")
-                .anyRequest().authenticated()
+//                .anyRequest().authenticated()
 
                 .and()
                 .logout().logoutSuccessUrl("/")
