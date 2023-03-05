@@ -1,10 +1,15 @@
 package com.kakaoscan.profile.domain.controller;
 
+import com.kakaoscan.profile.domain.entity.UserRequestUnlock;
 import com.kakaoscan.profile.domain.model.UseCount;
+import com.kakaoscan.profile.domain.repository.UserRequestUnlockRepository;
 import com.kakaoscan.profile.domain.service.AccessLimitService;
+import com.kakaoscan.profile.global.oauth.OAuthAttributes;
+import com.kakaoscan.profile.global.oauth.annotation.UserAttributes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,13 +23,15 @@ import org.springframework.web.servlet.ModelAndView;
 @PropertySource("classpath:application-link.properties")
 public class ViewController {
 
-    private final AccessLimitService accessLimitService;
-
     @Value("${kakaoscan.all.date.maxcount}")
     private long allLimitCount;
 
     @Value("${kakaoscan.server.count}")
     private long serverCount;
+
+    private final AccessLimitService accessLimitService;
+
+    private final UserRequestUnlockRepository userRequestUnlockRepository;
 
     @GetMapping("/")
     public ModelAndView index(@RequestParam(required = false, defaultValue = "") String phoneNumber) {
@@ -43,10 +50,23 @@ public class ViewController {
     }
 
     @GetMapping("/req-unlock")
-    public ModelAndView unlock() {
+    @PreAuthorize("hasRole('ROLE_GUEST')")
+    public ModelAndView unlock(@UserAttributes OAuthAttributes attributes) {
         ModelAndView mv = new ModelAndView("unlock");
+
+        UserRequestUnlock userRequestUnlockOptional = userRequestUnlockRepository.findById(attributes.getEmail())
+                .orElse(null);
+
+        mv.addObject("lastRequestUnlock", userRequestUnlockOptional);
 
         return mv;
     }
+
+    @GetMapping("/test")
+    @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_USER') and !hasRole('ROLE_ADMIN'))")
+    public String test() {
+        return "test admin";
+    }
+
 
 }
