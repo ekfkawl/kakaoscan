@@ -33,6 +33,7 @@
     left:5%;
     top:50%;
 }
+
 @media screen and (max-width: 1439px) {
     .container_search .search .search_ico {
         left: 6%;
@@ -174,7 +175,7 @@
 body {
     color: black;
 }
-body nav div {
+body nav div .logo-text{
     font-family: 'Quicksand', sans-serif;
     font-weight: bold;
     font-style: normal;
@@ -195,7 +196,7 @@ body nav a {
 }
 .dropdown-menu[data-mdb-popper] {
     top: 100%;
-    left: -145px; !important;
+    left: -135px; !important;
     margin-top: 0.125rem;
 }
 
@@ -208,6 +209,10 @@ img {
     max-width: 100%;
     height: auto;
     display: block;
+}
+
+li a img {
+    height: 26px;
 }
 
 #result img {
@@ -224,4 +229,8 @@ ol li {
 
 .help {
     font-family: 'Noto Sans KR', sans-serif;
+}
+
+.ne-3 {
+    margin-right: 1rem!important;
 }

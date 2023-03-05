@@ -1,84 +1,58 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, minimum-scale=1.0, user-scalable=no" />
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="카카오스캔 - 번호 저장 없이 카카오톡 기본 프로필을 조회">
-    <meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
-    <meta itemprop="name" content="카카오스캔 - 번호 저장 없이 카카오톡 기본 프로필을 조회" />
-    <meta itemprop="url" content="https://kakaoscan.com/" />
-    <meta name="description" content="번호 저장 없이 카카오톡 기본 프로필을 조회 할 수 있습니다. 상대방은 조회 사실을 알 수 없습니다." />
-    <link rel="canonical" href="https://kakaoscan.com/" />
-    <meta property="og:locale" content="ko_KR" />
-    <meta property="og:type" content="website" />
-    <meta property="og:title" content="카카오스캔 - 번호 저장 없이 카카오톡 기본 프로필을 조회" />
-    <meta property="og:description" content="번호 저장 없이 카카오톡 기본 프로필을 조회 할 수 있습니다. 상대방은 조회 사실을 알 수 없습니다." />
-    <meta property="og:url" content="https://kakaoscan.com/" />
-    <meta property="og:site_name" content="카카오스캔 - 카톡 프로필 조회" />
-    <meta property="og:image" content="/img/og_image.png">
-    <meta name="google" content="notranslate">
-    <title>카카오스캔</title>
-    <link href="/img/title.png" rel="shortcut icon" type="image/x-icon">
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-    <!-- Font -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR&display=swap" rel="stylesheet">
-
-    <!-- jquery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <!-- MDB -->
-    <link rel="stylesheet" href="/mdb/css/mdb.min.css"/>
-    <!-- style -->
-    <link rel="stylesheet" th:href="@{|/css/style.css?t=${tick}|}"/>
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-E01KBBPRE7"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-
-        gtag('config', 'G-E01KBBPRE7');
-    </script>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1544509220864413"
-            crossorigin="anonymous"></script>
+    <th:block th:include="head :: head"></th:block>
 </head>
 <body>
 
 <div class="container my-2">
     <div class="body_search mb-7 m-2">
         <nav class="navbar navbar-light shadow-0">
-            <div><a class="cursor-hand" onClick="top.location='javascript:location.reload()'">kakaoscan</a></div>
+            <div><a class="logo-text cursor-hand" onClick="top.location='javascript:location.reload()'">kakaoscan</a></div>
 
-            <ul class="navbar-nav ms-auto">
-                <!-- Icon dropdown -->
-                <li class="nav-item dropdown">
-                    <a
-                            class="nav-link"
-                            href="#"
-                            id="navbarDropdown"
-                            role="button"
-                            data-mdb-toggle="dropdown"
-                            aria-expanded="false"
-                    >
-                        <i class="fas fa-bars"></i>
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li>
-                            <a class="dropdown-item" th:href="${lGithub}" target="_blank"><i class="fab fa-github me-2"></i>Github</a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" th:href="${lSns}" target="_blank"><i class="fab fa-instagram me-2"></i></i>Instagram</a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item" th:href="${lBlog}" target="_blank"><i class="fas fa-pen me-2"></i></i>Blog</a>
-                        </li>
-                    </ul>
-                </li>
+            <ul class="navbar-nav d-flex flex-row">
+                <div th:if="${#strings.isEmpty(user)}">
+                    <li class="nav-item d-flex align-items-center">
+                        <button type="button" class="btn btn-link px-3 me-2" style="padding-bottom: 10px;">
+                            <a href="/oauth2/authorization/google" class="text-primary"><i class="fab fa-google"></i> 로그인이 필요한 서비스입니다.</a>
+                        </button>
+                    </li>
+                </div>
+                <th:block th:if="${not #strings.isEmpty(user)}">
+                    <li class="nav-item dropdown">
+                        <a
+                                class="nav-link dropdown-toggle d-flex align-items-center"
+                                href="#"
+                                id="navbarDropdownMenuLink"
+                                role="button"
+                                data-mdb-toggle="dropdown"
+                                aria-expanded="false"
+                        >
+                            <img
+                                    th:src="${user.profileUrl}"
+                                    class="rounded-circle"
+                            />
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                            <li>
+                                <a class="dropdown-item" th:href="/req-unlock"><i class="fas fa-unlock me-2"></i><b>사용 권한 신청</b></a>
+                                <a class="dropdown-item" th:href="/history"><i class="fas fa-history me-2"></i>히스토리</a>
+                                <a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i></i>로그아웃</a>
+                            </li>
+                            <li><hr class="dropdown-divider" /></li>
+                            <li>
+                                <a class="dropdown-item" th:href="${lGithub}" target="_blank"><i class="fab fa-github me-2"></i>Github</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" th:href="${lSns}" target="_blank"><i class="fab fa-instagram me-2"></i></i>Instagram</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" th:href="${lBlog}" target="_blank"><i class="fas fa-pen me-2"></i></i>Blog</a>
+                            </li>
+                        </ul>
+                    </li>
+                </th:block>
+
             </ul>
 
         </nav>
@@ -103,39 +77,39 @@
             <span id="spinner_text">대기 인원: -</span>
         </div>
 
-        <div id="help_info" class="help">
-            <div class="row">
-                <div class="col-md-8 mt-3 d-flex align-items-center">
-                    <div>
-                        <p class="h3 mb-2">카카오톡 프로필 조회</p>
-                        <p class="text-start text-break">
-                            카카오스캔 웹 사이트는 전화번호 저장 없이 카카오톡 프로필 이미지와 영상을 고품질로 조회하고, 상대방의 멀티 프로필 적용 여부를 확인할 수 있는 무료 온라인 서비스입니다. 프로필 정보를 조회하기 위해 카카오톡에 가입된 상대방의 전화번호를 텍스트 박스에 입력하고 엔터 키를 누르세요. 대기 중인 인원이 없다는 가정하에 20초 내외로 조회 결과를 확인할 수 있습니다.
-                        </p>
-                    </div>
-                </div>
-                <div class="col-md-4 d-flex justify-content-center">
-                    <img src="/img/sample4.png" alt="" class=""/>
-                </div>
-            </div>
+<!--        <div id="help_info" class="help">-->
+<!--            <div class="row">-->
+<!--                <div class="col-md-8 mt-3 d-flex align-items-center">-->
+<!--                    <div>-->
+<!--                        <p class="h3 mb-2">카카오톡 프로필 조회</p>-->
+<!--                        <p class="text-start text-break">-->
+<!--                            카카오스캔 웹 사이트는 전화번호 저장 없이 카카오톡 프로필 이미지와 영상을 고품질로 조회하고, 상대방의 멀티 프로필 적용 여부를 확인할 수 있는 무료 온라인 서비스입니다. 프로필 정보를 조회하기 위해 카카오톡에 가입된 상대방의 전화번호를 텍스트 박스에 입력하고 엔터 키를 누르세요. 대기 중인 인원이 없다는 가정하에 20초 내외로 조회 결과를 확인할 수 있습니다.-->
+<!--                        </p>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="col-md-4 d-flex justify-content-center">-->
+<!--                    <img src="/img/sample4.png" alt="" class=""/>-->
+<!--                </div>-->
+<!--            </div>-->
 
-            <div class="mt-5">
-                <p class="h3 mb-2">자주하는 질문</p>
-                <ul class="list-unstyled">
-                    <li class="mb-1"><i class="fas fa-question-circle me-2 text-warning"></i>제공하는 프로필 정보는 무엇인가요?</li>
-                    <li class="mb-1 mb-4"><i class="fas fa-long-arrow-alt-right me-2 text-info"></i>프로필 및 배경 사진, mp4, 이름, 상태 메세지, 뮤직 상태 등의 정보를 제공합니다.</li>
-                    <li class="mb-1"><i class="fas fa-question-circle me-2 text-warning"></i>상대방이 프로필 조회 사실을 알 수 있나요?</li>
-                    <li class="mb-1 mb-4"><i class="fas fa-long-arrow-alt-right me-2 text-info"></i>아니요, 상대방은 절대로 조회 사실을 알 수 없습니다.</li>
-                    <li class="mb-1"><i class="fas fa-question-circle me-2 text-warning"></i>일일 이용 횟수 제한이 있나요?</li>
-                    <li class="mb-1 mb-4"><i class="fas fa-long-arrow-alt-right me-2 text-info"></i>예, 한 IP 당 일일 최대 5번까지 조회 가능하며 매일 자정에 초기화됩니다. 유효하지 않은 전화번호는 횟수 차감되지 않습니다.</li>
-                    <li class="mb-1"><i class="fas fa-question-circle me-2 text-warning"></i>모바일 환경에서 조회 대기시간 동안 화면을 전환해도 되나요?</li>
-                    <li class="mb-1 mb-4"><i class="fas fa-long-arrow-alt-right me-2 text-info"></i>아니요, 새로고침 또는 화면을 전환하면 작업이 취소됩니다.</li>
-                    <li class="mb-1"><i class="fas fa-question-circle me-2 text-warning"></i>전화번호에 대한 데이터를 영구 보관하나요?</li>
-                    <li class="mb-1 mb-4"><i class="fas fa-long-arrow-alt-right me-2 text-info"></i>아니요, 사용자 개인 데이터의 프라이버시는 우리의 철학에 위배됩니다. 조회 시간 기준으로 한 시간이 지나면 자동으로 서버에서 삭제됩니다.</li>
-                    <hr>
-                    <li class="mb-1 mb-11">사용에 문제가 발생하거나, 기타 문의사항은 <a th:href="${lBlog}" target="_blank">제작자 블로그</a>에 댓글 작성해주세요.</li>
-                </ul>
-            </div>
-        </div>
+<!--            <div class="mt-5">-->
+<!--                <p class="h3 mb-2">자주하는 질문</p>-->
+<!--                <ul class="list-unstyled">-->
+<!--                    <li class="mb-1"><i class="fas fa-question-circle me-2 text-warning"></i>제공하는 프로필 정보는 무엇인가요?</li>-->
+<!--                    <li class="mb-1 mb-4"><i class="fas fa-long-arrow-alt-right me-2 text-info"></i>프로필 및 배경 사진, mp4, 이름, 상태 메세지, 뮤직 상태 등의 정보를 제공합니다.</li>-->
+<!--                    <li class="mb-1"><i class="fas fa-question-circle me-2 text-warning"></i>상대방이 프로필 조회 사실을 알 수 있나요?</li>-->
+<!--                    <li class="mb-1 mb-4"><i class="fas fa-long-arrow-alt-right me-2 text-info"></i>아니요, 상대방은 절대로 조회 사실을 알 수 없습니다.</li>-->
+<!--                    <li class="mb-1"><i class="fas fa-question-circle me-2 text-warning"></i>일일 이용 횟수 제한이 있나요?</li>-->
+<!--                    <li class="mb-1 mb-4"><i class="fas fa-long-arrow-alt-right me-2 text-info"></i>예, 한 IP 당 일일 최대 5번까지 조회 가능하며 매일 자정에 초기화됩니다. 유효하지 않은 전화번호는 횟수 차감되지 않습니다.</li>-->
+<!--                    <li class="mb-1"><i class="fas fa-question-circle me-2 text-warning"></i>모바일 환경에서 조회 대기시간 동안 화면을 전환해도 되나요?</li>-->
+<!--                    <li class="mb-1 mb-4"><i class="fas fa-long-arrow-alt-right me-2 text-info"></i>아니요, 새로고침 또는 화면을 전환하면 작업이 취소됩니다.</li>-->
+<!--                    <li class="mb-1"><i class="fas fa-question-circle me-2 text-warning"></i>전화번호에 대한 데이터를 영구 보관하나요?</li>-->
+<!--                    <li class="mb-1 mb-4"><i class="fas fa-long-arrow-alt-right me-2 text-info"></i>아니요, 사용자 개인 데이터의 프라이버시는 우리의 철학에 위배됩니다. 조회 시간 기준으로 한 시간이 지나면 자동으로 서버에서 삭제됩니다.</li>-->
+<!--                    <hr>-->
+<!--                    <li class="mb-1 mb-11">사용에 문제가 발생하거나, 기타 문의사항은 <a th:href="${lBlog}" target="_blank">제작자 블로그</a>에 댓글 작성해주세요.</li>-->
+<!--                </ul>-->
+<!--            </div>-->
+<!--        </div>-->
 
         <div id="result" class="hide">
 
@@ -241,11 +215,5 @@
         }
     </script>
 </body>
-<footer class="fixed-bottom">
-    <script src="https://ads-partners.coupang.com/g.js"></script>
-    <script>
-        new PartnersCoupang.G({"id":629548,"template":"carousel","trackingCode":"AF0842842","width":"100%","height":"140"});
-    </script>
-</footer>
 
 </html>
