@@ -1,4 +1,4 @@
-package com.kakaoscan.profile.config.kafka;
+package com.kakaoscan.profile.domain.config.kafka;
 
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;

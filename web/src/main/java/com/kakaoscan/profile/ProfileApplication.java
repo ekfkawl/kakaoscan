@@ -1,6 +1,6 @@
 package com.kakaoscan.profile;
 
-import com.kakaoscan.profile.config.kafka.KafkaProperties;
+import com.kakaoscan.profile.domain.config.kafka.KafkaProperties;
 import com.kakaoscan.profile.domain.client.NettyClient;
 import com.kakaoscan.profile.domain.client.NettyClientInstance;
 import lombok.RequiredArgsConstructor;

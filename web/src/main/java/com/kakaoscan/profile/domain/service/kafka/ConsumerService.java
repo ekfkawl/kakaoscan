@@ -1,6 +1,6 @@
 package com.kakaoscan.profile.domain.service.kafka;
 
-import com.kakaoscan.profile.config.kafka.KafkaProperties;
+import com.kakaoscan.profile.domain.config.kafka.KafkaProperties;
 import com.kakaoscan.profile.domain.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
