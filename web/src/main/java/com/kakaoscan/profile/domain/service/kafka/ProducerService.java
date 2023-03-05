@@ -14,7 +14,7 @@ import org.springframework.util.concurrent.ListenableFutureCallback;
 @RequiredArgsConstructor
 public class ProducerService {
 
-    private final KafkaTemplate kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     public void send(String K, String V) {
         ListenableFuture<SendResult<String, String>> listenableFuture = kafkaTemplate.send(KafkaProperties.TOPIC, K, V);
