@@ -1,61 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <th:block th:include="head :: head"></th:block>
 </head>
 <body>
-
 <div class="container my-2">
     <div class="body_search mb-7 m-2">
-        <nav class="navbar navbar-light shadow-0">
-            <div><a class="logo-text cursor-hand" onClick="top.location='javascript:location.reload()'">kakaoscan</a></div>
-
-            <ul class="navbar-nav d-flex flex-row">
-                <div th:if="${#strings.isEmpty(user)}">
-                    <li class="nav-item d-flex align-items-center">
-                        <button type="button" class="btn btn-link px-3 me-2" style="padding-bottom: 10px;">
-                            <a href="/oauth2/authorization/google" class="text-primary"><i class="fab fa-google"></i> 로그인이 필요한 서비스입니다.</a>
-                        </button>
-                    </li>
-                </div>
-                <th:block th:if="${not #strings.isEmpty(user)}">
-                    <li class="nav-item dropdown">
-                        <a
-                                class="nav-link dropdown-toggle d-flex align-items-center"
-                                href="#"
-                                id="navbarDropdownMenuLink"
-                                role="button"
-                                data-mdb-toggle="dropdown"
-                                aria-expanded="false"
-                        >
-                            <img
-                                    th:src="${user.profileUrl}"
-                                    class="rounded-circle"
-                            />
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
-                            <li>
-                                <a class="dropdown-item" th:href="/req-unlock"><i class="fas fa-unlock me-2"></i><b>사용 권한 신청</b></a>
-                                <a class="dropdown-item" th:href="/history"><i class="fas fa-history me-2"></i>히스토리</a>
-                                <a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i></i>로그아웃</a>
-                            </li>
-                            <li><hr class="dropdown-divider" /></li>
-                            <li>
-                                <a class="dropdown-item" th:href="${lGithub}" target="_blank"><i class="fab fa-github me-2"></i>Github</a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" th:href="${lSns}" target="_blank"><i class="fab fa-instagram me-2"></i></i>Instagram</a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" th:href="${lBlog}" target="_blank"><i class="fas fa-pen me-2"></i></i>Blog</a>
-                            </li>
-                        </ul>
-                    </li>
-                </th:block>
-
-            </ul>
-
-        </nav>
+        <th:block th:include="nav :: nav"></th:block>
 
         <div class="container_search">
             <div class="search">
@@ -75,6 +26,10 @@
                 <span class="spinner-grow text-dark spinner-grow-sm" role="status" aria-hidden="true"></span>
             </span>
             <span id="spinner_text">대기 인원: -</span>
+        </div>
+
+        <div sec:authorize="hasRole('ROLE_GUEST')" class="text-center">
+            <p class="text-grayish">해당 계정은 서비스 사용 권한이 없습니다. <a href="/req-unlock">#신청</a></p>
         </div>
 
 <!--        <div id="help_info" class="help">-->

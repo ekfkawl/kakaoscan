@@ -23,6 +23,10 @@
     background: url('../img/search_background.png') no-repeat top 105px right 55px;
     background-size: 200px 200px;
 }
+.container_0 {
+    padding: 120px 0;
+    background-size: 200px 200px;
+}
 .body_search {
     max-width: 1296px;
 }
@@ -56,7 +60,7 @@
         width: 600px;
     }
 
-    .container_search {
+    .container_search, .container_0 {
         padding: 96px 0;
         background-position: top 90px right 40px;
         background-size: 145px 145px;
@@ -79,7 +83,7 @@
         width: 450px;
     }
 
-    .container_search {
+    .container_search, .container_0 {
         padding: 84px 0;
         background-position: top 77px right -25px;
         background-size: 145px;
@@ -118,7 +122,7 @@
         content: "";
     }
 
-    .container_search {
+    .container_search, .container_0 {
         padding: 72px 0;
         background-position: top 81px right -17px;
         background-size: 96px;
@@ -149,7 +153,7 @@
         padding: 13px 16px 12px 60px;
         font-size: 16px;
     }
-    .container_search {
+    .container_search, .container_0 {
         /*background-image: none;*/
         background-position: top 73px right -15px;
         background-size: 82px;
@@ -165,7 +169,7 @@
         padding: 13px 16px 12px 52px;
         font-size: 12px;
     }
-    .container_search {
+    .container_search, .container_0 {
         /*background-image: none;*/
         background-position: top 73px right -15px;
         background-size: 82px;
@@ -194,6 +198,12 @@ body nav a {
     background-color: #f9f9f9;
     border-color: #4cd2b9; !important;
 }
+
+.note-code {
+    background-color: #f9f9f9;
+    border-color: #f9f9f9 !important;
+}
+
 .dropdown-menu[data-mdb-popper] {
     top: 100%;
     left: -135px; !important;

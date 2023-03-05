@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <th:block th:include="head :: head"></th:block>
+</head>
+
+<body>
+<div class="container my-2">
+    <div class="body_search mb-7 m-2">
+        <th:block th:include="nav :: nav"></th:block>
+
+        <div class="container_0">
+            <div id="queue_info" class="help note note-code mb-7">
+                <p>
+                    프로필 조회 서비스를 이용하시려면 사용 권한을 신청하고 승인받아야 합니다.<br>
+                    다음 사항이 포함된 내용을 자유롭게 서술하여 신청해주세요.
+                    <ul>
+                        <li>서비스 유입 경로</li>
+                        <li>서비스 사용 용도</li>
+                    </ul>
+                </p>
+            </div>
+
+            <!-- Message input -->
+            <div class="form-outline mb-4">
+                <textarea class="form-control" id="message" rows="4" spellcheck="false" maxlength="1000"></textarea>
+                <label class="form-label" for="message">신청 내용</label>
+            </div>
+
+            <!-- Submit button -->
+            <button id="btn_send_message" type="button" class="btn btn-primary btn-block mb-4">Send</button>
+
+            <div class="text-center">
+                <p class="text-grayish">가장 최근에 신청한 내용으로 전송됩니다.</p>
+                <div th:if="${not #strings.isEmpty(lastRequestUnlock)}" th:object="${lastRequestUnlock.modifyDt}">
+                    <a class="text-grayish" href="#" data-mdb-toggle="tooltip" th:title="${lastRequestUnlock.message}" th:text="@{|마지막 요청일 ${#temporals.format(lastRequestUnlock.modifyDt, 'yyyy-MM-dd HH:mm')}|}"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{|/js/common.js?t=${tick}|}"></script>
+<!-- MDB -->
+<script type="text/javascript" src="/mdb/js/mdb.min.js"></script>
+<script>
+    $(document).on("click", "#btn_send_message", function() {
+        var res = _post('/api/req-unlock', {message: $('#message').val()});
+        if (res.status === 400) {
+            alert(res.responseJSON.message);
+        }else {
+            location.href='/';
+        }
+    })
+</script>
+</body>

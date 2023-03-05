@@ -1,0 +1,51 @@
+<nav th:fragment=nav>
+    <nav class="navbar navbar-light shadow-0">
+        <div><a class="logo-text cursor-hand" href="/">kakaoscan</a></div>
+        <ul class="navbar-nav d-flex flex-row">
+            <div th:if="${#strings.isEmpty(user)}">
+                <li class="nav-item d-flex align-items-center">
+                    <button type="button" class="btn btn-link px-3 me-2" style="padding-bottom: 10px;">
+                        <a href="/oauth2/authorization/google" class="text-primary"><i class="fab fa-google"></i> 로그인이 필요한 서비스입니다.</a>
+                    </button>
+                </li>
+            </div>
+            <th:block th:if="${not #strings.isEmpty(user)}">
+                <li class="nav-item dropdown">
+                    <a
+                            class="nav-link dropdown-toggle d-flex align-items-center"
+                            href="#"
+                            id="navbarDropdownMenuLink"
+                            role="button"
+                            data-mdb-toggle="dropdown"
+                            aria-expanded="false"
+                    >
+                        <img
+                                th:src="${user.profileUrl}"
+                                class="rounded-circle"
+                        />
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                        <li>
+                            <div sec:authorize="hasRole('ROLE_GUEST')">
+                                <a class="dropdown-item" href="/req-unlock"><i class="fas fa-unlock me-2"></i><b>사용 권한 신청</b></a>
+                            </div>
+
+                            <a class="dropdown-item" href="/history"><i class="fas fa-history me-2"></i>히스토리</a>
+                            <a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i></i>로그아웃</a>
+                        </li>
+                        <li><hr class="dropdown-divider" /></li>
+                        <li>
+                            <a class="dropdown-item" th:href="${lGithub}" target="_blank"><i class="fab fa-github me-2"></i>Github</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" th:href="${lSns}" target="_blank"><i class="fab fa-instagram me-2"></i></i>Instagram</a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" th:href="${lBlog}" target="_blank"><i class="fas fa-pen me-2"></i></i>Blog</a>
+                        </li>
+                    </ul>
+                </li>
+            </th:block>
+        </ul>
+    </nav>
+</nav>
