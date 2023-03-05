@@ -1,14 +1,22 @@
-package com.kakaoscan.profile.global.config;
+package com.kakaoscan.profile.global.mvc.config;
 
+import com.kakaoscan.profile.global.oauth.annotation.resolver.UserAttributesResolver;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.CacheControl;
+import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
+@RequiredArgsConstructor
 public class MvcConfiguration implements WebMvcConfigurer {
+
+    private final UserAttributesResolver loginUserArgumentResolver;
+
     @Override
     public void addResourceHandlers(final ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/**")
@@ -16,4 +24,8 @@ public class MvcConfiguration implements WebMvcConfigurer {
                 .setCacheControl(CacheControl.maxAge(10, TimeUnit.MINUTES));
     }
 
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
+        argumentResolvers.add(loginUserArgumentResolver);
+    }
 }

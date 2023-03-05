@@ -28,12 +28,15 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-log4j2'
 	implementation 'org.springframework.kafka:spring-kafka'
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	implementation 'javax.inject:javax.inject:1'
+	implementation 'com.auth0:java-jwt:4.3.0'
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 
 	// https://mvnrepository.com/artifact/io.netty/netty-all
 	implementation 'io.netty:netty-all:4.1.86.Final'

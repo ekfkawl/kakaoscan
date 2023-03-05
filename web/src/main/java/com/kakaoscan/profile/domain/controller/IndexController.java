@@ -2,7 +2,8 @@ package com.kakaoscan.profile.domain.controller;
 
 import com.kakaoscan.profile.domain.model.UseCount;
 import com.kakaoscan.profile.domain.service.AccessLimitService;
-import com.kakaoscan.profile.domain.service.kafka.ProducerService;
+import com.kakaoscan.profile.global.oauth.OAuthAttributes;
+import com.kakaoscan.profile.global.oauth.annotation.UserAttributes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
@@ -10,9 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.UUID;
 
 /**
  * view
@@ -23,8 +21,6 @@ import java.util.UUID;
 public class IndexController {
 
     private final AccessLimitService accessLimitService;
-
-    private final ProducerService produceMessage;
 
     @Value("${websocket.server}")
     private String server;
@@ -45,7 +41,7 @@ public class IndexController {
     private long serverCount;
 
     @GetMapping("/")
-    public ModelAndView index(@RequestParam(required = false, defaultValue = "") String phoneNumber, HttpServletRequest request) {
+    public ModelAndView index(@RequestParam(required = false, defaultValue = "") String phoneNumber, @UserAttributes OAuthAttributes attributes) {
         ModelAndView mv = new ModelAndView("index");
 
         mv.addObject("tick", System.currentTimeMillis());
@@ -59,14 +55,11 @@ public class IndexController {
         if (remainingCount < 0) {
             remainingCount = 0;
         }
+
         mv.addObject("todayRemainingCount", String.format("%d/%d", remainingCount, allLimitCount * serverCount));
-
         mv.addObject("phoneNumber", phoneNumber);
-
-        produceMessage.send(UUID.randomUUID().toString(), "111");
-
+        mv.addObject("user", attributes);
 
         return mv;
     }
-
 }
