@@ -1,12 +1,16 @@
 package com.kakaoscan.profile.domain.entity;
 
+import com.kakaoscan.profile.domain.dto.UserRequestUnlockDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import java.time.LocalDateTime;
 
 @Entity(name = "tb_req_unlock")
@@ -33,4 +37,11 @@ public class UserRequestUnlock {
     @OneToOne
     @JoinColumn(name = "email")
     private User user;
+
+    public UserRequestUnlockDTO toDto() {
+        return UserRequestUnlockDTO.builder()
+                .message(message)
+                .modifyDt(modifyDt)
+                .build();
+    }
 }

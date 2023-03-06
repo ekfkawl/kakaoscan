@@ -16,4 +16,9 @@ public class UserRequestUnlockService {
     public UserRequestUnlock updateUnlockMessage(UserRequestUnlock userRequestUnlock) {
         return userRequestUnlockRepository.save(userRequestUnlock);
     }
+
+    @Transactional
+    public UserRequestUnlock findByEmail(String email) {
+        return userRequestUnlockRepository.findById(email).orElse(null);
+    }
 }

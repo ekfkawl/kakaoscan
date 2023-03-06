@@ -1,9 +1,9 @@
 package com.kakaoscan.profile.domain.controller;
 
-import com.kakaoscan.profile.domain.entity.UserRequestUnlock;
+import com.kakaoscan.profile.domain.dto.UserRequestUnlockDTO;
 import com.kakaoscan.profile.domain.model.UseCount;
-import com.kakaoscan.profile.domain.repository.UserRequestUnlockRepository;
 import com.kakaoscan.profile.domain.service.AccessLimitService;
+import com.kakaoscan.profile.domain.service.UserRequestUnlockService;
 import com.kakaoscan.profile.global.oauth.OAuthAttributes;
 import com.kakaoscan.profile.global.oauth.annotation.UserAttributes;
 import lombok.RequiredArgsConstructor;
@@ -31,7 +31,7 @@ public class ViewController {
 
     private final AccessLimitService accessLimitService;
 
-    private final UserRequestUnlockRepository userRequestUnlockRepository;
+    private final UserRequestUnlockService userRequestUnlockService;
 
     @GetMapping("/")
     public ModelAndView index(@RequestParam(required = false, defaultValue = "") String phoneNumber) {
@@ -54,10 +54,9 @@ public class ViewController {
     public ModelAndView unlock(@UserAttributes OAuthAttributes attributes) {
         ModelAndView mv = new ModelAndView("unlock");
 
-        UserRequestUnlock userRequestUnlockOptional = userRequestUnlockRepository.findById(attributes.getEmail())
-                .orElse(null);
+        UserRequestUnlockDTO userRequestUnlockDTO = userRequestUnlockService.findByEmail(attributes.getEmail()).toDto();
 
-        mv.addObject("lastRequestUnlock", userRequestUnlockOptional);
+        mv.addObject("lastRequestUnlock", userRequestUnlockDTO);
 
         return mv;
     }
