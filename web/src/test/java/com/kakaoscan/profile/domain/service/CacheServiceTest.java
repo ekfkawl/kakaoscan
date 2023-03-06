@@ -1,12 +1,13 @@
 package com.kakaoscan.profile.domain.service;
 
+import com.kakaoscan.profile.domain.config.TestProperties;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.context.annotation.Import;
 
 @SpringBootTest
-@TestPropertySource(properties = {"spring.config.location=classpath:application-db.properties, classpath:application-dev.properties, classpath:application.properties"})
+@Import(TestProperties.class)
 class CacheServiceTest {
 
     @Autowired
