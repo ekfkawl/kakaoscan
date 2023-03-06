@@ -54,7 +54,7 @@ public class ViewController {
     public ModelAndView unlock(@UserAttributes OAuthAttributes attributes) {
         ModelAndView mv = new ModelAndView("unlock");
 
-        UserRequestUnlockDTO userRequestUnlockDTO = userRequestUnlockService.findByEmail(attributes.getEmail()).toDto();
+        UserRequestUnlockDTO userRequestUnlockDTO = userRequestUnlockService.findByEmail(attributes.getEmail()).toDTO();
 
         mv.addObject("lastRequestUnlock", userRequestUnlockDTO);
 

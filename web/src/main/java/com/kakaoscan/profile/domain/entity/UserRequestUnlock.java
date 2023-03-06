@@ -38,7 +38,7 @@ public class UserRequestUnlock {
     @JoinColumn(name = "email")
     private User user;
 
-    public UserRequestUnlockDTO toDto() {
+    public UserRequestUnlockDTO toDTO() {
         return UserRequestUnlockDTO.builder()
                 .message(message)
                 .modifyDt(modifyDt)
