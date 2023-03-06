@@ -16,6 +16,7 @@ public class AccessLimitService {
 
     private final AccessLimitRepository accessLimitRepository;
 
+    @Transactional
     public UseCount getUseCount() {
         long res[] = new long[1];
 

@@ -47,6 +47,7 @@ public class CacheService {
      * @param phoneNumber
      * @return
      */
+    @Transactional
     public boolean isEnabledPhoneNumber(String phoneNumber) {
         Optional<Cache> cache = cacheRepository.findById(phoneNumber);
         if (cache.isPresent()) {

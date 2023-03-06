@@ -15,6 +15,7 @@ public class UserRequestService {
 
     private final UserRequestRepository userRequestRepository;
 
+    @Transactional
     public long getUseCount(String remoteAddress) {
         Optional<UserRequest> userRequest = userRequestRepository.findByRemoteAddressAndLastUseDt(remoteAddress, LocalDate.now());
 
