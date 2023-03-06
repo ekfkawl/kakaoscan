@@ -1,6 +1,5 @@
 package com.kakaoscan.profile.domain.entity;
 
-import com.kakaoscan.profile.domain.dto.UserRequestUnlockDTO;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,11 +36,4 @@ public class UserRequestUnlock {
     @OneToOne
     @JoinColumn(name = "email")
     private User user;
-
-    public UserRequestUnlockDTO toDTO() {
-        return UserRequestUnlockDTO.builder()
-                .message(message)
-                .modifyDt(modifyDt)
-                .build();
-    }
 }

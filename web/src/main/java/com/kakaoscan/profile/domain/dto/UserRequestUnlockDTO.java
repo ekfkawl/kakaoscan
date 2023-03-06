@@ -27,4 +27,11 @@ public class UserRequestUnlockDTO {
                 .modifyDt(LocalDateTime.now())
                 .build();
     }
+
+    public static UserRequestUnlockDTO toDTO(UserRequestUnlock entity) {
+        return UserRequestUnlockDTO.builder()
+                .message(entity.getMessage())
+                .modifyDt(entity.getModifyDt())
+                .build();
+    }
 }
