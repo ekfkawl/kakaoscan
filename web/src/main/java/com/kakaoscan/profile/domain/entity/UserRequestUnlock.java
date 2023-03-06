@@ -6,8 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity(name = "tb_req_unlock")
@@ -30,4 +29,8 @@ public class UserRequestUnlock {
      */
     @UpdateTimestamp
     private LocalDateTime modifyDt;
+
+    @OneToOne
+    @JoinColumn(name = "email")
+    private User user;
 }
