@@ -3,7 +3,6 @@
 <head>
     <th:block th:include="head :: head"></th:block>
 </head>
-
 <body>
 <div class="container my-2">
     <div class="body_search mb-7 m-2">
@@ -26,10 +25,10 @@
                     </thead>
                     <tbody>
                         <tr th:each="user : ${users}">
-                            <td val="123123" th:text="${user.email}"></td>
+                            <td th:text="${user.email}"></td>
                             <td th:text="${user.role}"></td>
                             <td th:text="${user.getUseCount}"></td>
-                            <td th:text="${#temporals.format(user.modifyDt, 'yyyy-MM-dd HH:mm')}"></td>
+                            <td th:text="${#temporals.format(user.createDt, 'yyyy-MM-dd HH:mm')}"></td>
                         </tr>
                     </tbody>
                 </table>

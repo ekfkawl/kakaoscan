@@ -18,6 +18,7 @@ public class UserDTO {
     private Role role;
     private long useCount;
     private LocalDateTime modifyDt;
+    private LocalDateTime createDt;
     private UserRequestUnlock requestUnlock;
 
     public static UserDTO toDTO(User entity) {
@@ -25,8 +26,9 @@ public class UserDTO {
                 .email(entity.getEmail())
                 .role(entity.getRole())
                 .modifyDt(entity.getModifyDt())
+                .createDt(entity.getCreateDt())
                 .requestUnlock(entity.getRequestUnlock())
-                .useCount(entity.getRequest() != null ? entity.getRequest().getUseCount() : 0)
+                .useCount(entity.getRequest() != null ? entity.getRequest().getUseCount() : -1)
                 .build();
     }
 }

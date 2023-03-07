@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
@@ -31,6 +32,9 @@ public class User {
      */
     @UpdateTimestamp
     private LocalDateTime modifyDt;
+
+    @CreationTimestamp
+    private LocalDateTime createDt;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserRequestUnlock requestUnlock;
