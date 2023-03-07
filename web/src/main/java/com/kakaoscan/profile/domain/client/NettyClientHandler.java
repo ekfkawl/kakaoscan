@@ -64,10 +64,9 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
 
                 bi.getClients().put(s[0], clientQueue);
             }
-
-
         }finally {
             buf.release();
+            buf = null;
         }
 
 //        log.info("[received] " + receivedMessage);
