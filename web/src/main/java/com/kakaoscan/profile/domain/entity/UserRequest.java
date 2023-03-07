@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -26,7 +25,6 @@ public class UserRequest implements Serializable {
 
     private long useCount;
 
-    @UpdateTimestamp
     private LocalDate lastUseDt;
 
     @OneToOne
