@@ -25,7 +25,7 @@ class UserRepositoryTest {
     private UserRequestUnlockRepository userRequestUnlockRepository;
 
     @Test
-    public void testUserMapping() {
+    void testUserMapping() {
         // given
         User user = User.builder()
                 .email("test@test.com")
