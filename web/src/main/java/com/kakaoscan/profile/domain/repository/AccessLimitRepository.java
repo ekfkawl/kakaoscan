@@ -12,7 +12,7 @@ import java.util.Optional;
 
 @Repository
 public interface AccessLimitRepository extends JpaRepository<AccessLimit, LocalDate> {
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Lock(LockModeType.PESSIMISTIC_READ)
     @Query(value = "select a from tb_access_limit a where a.date = :localDate")
     Optional<AccessLimit> findLockById(LocalDate localDate);
 }
