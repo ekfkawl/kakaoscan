@@ -1,9 +1,12 @@
 package com.kakaoscan.profile.domain.controller;
 
+import com.kakaoscan.profile.domain.dto.UserDTO;
 import com.kakaoscan.profile.domain.dto.UserRequestUnlockDTO;
+import com.kakaoscan.profile.domain.entity.UserRequestUnlock;
 import com.kakaoscan.profile.domain.model.UseCount;
 import com.kakaoscan.profile.domain.service.AccessLimitService;
 import com.kakaoscan.profile.domain.service.UserRequestUnlockService;
+import com.kakaoscan.profile.domain.service.UserService;
 import com.kakaoscan.profile.global.oauth.OAuthAttributes;
 import com.kakaoscan.profile.global.oauth.annotation.UserAttributes;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +17,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * view
@@ -32,6 +38,8 @@ public class ViewController {
     private final AccessLimitService accessLimitService;
 
     private final UserRequestUnlockService userRequestUnlockService;
+
+    private final UserService userService;
 
     @GetMapping("/")
     public ModelAndView index(@RequestParam(required = false, defaultValue = "") String phoneNumber) {
@@ -54,9 +62,25 @@ public class ViewController {
     public ModelAndView unlock(@UserAttributes OAuthAttributes attributes) {
         ModelAndView mv = new ModelAndView("unlock");
 
-        UserRequestUnlockDTO userRequestUnlockDTO = userRequestUnlockService.findByEmail(attributes.getEmail()).toDTO();
+        UserRequestUnlock userRequestUnlock = userRequestUnlockService.findByEmail(attributes.getEmail());
+        if (userRequestUnlock != null) {
+            UserRequestUnlockDTO userRequestUnlockDTO = UserRequestUnlockDTO.toDTO(userRequestUnlock);
+            mv.addObject("lastRequestUnlock", userRequestUnlockDTO);
+        }
 
-        mv.addObject("lastRequestUnlock", userRequestUnlockDTO);
+        return mv;
+    }
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ModelAndView admin(@UserAttributes OAuthAttributes attributes) {
+        ModelAndView mv = new ModelAndView("admin");
+
+        List<UserDTO> users = userService.findByAll().stream()
+                .map(UserDTO::toDTO)
+                .collect(Collectors.toList());
+
+        mv.addObject("users", users);
 
         return mv;
     }

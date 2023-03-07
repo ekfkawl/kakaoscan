@@ -34,4 +34,11 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserRequestUnlock requestUnlock;
+
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserRequest request;
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
 }

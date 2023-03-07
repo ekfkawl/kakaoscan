@@ -8,6 +8,8 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -18,10 +20,20 @@ import java.time.LocalDate;
 @Builder
 public class UserRequest implements Serializable {
     @Id
+    private String email;
+
     private String remoteAddress;
 
     private long useCount;
 
     @UpdateTimestamp
     private LocalDate lastUseDt;
+
+    @OneToOne
+    @JoinColumn(name = "email")
+    private User user;
+
+    public void setUseCount(long useCount) {
+        this.useCount = useCount;
+    }
 }

@@ -1,5 +1,6 @@
 package com.kakaoscan.profile.domain.service;
 
+import com.kakaoscan.profile.domain.dto.UserRequestUnlockDTO;
 import com.kakaoscan.profile.domain.entity.UserRequestUnlock;
 import com.kakaoscan.profile.domain.repository.UserRequestUnlockRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +14,11 @@ public class UserRequestUnlockService {
     private final UserRequestUnlockRepository userRequestUnlockRepository;
 
     @Transactional
-    public UserRequestUnlock updateUnlockMessage(UserRequestUnlock userRequestUnlock) {
-        return userRequestUnlockRepository.save(userRequestUnlock);
+    public void updateUnlockMessage(String email, String message) {
+         userRequestUnlockRepository.save(UserRequestUnlock.builder()
+                 .email(email)
+                 .message(message)
+                 .build());
     }
 
     @Transactional

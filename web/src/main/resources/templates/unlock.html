@@ -33,7 +33,7 @@
             <div class="text-center">
                 <p class="text-grayish">가장 최근에 신청한 내용으로 전송됩니다.</p>
                 <div th:if="${not #strings.isEmpty(lastRequestUnlock)}" th:object="${lastRequestUnlock.modifyDt}">
-                    <a class="text-grayish" href="#" data-mdb-toggle="tooltip" th:title="${lastRequestUnlock.message}" th:text="@{|마지막 요청일 ${#temporals.format(lastRequestUnlock.modifyDt, 'yyyy-MM-dd HH:mm')}|}"></a>
+                    <b>승인 대기 중, </b><a class="text-grayish" href="#" data-mdb-toggle="tooltip" th:title="${lastRequestUnlock.message}" th:text="@{|최근 요청일 ${#temporals.format(lastRequestUnlock.modifyDt, 'yyyy-MM-dd HH:mm')}|}"></a>
                 </div>
             </div>
         </div>
@@ -44,7 +44,7 @@
 <script type="text/javascript" src="/mdb/js/mdb.min.js"></script>
 <script>
     $(document).on("click", "#btn_send_message", function() {
-        var res = _post('/api/req-unlock', {message: $('#message').val()});
+        var res = _post('/api/unlock', {message: $('#message').val()});
         if (res.status === 400) {
             alert(res.responseJSON.message);
         }else {

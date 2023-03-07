@@ -18,7 +18,7 @@ public class UserRequestController extends ApiBaseController {
     private final UserRequestService userRequestService;
 
     @PostMapping("/use")
-    public boolean updateUseCount(@RequestParam String remoteAddress, @RequestParam @CheckKey String key) {
-        return userRequestService.updateUseCount(remoteAddress);
+    public boolean updateUseCount(@RequestParam String email, @RequestParam String remoteAddress, @RequestParam @CheckKey String key) {
+        return userRequestService.updateUseCount(email, remoteAddress);
     }
 }

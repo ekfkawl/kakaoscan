@@ -29,7 +29,9 @@
                             <div sec:authorize="hasRole('ROLE_GUEST')">
                                 <a class="dropdown-item" href="/req-unlock"><i class="fas fa-unlock me-2"></i><b>사용 권한 신청</b></a>
                             </div>
-
+                            <div sec:authorize="hasRole('ROLE_ADMIN')">
+                                <a class="dropdown-item" href="/admin"><i class="fas fa-user-cog me-2"></i><b>유저 관리</b></a>
+                            </div>
                             <a class="dropdown-item" href="/history"><i class="fas fa-history me-2"></i>히스토리</a>
                             <a class="dropdown-item" href="/logout"><i class="fas fa-sign-out-alt me-2"></i></i>로그아웃</a>
                         </li>

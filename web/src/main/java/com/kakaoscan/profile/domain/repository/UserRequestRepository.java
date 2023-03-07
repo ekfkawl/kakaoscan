@@ -8,13 +8,14 @@ import org.springframework.stereotype.Repository;
 
 import javax.persistence.LockModeType;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface UserRequestRepository extends JpaRepository<UserRequest, String> {
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query(value = "select u from tb_user_request u where u.remoteAddress = :remoteAddress")
-    Optional<UserRequest> findLockById(String remoteAddress);
+    @Lock(LockModeType.PESSIMISTIC_READ)
+    @Query(value = "select u from tb_user_request u where u.email = :email")
+    Optional<UserRequest> findLockById(String email);
 
-    Optional<UserRequest> findByRemoteAddressAndLastUseDt(String remoteAddress, LocalDate localDate);
+    List<UserRequest> findByRemoteAddressAndLastUseDt(String remoteAddress, LocalDate localDate);
 }
