@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @Validated
-@PropertySource("classpath:application-key.properties")
 public class PhoneNumberCacheController extends ApiBaseController {
 
     private final CacheService cacheService;

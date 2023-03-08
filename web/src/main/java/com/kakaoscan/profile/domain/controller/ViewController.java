@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequiredArgsConstructor
-@PropertySource("classpath:application-link.properties")
 public class ViewController {
 
     @Value("${kakaoscan.all.date.maxcount}")

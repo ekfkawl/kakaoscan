@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @Validated
-@PropertySource("classpath:application-key.properties")
 public class AccessLimitController extends ApiBaseController {
 
     private final AccessLimitService accessLimitService;
