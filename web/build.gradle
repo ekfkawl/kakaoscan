@@ -39,6 +39,8 @@ dependencies {
 	implementation 'javax.inject:javax.inject:1'
 	implementation 'com.auth0:java-jwt:4.3.0'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'io.lettuce:lettuce-core'
 
 	// https://mvnrepository.com/artifact/io.netty/netty-all
 	implementation 'io.netty:netty-all:4.1.86.Final'
