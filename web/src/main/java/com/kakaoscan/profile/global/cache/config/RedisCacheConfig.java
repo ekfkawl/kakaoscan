@@ -1,4 +1,4 @@
-package com.kakaoscan.profile.global.cache;
+package com.kakaoscan.profile.global.cache.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
