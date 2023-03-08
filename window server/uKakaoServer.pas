@@ -13,11 +13,9 @@ type
     ListBox1: TListBox;
     SS: TServerSocket;
     CheckBox1: TCheckBox;
-    Timer1: TTimer;
     Label1: TLabel;
     CheckBox2: TCheckBox;
     BitBtn1: TBitBtn;
-    procedure Timer1Timer(Sender: TObject);
     procedure SSClientRead(Sender: TObject; Socket: TCustomWinSocket);
     procedure SSClientError(Sender: TObject; Socket: TCustomWinSocket;
       ErrorEvent: TErrorEvent; var ErrorCode: Integer);
@@ -112,11 +110,6 @@ end;
 procedure TForm1.CheckBox2Click(Sender: TObject);
 begin
   IsMacroRun:= CheckBox2.Checked;
-end;
-
-procedure TForm1.Timer1Timer(Sender: TObject);
-begin
-  Label1.Caption:= 'ActiveConnections : ' + SS.Socket.ActiveConnections.ToString;
 end;
 
 procedure RemoveDataThread;
@@ -221,6 +214,8 @@ begin
           Client.DictMessage.Remove(Connections[i].SocketHandle);
         end;
       end;
+
+      Label1.Caption:= 'ActiveConnections : ' + ActiveConnections.ToString;
     end;
   except
     on E: Exception do
@@ -245,10 +240,6 @@ begin
         end;
       end;
     end;
-
-    Client.DictMessage.Remove(Socket.SocketHandle);
-
-    Log(Format('%d %s', [Socket.SocketHandle, '연결 해제']));
   except
     on E: Exception do
     begin
@@ -256,7 +247,21 @@ begin
       Log(StackTrace(E.StackInfo));
     end;
   end;
+
+  try
+    Socket.Close;
+  except
+    on E: Exception do
+    begin
+      Log(Format('# %s: %s', [E.ClassName, E.Message]));
+      Log(StackTrace(E.StackInfo));
+    end;
+  end;
+
+  Client.DictMessage.Remove(Socket.SocketHandle);
+  Log(Format('%d %s', [Socket.SocketHandle, '연결 해제']));
 end;
+
 
 procedure TForm1.SSClientError(Sender: TObject; Socket: TCustomWinSocket; ErrorEvent: TErrorEvent; var ErrorCode: Integer);
 begin
@@ -301,7 +306,6 @@ begin
       RemoteAddr:= SReceiveText.Split(['<', '>'])[1];
 
       Socket.SendText(AnsiString(Format('%s:', [Session])));
-
 
       ClientMessage.Msg:= Number;
       ClientMessage.Session:= Session;
