@@ -66,6 +66,7 @@ type
       function SearchFriend(CustomName: String): Boolean;
       function ViewFriend: Boolean;
       function ViewProfileImage(CustomName: String): Boolean;
+      function ViewPreviewImage: Boolean;
       function BlockAndClearFriend: Boolean;
 
       constructor Create;
@@ -90,11 +91,12 @@ begin
   begin
     try
       try
-        while CriticalSection.LockCount <> -1 do
-          LeaveCriticalSection(CriticalSection);
-      finally
         SuspendThread(Thread.Handle);
         TerminateThread(Thread.Handle, 0);
+      finally
+        while CriticalSection.LockCount <> -1 do
+          LeaveCriticalSection(CriticalSection);
+
         Result:= False;
       end;
     except;
@@ -151,9 +153,9 @@ begin
     FHookSaveFile:= AOBSCAN(SIG_SAVE_PROFILE, 1);
     FFuncSaveFile:= AOBSCAN(SIG_SAVE_PROFILE_DIALOG, 0);
     FHookSaveFileCustom:= AOBSCAN(SIG_SAVE_PROFILE_DIALOG_CUSTOM, 0) + $A;
-    FFuncNextProfile:= AOBSCAN(SIG_NEXT_PROFILE, 0);
+//    FFuncNextProfile:= AOBSCAN(SIG_NEXT_PROFILE, 0);
     FHookHttpRespon:= AOBSCAN(SIG_HTTP_RESPON, 1) + $A;
-    FHookBlockCount:= AOBSCAN(SIG_BLOCK_COUNT, 0) + $B;
+//    FHookBlockCount:= AOBSCAN(SIG_BLOCK_COUNT, 0) + $B;
     FHookSyncFriend:= AOBSCAN(SIG_SYNC_FRIEND, 0) + $10;
 
     // 공유 메모리 할당
@@ -311,7 +313,7 @@ begin
     EnumWindows(@GetFriendConfigHandleCallback, 0);
     if FriendConfigHandle > 0 then
     begin
-      for var i:= 1 to 5 do
+      for var i:= 1 to 3 do
       begin
         Click(GetParent(FriendConfigHandle), 70, 125); // 친구 동기화
         Sleep(Random(100));
@@ -385,6 +387,7 @@ begin
 
         if ViewFriendHandle > 0 then
         begin
+          // edit name -> cancel
           Sleep(100);
 
           Click(ViewFriendHandle, 210, 444);
@@ -566,19 +569,6 @@ begin
           end;
 
         finally
-
-          if Step > 2 then
-          begin
-            Sleep(1000);
-
-            ViewFriendBitmap:= GetProfileScreen(ViewFriendHandle);
-            try
-              ViewFriendBitmap.SaveToFile(Format('%s%s\%s\preview.jpg', [ROOT, StrToMD5(AnsiString(SharableMemory.SharableInstance.GetFriendCustomName)), IIS_PREVIEW_PATH]));
-            finally
-              ViewFriendBitmap.Free;
-            end;
-          end;
-
           LeaveCriticalSection(CriticalSection);
         end;
       except;
@@ -592,6 +582,38 @@ begin
 
   Result:= WaitFor(Thread, 40 * 1000);
 
+end;
+
+function TKakao.ViewPreviewImage: Boolean;
+var
+  Thread: TThread;
+  Source: String;
+  ViewFriendBitmap: TBitmap;
+begin
+  Thread:= TThread.CreateAnonymousThread(procedure
+  begin
+    CreateSharable;
+
+    EnterCriticalSection(CriticalSection);
+    try
+      FState:= TState.ViewProfileImage;
+
+      ViewFriendBitmap:= GetProfileScreen(ViewFriendHandle);
+      try
+        ViewFriendBitmap.SaveToFile(Format('%s%s\%s\preview.jpg', [ROOT, StrToMD5(AnsiString(SharableMemory.SharableInstance.GetFriendCustomName)), IIS_PREVIEW_PATH]));
+      finally
+        ViewFriendBitmap.Free;
+      end;
+    finally
+      LeaveCriticalSection(CriticalSection);
+    end;
+
+  end);
+
+  Thread.FreeOnTerminate:= False;
+  Thread.Start;
+
+  Result:= WaitFor(Thread, 5 * 1000);
 end;
 
 function TKakao.BlockAndClearFriend: Boolean;
@@ -692,7 +714,7 @@ begin
 
         end;
 
-        for var i:= 1 to 5 do
+        for var i:= 1 to 3 do
         begin
           Click(GetParent(FriendConfigHandle), 70, 125); // 친구 동기화
           Sleep(Random(100));

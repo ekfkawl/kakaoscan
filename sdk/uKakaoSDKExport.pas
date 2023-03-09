@@ -37,12 +37,18 @@ begin
   Result:= Kakao.BlockAndClearFriend;
 end;
 
+function ViewPreviewImage: Boolean;
+begin
+  Result:= Kakao.ViewPreviewImage;
+end;
+
 exports
   AddFriend,
   GetSharableMemory,
   SearchFriend,
   ViewFriend,
   ViewProfileImage,
-  BlockAndClearFriend;
+  BlockAndClearFriend,
+  ViewPreviewImage;
 
 end.
