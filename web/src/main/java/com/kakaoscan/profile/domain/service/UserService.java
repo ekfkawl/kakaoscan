@@ -1,8 +1,8 @@
 package com.kakaoscan.profile.domain.service;
 
+import com.kakaoscan.profile.domain.dto.UserModifyDTO;
 import com.kakaoscan.profile.domain.entity.User;
 import com.kakaoscan.profile.domain.repository.UserRepository;
-import com.kakaoscan.profile.domain.respon.enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Sort;
@@ -29,12 +29,12 @@ public class UserService {
     }
 
     @Transactional
-    public void modifyUser(List<String> emails, Role role, long useCount) {
-        for (String email : emails) {
+    public void modifyUser(UserModifyDTO userModifyDTO) {
+        for (String email : userModifyDTO.getEmails()) {
             User user = findByEmail(email);
-            user.setRole(role);
+            user.setRole(userModifyDTO.getRole());
             if (user.getRequest() != null) {
-                user.getRequest().setUseCount(useCount);
+                user.getRequest().setUseCount(userModifyDTO.getUseCount());
             }
         }
     }
