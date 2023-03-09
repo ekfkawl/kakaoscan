@@ -41,6 +41,7 @@ public class UserRequestService {
                 .email(email)
                 .remoteAddress(remoteAddress)
                 .useCount(count)
+                .lastUseDt(LocalDate.now())
                 .build());
 
         return true;
