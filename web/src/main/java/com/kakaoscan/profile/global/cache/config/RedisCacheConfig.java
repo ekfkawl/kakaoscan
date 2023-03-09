@@ -15,6 +15,7 @@ import java.time.Duration;
 
 @Configuration
 @EnableCaching
+@Profile("prod")
 public class RedisCacheConfig {
     @Value("${spring.redis.host}")
     private String redisHost;
@@ -23,13 +24,11 @@ public class RedisCacheConfig {
     private int redisPort;
 
     @Bean
-    @Profile("prod")
     public RedisConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(redisHost, redisPort);
     }
 
     @Bean
-    @Profile("prod")
     public CacheManager cacheManager() {
         RedisCacheConfiguration cacheConfiguration = RedisCacheConfiguration.defaultCacheConfig()
                 .entryTtl(Duration.ofHours(1)); // n시간
