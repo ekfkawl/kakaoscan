@@ -112,7 +112,7 @@ function init(server) {
                                 } else {
                                     return '';
                                 }
-                            });
+                            }).replace(/\?\?/g, ''); // ?? -> ''
                             return result;
                         }
 
@@ -171,7 +171,7 @@ function init(server) {
                         }
 
                         // preview
-                        previewProfileImg.attr('src', res['Host'] + 'pv/preview.jpg?t=' + Math.random());
+                        previewProfileImg.attr('src', res['Host'] + 'preview/preview.jpg?t=' + Math.random());
 
                         // find user profile image
                         render(tab1, 'ImageUrl', '.mp4.jpg');
