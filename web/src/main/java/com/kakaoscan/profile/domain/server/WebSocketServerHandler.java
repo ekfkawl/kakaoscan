@@ -5,10 +5,11 @@ import com.kakaoscan.profile.domain.bridge.ClientQueue;
 import com.kakaoscan.profile.domain.client.NettyClientInstance;
 import com.kakaoscan.profile.domain.enums.MessageSendType;
 import com.kakaoscan.profile.domain.model.UseCount;
+import com.kakaoscan.profile.domain.respon.enums.Role;
+import com.kakaoscan.profile.domain.server.exception.InvalidAccess;
 import com.kakaoscan.profile.domain.service.AccessLimitService;
 import com.kakaoscan.profile.domain.service.UserRequestService;
 import com.kakaoscan.profile.global.oauth.OAuthAttributes;
-import com.kakaoscan.profile.global.oauth.annotation.UserAttributes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,8 +26,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.kakaoscan.profile.utils.StrUtils.isNumeric;
 
 @Log4j2
-@RequiredArgsConstructor
 @Component
+@RequiredArgsConstructor
 public class WebSocketServerHandler extends TextWebSocketHandler {
     @Value("${kakaoscan.all.date.maxcount}")
     private int allLimitCount;
@@ -70,52 +71,50 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        try {
 
-        ClientQueue clientQueue = bi.getClients().get(session.getId());
-        if (clientQueue == null) {
-            return;
-        } else if (clientQueue.getLastSendTick() != 0 && System.currentTimeMillis() > clientQueue.getLastSendTick()) {
-            session.sendMessage(new TextMessage(MessageSendType.REQUEST_TIME_OUT.getType()));
-            removeSessionHash(session);
-            return;
-        }
-
-        String receive = message.getPayload();
-        if (receive.length() == 0) {
-            return;
-        }
-
-        OAuthAttributes user = getOAuthUser(session);
-        if (user == null) {
-            session.sendMessage(new TextMessage(MessageSendType.USER_NOT_FOUND.getType()));
-            removeSessionHash(session);
-            return;
-        }
-
-        if (isNumeric(receive) && receive.length() == 11) { // receive phone number
-            // 계정 별 사용 횟수 동기화
-            userRequestService.syncUserUseCount(getRemoteAddress(session), LocalDate.now());
-
-            // 전체 일일 사용 제한
-            UseCount useCount = accessLimitService.getUseCount();
-            if (useCount.getTotalCount() >= allLimitCount * serverCount) {
-                session.sendMessage(new TextMessage(MessageSendType.ACCESS_LIMIT.getType()));
+            String receive = message.getPayload();
+            if (receive.length() == 0) {
                 return;
             }
 
-            // 클라이언트 일일 사용 제한
-            if (userRequestService.getUseCount(getRemoteAddress(session)) >= userLimitCount) {
-                session.sendMessage(new TextMessage(String.format(MessageSendType.LOCAL_ACCESS_LIMIT.getType(), userLimitCount)));
+            OAuthAttributes user = getOAuthUser(session);
+            if (user == null) {
+                throw new InvalidAccess(MessageSendType.USER_NOT_FOUND.getType());
+            }
+            if (Role.GUEST.equals(user.getRole())) {
+                throw new InvalidAccess(MessageSendType.USER_NO_PERMISSION.getType());
+            }
+
+            ClientQueue clientQueue = bi.getClients().get(session.getId());
+            if (clientQueue == null) {
                 return;
             }
-
-            // put turn
-            if (clientQueue.getRequestTick() == Long.MAX_VALUE) {
-                bi.getClients().put(session.getId(), new ClientQueue(System.currentTimeMillis(), 0, System.currentTimeMillis() + REQUEST_TIMEOUT_TICK, receive, "", false, false));
+            if (clientQueue.getLastSendTick() != 0 && System.currentTimeMillis() > clientQueue.getLastSendTick()) {
+                throw new InvalidAccess(MessageSendType.REQUEST_TIME_OUT.getType());
             }
 
-        } else if (MessageSendType.HEARTBEAT.getType().equals(receive)) {
-            try {
+            if (isNumeric(receive) && receive.length() == 11) { // receive phone number
+                // 계정 별 사용 횟수 동기화
+                userRequestService.syncUserUseCount(getRemoteAddress(session), LocalDate.now());
+
+                // 전체 일일 사용 제한
+                UseCount useCount = accessLimitService.getUseCount();
+                if (useCount.getTotalCount() >= allLimitCount * serverCount) {
+                    throw new InvalidAccess(MessageSendType.ACCESS_LIMIT.getType());
+                }
+
+                // 클라이언트 일일 사용 제한
+                if (userRequestService.getUseCount(getRemoteAddress(session)) >= userLimitCount) {
+                    throw new InvalidAccess(String.format(MessageSendType.LOCAL_ACCESS_LIMIT.getType(), userLimitCount));
+                }
+
+                // put turn
+                if (clientQueue.getRequestTick() == Long.MAX_VALUE) {
+                    bi.getClients().put(session.getId(), new ClientQueue(System.currentTimeMillis(), 0, System.currentTimeMillis() + REQUEST_TIMEOUT_TICK, receive, "", false, false));
+                }
+
+            } else if (MessageSendType.HEARTBEAT.getType().equals(receive)) {
                 // update
                 clientQueue.setLastSendTick(System.currentTimeMillis() + REQUEST_TIMEOUT_TICK);
                 bi.getClients().put(session.getId(), clientQueue);
@@ -145,17 +144,13 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
                     // check connected
                     clientQueue = bi.getClients().get(session.getId());
                     if (clientQueue.isFail()) {
-                        session.sendMessage(new TextMessage(MessageSendType.SERVER_INSTANCE_NOT_RUN.getType()));
-                        removeSessionHash(session);
-                        return;
+                        throw new InvalidAccess(String.format(MessageSendType.SERVER_INSTANCE_NOT_RUN.getType()));
                     }
 
                     // time out
                     if (clientQueue.getLastReceivedTick() != 0) {
                         if (System.currentTimeMillis() > clientQueue.getLastReceivedTick()) {
-                            session.sendMessage(new TextMessage(MessageSendType.REQUEST_TIME_OUT.getType()));
-                            removeSessionHash(session);
-                            return;
+                            throw new InvalidAccess(String.format(MessageSendType.REQUEST_TIME_OUT.getType()));
                         }
                     } else {
                         clientQueue.setLastReceivedTick(System.currentTimeMillis() + REQUEST_TIMEOUT_TICK);
@@ -179,12 +174,12 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
                 }
 
                 session.sendMessage(new TextMessage(viewMessage));
-            } catch (Exception e) {
-                session.sendMessage(new TextMessage(MessageSendType.REQUEST_TIME_OUT.getType()));
-                removeSessionHash(session);
-
-                log.error("[socket message handler error] " + e);
             }
+        } catch (InvalidAccess e) {
+            session.sendMessage(new TextMessage(e.getMessage()));
+            removeSessionHash(session);
+        } catch (Exception e) {
+            log.error("[socket message handler error] " + e);
         }
     }
 
