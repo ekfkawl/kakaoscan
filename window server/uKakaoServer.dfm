@@ -2,7 +2,6 @@ object Form1: TForm1
   Left = 0
   Top = 0
   BorderIcons = [biSystemMenu, biMinimize]
-  Caption = 'Kakao Server'
   ClientHeight = 519
   ClientWidth = 653
   Color = clBtnFace

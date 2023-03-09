@@ -326,8 +326,8 @@ begin
     SharableMemory.SharableInstance.SearchCount:= -1;
     SharableMemory.SharableInstance.WriteMemory;
 
-    while True do
-    begin
+//    while True do
+//    begin
       EnterCriticalSection(CriticalSection);
       try
         FState:= TState.SearchFriend;
@@ -336,16 +336,16 @@ begin
 
         const hSearchEdit = FindWindowEx(FContactListHandle, 0, 'Edit', nil);
 
-        repeat
+//        repeat
           // 친구 검색 버튼 클릭
-          p.Create(255, 30);
-          SendMessage(FContactListHandle, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(p.x, p.y));
-          SendMessage(FContactListHandle, WM_LBUTTONUP, MK_LBUTTON, MAKELPARAM(p.x, p.y));
+//          p.Create(255, 30);
+//          SendMessage(FContactListHandle, WM_LBUTTONDOWN, MK_LBUTTON, MAKELPARAM(p.x, p.y));
+//          SendMessage(FContactListHandle, WM_LBUTTONUP, MK_LBUTTON, MAKELPARAM(p.x, p.y));
 
-          SendMessage(hSearchEdit, WM_SETTEXT, 0, LParam(PChar('')));
+//          SendMessage(hSearchEdit, WM_SETTEXT, 0, LParam(PChar('')));
 
-          Sleep(100);
-        until ((IsWindowEnabled(hSearchEdit)) And (GetWindowCaption(hSearchEdit) = ''));
+//          Sleep(500);
+//        until ((IsWindowEnabled(hSearchEdit)) And (GetWindowCaption(hSearchEdit) = ''));
 
         SendMessage(hSearchEdit, WM_SETTEXT, 0, LParam(PChar(CustomName)));
 
@@ -356,7 +356,7 @@ begin
       finally
         LeaveCriticalSection(CriticalSection);
       end;
-    end;
+//    end;
   end);
 
   Thread.FreeOnTerminate:= False;
