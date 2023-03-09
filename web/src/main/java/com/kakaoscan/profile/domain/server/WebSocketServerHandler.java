@@ -7,6 +7,8 @@ import com.kakaoscan.profile.domain.enums.MessageSendType;
 import com.kakaoscan.profile.domain.model.UseCount;
 import com.kakaoscan.profile.domain.service.AccessLimitService;
 import com.kakaoscan.profile.domain.service.UserRequestService;
+import com.kakaoscan.profile.global.oauth.OAuthAttributes;
+import com.kakaoscan.profile.global.oauth.annotation.UserAttributes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +18,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -25,17 +28,6 @@ import static com.kakaoscan.profile.utils.StrUtils.isNumeric;
 @RequiredArgsConstructor
 @Component
 public class WebSocketServerHandler extends TextWebSocketHandler {
-
-    private final NettyClientInstance nettyClientInstance;
-    private final AccessLimitService accessLimitService;
-    private final UserRequestService userRequestService;
-    private final BridgeInstance bi;
-
-    private static final Map<WebSocketSession, String> clientsRemoteAddress = new ConcurrentHashMap<>();
-
-    private static final int EVG_WAITING_SEC = 20;
-    private static final int REQUEST_TIMEOUT_TICK = 3 * 1000;
-
     @Value("${kakaoscan.all.date.maxcount}")
     private int allLimitCount;
 
@@ -45,9 +37,30 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
     @Value("${kakaoscan.user.date.maxcount}")
     private int userLimitCount;
 
+    private static final int EVG_WAITING_SEC = 20;
+    private static final int REQUEST_TIMEOUT_TICK = 5 * 1000;
+
+    private static final Map<WebSocketSession, String> clientsRemoteAddress = new ConcurrentHashMap<>();
+
+    private final NettyClientInstance nettyClientInstance;
+    private final AccessLimitService accessLimitService;
+    private final UserRequestService userRequestService;
+    private final BridgeInstance bi;
+
     public String getRemoteAddress(WebSocketSession session) {
         Map<String, Object> map = session.getAttributes();
         return (String) map.get("remoteAddress");
+    }
+
+    public OAuthAttributes getOAuthUser(WebSocketSession session) {
+        Map<String, Object> map = session.getAttributes();
+        Object userObj = map.get("user");
+
+        if (userObj instanceof OAuthAttributes) {
+            return (OAuthAttributes) userObj;
+        } else {
+            return null;
+        }
     }
 
     public void removeSessionHash(WebSocketSession session) {
@@ -57,21 +70,32 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
 
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
-        String receive = message.getPayload();
-
-        if (receive.length() == 0) {
-            return;
-        }
 
         ClientQueue clientQueue = bi.getClients().get(session.getId());
-
-        if (clientQueue.getLastSendTick() != 0 && System.currentTimeMillis() > clientQueue.getLastSendTick()) {
+        if (clientQueue == null) {
+            return;
+        } else if (clientQueue.getLastSendTick() != 0 && System.currentTimeMillis() > clientQueue.getLastSendTick()) {
             session.sendMessage(new TextMessage(MessageSendType.REQUEST_TIME_OUT.getType()));
             removeSessionHash(session);
             return;
         }
 
+        String receive = message.getPayload();
+        if (receive.length() == 0) {
+            return;
+        }
+
+        OAuthAttributes user = getOAuthUser(session);
+        if (user == null) {
+            session.sendMessage(new TextMessage(MessageSendType.USER_NOT_FOUND.getType()));
+            removeSessionHash(session);
+            return;
+        }
+
         if (isNumeric(receive) && receive.length() == 11) { // receive phone number
+            // 계정 별 사용 횟수 동기화
+            userRequestService.syncUserUseCount(getRemoteAddress(session), LocalDate.now());
+
             // 전체 일일 사용 제한
             UseCount useCount = accessLimitService.getUseCount();
             if (useCount.getTotalCount() >= allLimitCount * serverCount) {
@@ -118,6 +142,14 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
                         nettyClientInstance.connect(connectIndex, session.getId());
                     }
 
+                    // check connected
+                    clientQueue = bi.getClients().get(session.getId());
+                    if (clientQueue.isFail()) {
+                        session.sendMessage(new TextMessage(MessageSendType.SERVER_INSTANCE_NOT_RUN.getType()));
+                        removeSessionHash(session);
+                        return;
+                    }
+
                     // time out
                     if (clientQueue.getLastReceivedTick() != 0) {
                         if (System.currentTimeMillis() > clientQueue.getLastReceivedTick()) {
@@ -130,16 +162,9 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
                         bi.getClients().put(session.getId(), clientQueue);
                     }
 
-                    clientQueue = bi.getClients().get(session.getId());
-                    if (clientQueue.isFail()) {
-                        session.sendMessage(new TextMessage(MessageSendType.SERVER_INSTANCE_NOT_RUN.getType()));
-                        removeSessionHash(session);
-                        return;
-                    }
-
-                    // send phone number
+                    // send (세션/메세지타입/번호/아이피해시/이메일)
                     if (clientQueue.getRequest().length() > 0) {
-                        bi.socketSend(String.format("[%s]%s:%s<%s>", session.getId(), MessageSendType.PROFILE.getType(), clientQueue.getRequest(), getRemoteAddress(session)));
+                        bi.socketSend(String.format("[%s]%s:%s<%s>(%s)", session.getId(), MessageSendType.PROFILE.getType(), clientQueue.getRequest(), getRemoteAddress(session), user.getEmail()));
                     }
 
                     viewMessage = MessageSendType.TURN_LOCAL.getType();
