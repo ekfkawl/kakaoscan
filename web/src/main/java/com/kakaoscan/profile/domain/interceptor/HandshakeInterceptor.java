@@ -1,6 +1,8 @@
 package com.kakaoscan.profile.domain.interceptor;
 
 import com.kakaoscan.profile.global.oauth.OAuthAttributes;
+import com.kakaoscan.profile.global.session.instance.SessionManager;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -9,17 +11,16 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 import java.util.Map;
 
 import static com.kakaoscan.profile.utils.GenerateUtils.StrToMD5;
 import static com.kakaoscan.profile.utils.HttpRequestUtils.getRemoteAddress;
 
-/**
- * HttpSession의 정보를 WebSocketSession에 전달
- */
 @Configuration
+@RequiredArgsConstructor
 public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
+
+    private final SessionManager sessionManager;
 
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler,
@@ -31,8 +32,7 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
         String remoteAddress = StrToMD5(getRemoteAddress(httpRequest), "");
         attributes.put("remoteAddress", remoteAddress);
 
-        HttpSession httpSession = httpRequest.getSession();
-        Object userObj = httpSession.getAttribute("user");
+        Object userObj = sessionManager.getValue("user");
         if (userObj instanceof OAuthAttributes) {
             OAuthAttributes user = (OAuthAttributes) userObj;
             attributes.put("user", user);

@@ -2,6 +2,7 @@ package com.kakaoscan.profile.global.oauth.annotation.resolver;
 
 import com.kakaoscan.profile.global.oauth.OAuthAttributes;
 import com.kakaoscan.profile.global.oauth.annotation.UserAttributes;
+import com.kakaoscan.profile.global.session.instance.SessionManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
@@ -10,13 +11,11 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import javax.servlet.http.HttpSession;
-
 @RequiredArgsConstructor
 @Component
 public class UserAttributesResolver implements HandlerMethodArgumentResolver {
 
-    private final HttpSession httpSession;
+    private final SessionManager sessionManager;
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
@@ -29,6 +28,6 @@ public class UserAttributesResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-        return httpSession.getAttribute("user"); // 세션에 저장 된 user 파라미터에 전달
+        return sessionManager.getValue("user"); // 세션에 저장 된 user 파라미터에 전달
     }
 }

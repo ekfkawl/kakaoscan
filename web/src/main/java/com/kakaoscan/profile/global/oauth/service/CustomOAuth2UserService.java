@@ -4,6 +4,7 @@ import com.kakaoscan.profile.domain.entity.User;
 import com.kakaoscan.profile.domain.repository.UserRepository;
 import com.kakaoscan.profile.domain.respon.enums.Role;
 import com.kakaoscan.profile.global.oauth.OAuthAttributes;
+import com.kakaoscan.profile.global.session.instance.SessionManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -14,7 +15,6 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpSession;
 import java.util.Collections;
 import java.util.Optional;
 
@@ -23,7 +23,7 @@ import java.util.Optional;
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final UserRepository userRepository;
-    private final HttpSession httpSession;
+    private final SessionManager sessionManager;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -51,7 +51,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                         .build());
         userRepository.save(user);
 
-        httpSession.setAttribute("user", attributes);
+        sessionManager.setValue("user", attributes);
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(

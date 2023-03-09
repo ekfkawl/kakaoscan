@@ -17,9 +17,6 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Override
     public void onAuthenticationSuccess(final HttpServletRequest request, final HttpServletResponse response, final Authentication authentication) throws IOException {
-
-        request.getSession(false).setMaxInactiveInterval(3600);
-
         setDefaultTargetUrl("/");
 
         redirectStrategy.sendRedirect(request, response, getDefaultTargetUrl());
