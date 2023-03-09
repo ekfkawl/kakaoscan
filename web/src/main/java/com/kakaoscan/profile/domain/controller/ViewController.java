@@ -85,12 +85,4 @@ public class ViewController {
 
         return mv;
     }
-
-    @GetMapping("/test")
-    @PreAuthorize("hasRole('ROLE_ADMIN') or (hasRole('ROLE_USER') and !hasRole('ROLE_ADMIN'))")
-    public String test() {
-        return "test admin";
-    }
-
-
 }

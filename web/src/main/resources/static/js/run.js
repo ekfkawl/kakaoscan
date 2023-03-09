@@ -206,8 +206,13 @@ function init(server) {
         }
 
         let res = _get('/api/cache?phoneNumber=' + number.val());
+        console.log(res);
         if (res === false) {
             alert('유효하지 않은 전화번호입니다');
+            return;
+        }
+        if (res.hasOwnProperty('responseJSON')) {
+            alert(res.responseJSON.message);
             return;
         }
 
