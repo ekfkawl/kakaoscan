@@ -1,7 +1,9 @@
 package com.kakaoscan.profile.global.oauth;
 
+import com.kakaoscan.profile.domain.respon.enums.Role;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -11,6 +13,7 @@ import java.util.Collection;
 import java.util.Map;
 
 @Getter
+@Setter
 @Builder
 public class OAuthAttributes implements UserDetails, Serializable {
 
@@ -19,6 +22,7 @@ public class OAuthAttributes implements UserDetails, Serializable {
     private String email;
     private String name;
     private String profileUrl;
+    private Role role;
 
     public static OAuthAttributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
         return ofGoogle(userNameAttributeName, attributes);

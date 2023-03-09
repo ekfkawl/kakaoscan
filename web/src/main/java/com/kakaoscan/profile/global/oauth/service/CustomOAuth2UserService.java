@@ -51,6 +51,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                         .build());
         userRepository.save(user);
 
+        attributes.setRole(user.getRole());
         sessionManager.setValue("user", attributes);
 
         return new DefaultOAuth2User(
