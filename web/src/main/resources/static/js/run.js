@@ -60,7 +60,7 @@ function init(server) {
         };
         socket.onmessage = function (event) {
             if (event.data.length > 0) {
-                // console.log(event.data);
+                console.log(event.data);
 
                 try {
                     let res = JSON.parse(event.data);
@@ -104,21 +104,20 @@ function init(server) {
                         }
 
                         // current profile
-                        function toWithEmoji(s) {
-                            s = s.replace(/\\n/gi, '');
-                            let emoji = s.indexOf('\\u');
-                            if (emoji !== -1) {
-                                emoji++;
-                                let res = s.substring(0, emoji - 1) + String.fromCodePoint('0x' + s.substring(emoji + 1, emoji + 5));
-                                s = s.substring(emoji + 5, s.length);
-                                return res + toWithEmoji(s);
-                            } else {
-                                return s;
-                            }
+                        function decodeString(s) {
+                            const regex = /\\u([\dA-Fa-f]{4})|\\n/g;
+                            const result = s.replace(regex, (match, group) => {
+                                if (group) {
+                                    return String.fromCodePoint(parseInt(group, 16));
+                                } else {
+                                    return '';
+                                }
+                            });
+                            return result;
                         }
 
-                        target.text(toWithEmoji(name));
-                        targetStatusMessage.text(toWithEmoji(statusMessage));
+                        target.text(decodeString(name));
+                        targetStatusMessage.text(decodeString(statusMessage));
 
                         currentProfile.attr('src', '/img/empty_profile.png');
                         if (res.hasOwnProperty('ProfileImageUrl') && res.ProfileImageUrl.length > 0) {
