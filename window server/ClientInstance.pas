@@ -13,6 +13,7 @@ type
     SocketHandle: NativeInt;
     RemoteAddr: String;
     RemoteAddr2: String;
+    Email: String;
     Msg: String;
     WebResponMsg: String;
     IsSendReady: Boolean;

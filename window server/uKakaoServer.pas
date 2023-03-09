@@ -239,6 +239,7 @@ begin
           Socket.SendText(AnsiString(WebResponMsg));
         end;
       end;
+      Client.DictMessage.Remove(Socket.SocketHandle);
     end;
   except
     on E: Exception do
@@ -248,17 +249,6 @@ begin
     end;
   end;
 
-  try
-    Socket.Close;
-  except
-    on E: Exception do
-    begin
-      Log(Format('# %s: %s', [E.ClassName, E.Message]));
-      Log(StackTrace(E.StackInfo));
-    end;
-  end;
-
-  Client.DictMessage.Remove(Socket.SocketHandle);
   Log(Format('%d %s', [Socket.SocketHandle, '연결 해제']));
 end;
 
@@ -275,7 +265,7 @@ end;
 // 메세지 수신
 procedure TForm1.SSClientRead(Sender: TObject; Socket: TCustomWinSocket);
 var
-  Session, Number, RemoteAddr: String;
+  Session, Number, RemoteAddr, Email: String;
   Value: Int64;
   ClientMessage: TClientMessage;
 begin
@@ -305,11 +295,14 @@ begin
 
       RemoteAddr:= SReceiveText.Split(['<', '>'])[1];
 
+      Email:= SReceiveText.Split(['(', ')'])[1];
+
       Socket.SendText(AnsiString(Format('%s:', [Session])));
 
       ClientMessage.Msg:= Number;
       ClientMessage.Session:= Session;
       ClientMessage.RemoteAddr2:= RemoteAddr;
+      ClientMessage.Email:= Email;
 
       Log(Format('%s(%d) %s', [Socket.RemoteAddress, Socket.SocketHandle, SReceiveText]));
     end;
@@ -412,77 +405,92 @@ begin
               //
               try
 
-                //
-                var IsContinue:= False;
-
-                for var j:= 1 to 2 do
-                begin
-                  if not AddFriend(Current.Msg) then
-                  begin
-                    Log(Format('Connections[%d] Error AddFriend 2', [i]));
-                    break;
-                  end;
-                  Sleep(1000);
-
-                  if not Client.DictMessage.TryGetValue(Current.SocketHandle, ClientMessage) then
-                  begin
-                    Log(Format('Connections[%d] Exit AddFriend', [i]));
-                    IsContinue:= True;
-                    break;
-                  end;
-
-                  if SharableInstance.GetAddFriendResult <> ADD_NONE then
-                  begin
-                    break;
-                  end;
-                end;
-
-                if IsContinue then
-                begin
-                  Continue;
-                end;
-                //`
-
-                case SharableInstance.GetAddFriendResult of
-                  ADD_NONE:
-                  begin
-                    Log(Format('Connections[%d] GetAddFriendResult = 0', [i]));
-                    JSONObject.AddPair('Error', '친구 동기화에 실패하였습니다. 다시 시도해주세요');
-                    Continue;
-                  end;
-
-                  ADD_BAN_USER:
-                  begin
-                    JSONObject.AddPair('Error', '이용이 정지된 전화번호입니다');
-                    Continue;
-                  end;
-
-                  ADD_FAIL:
-                  begin
-                    JSONObject.AddPair('Error', '유효하지 않은 전화번호입니다. 다시 시도해주세요');
-                    Continue;
-                  end;
-                end;
-
-                //
                 if not SearchFriend(Current.Msg) then
                 begin
                   Log(Format('Connections[%d] Error SearchFriend', [i]));
                   Continue;
                 end;
-                TimeOut:= GetTickCount64 + 1000;
-                while SharableInstance.GetSearchCount <> 1 do
+                Sleep(2000);
+
+                if SharableInstance.GetSearchCount = 0 then
                 begin
-                  Sleep(100);
-                  if GetTickCount64 > TimeOut then
+
+                  //
+                  var IsContinue:= False;
+
+                  for var j:= 1 to 2 do
                   begin
-                    break;
+                    if not AddFriend(Current.Msg) then
+                    begin
+                      Log(Format('Connections[%d] Error AddFriend 2', [i]));
+                      break;
+                    end;
+                    Sleep(1000);
+
+                    if not Client.DictMessage.TryGetValue(Current.SocketHandle, ClientMessage) then
+                    begin
+                      Log(Format('Connections[%d] Exit AddFriend', [i]));
+                      IsContinue:= True;
+                      break;
+                    end;
+
+                    if SharableInstance.GetAddFriendResult <> ADD_NONE then
+                    begin
+                      break;
+                    end;
                   end;
+
+                  if IsContinue then
+                  begin
+                    Continue;
+                  end;
+
+                  //`
+
+
+                  case SharableInstance.GetAddFriendResult of
+                    ADD_NONE:
+                    begin
+                      Log(Format('Connections[%d] GetAddFriendResult = 0', [i]));
+                      JSONObject.AddPair('Error', '친구 동기화에 실패하였습니다. 다시 시도해주세요');
+                      Continue;
+                    end;
+
+                    ADD_BAN_USER:
+                    begin
+                      JSONObject.AddPair('Error', '이용이 정지된 전화번호입니다');
+                      Continue;
+                    end;
+
+                    ADD_FAIL:
+                    begin
+                      JSONObject.AddPair('Error', '유효하지 않은 전화번호입니다. 다시 시도해주세요');
+                      Continue;
+                    end;
+                  end;
+
+                  //
+//                  if not SearchFriend(Current.Msg) then
+//                  begin
+//                    Log(Format('Connections[%d] Error SearchFriend', [i]));
+//                    Continue;
+//                  end;
+
+                  TimeOut:= GetTickCount64 + 2000;
+                  while SharableInstance.GetSearchCount <> 1 do
+                  begin
+                    Sleep(100);
+                    if GetTickCount64 > TimeOut then
+                    begin
+                      break;
+                    end;
+                  end;
+                  //`
+
                 end;
-                //`
 
                 // use count++
-                HttpPost(Format('/use?remoteAddress=%s&key=%s', [ClientMessage.RemoteAddr2, HTTP_KEY]));
+                HttpPost(Format('/use?email=%s&remoteAddress=%s&key=%s', [ClientMessage.Email, ClientMessage.RemoteAddr2, HTTP_KEY]));
                 HttpPost(Format('/limit?serverIndex=%d&key=%s', [ServerIndex, HTTP_KEY]));
                 //`
 
@@ -522,6 +530,8 @@ begin
                   Log(Format('Connections[%d] Error Or Empty ViewProfileImage', [i]));
                   Continue;
                 end;
+
+                ViewPreviewImage;
 //                Sleep(1000);
 
                 if not Client.DictMessage.ContainsKey(Current.SocketHandle) then
@@ -582,11 +592,13 @@ begin
                   sl.Free;
                 end;
 
+                (*
                 if not BlockAndClearFriend then
                 begin
                   Log(Format('Connections[%d] Error BlockAndClearFriend', [i]));
                   Continue;
                 end;
+                *)
 
                 if not Client.DictMessage.ContainsKey(Current.SocketHandle) then
                 begin

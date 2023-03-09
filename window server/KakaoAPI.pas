@@ -13,6 +13,7 @@ function SearchFriend(CustomName: String): Boolean; external KakaoSDK32 name 'Se
 function GetSharableMemory: Pointer; external KakaoSDK32 name 'GetSharableMemory';
 function ViewFriend: Boolean; external KakaoSDK32 name 'ViewFriend';
 function ViewProfileImage(CustomName: String): Boolean; external KakaoSDK32 name 'ViewProfileImage';
+function ViewPreviewImage: Boolean; external KakaoSDK32 name 'ViewPreviewImage';
 function BlockAndClearFriend: Boolean; external KakaoSDK32 name 'BlockAndClearFriend';
 
 implementation
