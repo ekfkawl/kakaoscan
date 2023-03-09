@@ -4,6 +4,7 @@ import com.kakaoscan.profile.domain.dto.UserDTO;
 import com.kakaoscan.profile.domain.dto.UserRequestUnlockDTO;
 import com.kakaoscan.profile.domain.entity.UserRequestUnlock;
 import com.kakaoscan.profile.domain.model.UseCount;
+import com.kakaoscan.profile.domain.respon.enums.Role;
 import com.kakaoscan.profile.domain.service.AccessLimitService;
 import com.kakaoscan.profile.domain.service.UserRequestUnlockService;
 import com.kakaoscan.profile.domain.service.UserService;
@@ -76,6 +77,7 @@ public class ViewController {
         ModelAndView mv = new ModelAndView("admin");
 
         List<UserDTO> users = userService.findByAll().stream()
+                .filter(user -> !Role.ADMIN.equals(user.getRole()))
                 .map(UserDTO::toDTO)
                 .collect(Collectors.toList());
 
