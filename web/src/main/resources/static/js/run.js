@@ -211,10 +211,10 @@ function init(server) {
             alert('유효하지 않은 전화번호입니다');
             return;
         }
-        if (res.hasOwnProperty('responseJSON')) {
-            alert(res.responseJSON.message);
-            return;
-        }
+        // if (res.hasOwnProperty('responseJSON')) {
+        //     alert(res.responseJSON.message);
+        //     return;
+        // }
 
         if (socket.readyState !== 1) {
             alert('서버 연결에 실패하였습니다\n새로고침 후 재시도 해주세요');
