@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, ProcessAPI, Generics.Collections, System.Generics.Defaults,
   System.Win.ScktComp, Vcl.ExtCtrls, ClientInstance, SharableMemory, KakaoAPI, System.JSON, StackTraceUtil, MD5, System.IOUtils,
-  Vcl.Buttons, HttpUtils, uKey, IniFiles;
+  Vcl.Buttons, HttpUtils, uKey, IniFiles, Data.Cloud.AmazonAPI, Data.Cloud.CloudAPI;
 
 type
   TForm1 = class(TForm)
@@ -45,11 +45,64 @@ var
 
   StorageIndex, ServerIndex: Integer;
 
-  HostPath, CachePath: String;
+  HostPath: String = 'https://bucket-kakaoscan.s3.ap-northeast-2.amazonaws.com/';
+
+  {HostPath, }CachePath: String;
 
 implementation
 
 {$R *.dfm}
+
+procedure UploadFileToS3(const FileName, ObjectKey, ContentType: String);
+var
+  ConnectionInfo: TAmazonConnectionInfo;
+  StorageService: TAmazonStorageService;
+  ResponseInfo: TCloudResponseInfo;
+  BytesStream: TBytesStream;
+  Bytes: TBytes;
+  Headers: TStrings;
+begin
+  ConnectionInfo:= TAmazonConnectionInfo.Create(nil);
+  try
+    ConnectionInfo.AccountName:= S3_ACCOUNT_NAME;
+    ConnectionInfo.AccountKey:= S3_ACCOUNT_KEY;
+    ConnectionInfo.QueueEndpoint:= 'queue.amazonaws.com';
+    ConnectionInfo.StorageEndpoint:= 's3-ap-northeast-2.amazonaws.com';
+    ConnectionInfo.TableEndpoint:= 'sdb.amazonaws.com';
+    ConnectionInfo.UseDefaultEndpoints:= False;
+
+    StorageService:= TAmazonStorageService.Create(ConnectionInfo);
+    try
+      ResponseInfo:= TCloudResponseInfo.Create;
+      try
+        BytesStream:= TBytesStream.Create;
+        BytesStream.LoadFromFile(FileName);
+
+        BytesStream.Position:= 0;
+        SetLength(Bytes, BytesStream.Size);
+        BytesStream.ReadBuffer(Bytes, BytesStream.Size);
+
+        Headers:= TStringList.Create;
+        Headers.Values['Content-Disposition']:= 'inline';
+        Headers.Values['Content-Type']:= ContentType;
+
+        try
+          StorageService.UploadObject('bucket-kakaoscan', ObjectKey, Bytes, True, nil, Headers, amzbaPrivate, ResponseInfo);
+        finally
+          BytesStream.Free;
+          Headers.Free;
+        end;
+      finally
+        ResponseInfo.Free;
+      end;
+    finally
+      StorageService.Free;
+    end;
+  finally
+    ConnectionInfo.Free;
+  end;
+end;
+
 
 // 디렉터리 파일 리스트
 function FindFiles(const sPath: String; sMask: Array of String; slFiles: TStringList; Separator: String; bSubDir: Boolean): Integer;
@@ -64,7 +117,7 @@ begin
     iFindResult:= FindFirst(sPath + Mask, faAnyFile - faDirectory, srSchRec);
     while iFindResult = 0 do
     begin
-      slFiles.Add(sPath.Split([Separator + '\'])[1] + {sPath + }srSchRec.Name);
+      slFiles.Add({sPath.Split([Separator + '\'])[1] + }sPath + srSchRec.Name);
       iFindResult:= FindNext(srSchRec);
     end;
     FindClose(srSchRec);
@@ -85,16 +138,17 @@ end;
 
 procedure TForm1.Log(s: String);
 begin
-  TThread.Synchronize(TThread.CurrentThread, procedure
-  begin
-    if ListBox1.Items.Count > 100 then
-      ListBox1.Items.Delete(0);
-
-    ListBox1.Items.Add(Format('[%s] %s', [FormatDateTime('YY-MM-DD hh:mm:ss', now), s]));
-
-    if CheckBox1.Checked then
-      listBox1.TopIndex:= listBox1.Items.Count - 1;
-  end);
+//  TThread.Synchronize(TThread.CurrentThread, procedure
+//  begin
+//    if ListBox1.Items.Count > 100 then
+//      ListBox1.Items.Delete(0);
+//
+//    ListBox1.Items.Add(Format('[%s] %s', [FormatDateTime('YY-MM-DD hh:mm:ss', now), s]));
+//
+//    if CheckBox1.Checked then
+//      listBox1.TopIndex:= listBox1.Items.Count - 1;
+//  end);
+  Writeln(Format('[%s] %s', [FormatDateTime('YY-MM-DD hh:mm:ss', now), s]));
 end;
 
 procedure TForm1.BitBtn1Click(Sender: TObject);
@@ -158,7 +212,7 @@ begin
     Ini.Free;
   end;
 
-  HostPath:= Format('https://storage%d.kakaoscan.com/%s', [StorageIndex, PATH_WEB]);
+//  HostPath:= Format('https://storage%d.kakaoscan.com/%s', [StorageIndex, PATH_WEB]);
 end;
 
 procedure TForm1.InjectKakaoSDKThread;
@@ -404,13 +458,12 @@ begin
 
               //
               try
-
                 if not SearchFriend(Current.Msg) then
                 begin
                   Log(Format('Connections[%d] Error SearchFriend', [i]));
                   Continue;
                 end;
-                Sleep(2000);
+                Sleep(1500);
 
                 if SharableInstance.GetSearchCount = 0 then
                 begin
@@ -553,8 +606,8 @@ begin
                   FindFiles(Format('%s%s\', [Dir, IIS_PROFILE_PATH]), ['*.jpg'], sl, MD5FriendCustomName, False);
                   for var s in sl do
                   begin
-                    const v = s.Split(['\', '.']);
-                    JSONArray1.Add(TJSONObject.Create.AddPair('Dir', v[0]).AddPair('Name', v[1]) );
+                    UploadFileToS3(s, String.Format('%s/%s/%s', [MD5FriendCustomName, IIS_PROFILE_PATH, ExtractFileName(s)]), 'image/jpeg');
+                    JSONArray1.Add(TJSONObject.Create.AddPair('Dir', IIS_PROFILE_PATH).AddPair('Name', ExtractFileName(s).Split(['.'])[0]));
                   end;
                 finally
                   JSONObject.AddPair('ImageUrlCount', sl.Count);
@@ -568,8 +621,8 @@ begin
                   FindFiles(Format('%s%s\', [Dir, IIS_BG_PATH]), ['*.jpg'], sl, MD5FriendCustomName, False);
                   for var s in sl do
                   begin
-                    const v = s.Split(['\', '.']);
-                    JSONArray2.Add(TJSONObject.Create.AddPair('Dir', v[0]).AddPair('Name', v[1]));
+                    UploadFileToS3(s, String.Format('%s/%s/%s', [MD5FriendCustomName, IIS_BG_PATH, ExtractFileName(s)]), 'image/jpeg');
+                    JSONArray2.Add(TJSONObject.Create.AddPair('Dir', IIS_BG_PATH).AddPair('Name', ExtractFileName(s).Split(['.'])[0]));
                   end;
                 finally
                   JSONObject.AddPair('BgImageUrlCount', sl.Count);
@@ -583,14 +636,17 @@ begin
                   FindFiles(Dir, ['*.mp4'], sl, MD5FriendCustomName, True);
                   for var s in sl do
                   begin
-                    const v = s.Split(['\', '.']);
-                    JSONArray3.Add(TJSONObject.Create.AddPair('Dir', v[0]).AddPair('Name', v[1]) );
+                    UploadFileToS3(s, String.Format('%s/%s/%s', [MD5FriendCustomName, IIS_VIDEO_PATH, ExtractFileName(s)]), 'video/mp4');
+                    JSONArray3.Add(TJSONObject.Create.AddPair('Dir', IIS_VIDEO_PATH).AddPair('Name', ExtractFileName(s).Split(['.'])[0]));
                   end;
                 finally
                   JSONObject.AddPair('VideoCount', sl.Count);
                   JSONObject.AddPair('VideoUrl', JSONArray3);
                   sl.Free;
                 end;
+
+                // preview
+                UploadFileToS3(String.Format('%s%s\preview.jpg', [Dir, IIS_PREVIEW_PATH]), String.Format('%s/%s/preview.jpg', [MD5FriendCustomName, IIS_PREVIEW_PATH]), 'image/jpeg');
 
                 (*
                 if not BlockAndClearFriend then
@@ -645,7 +701,8 @@ begin
 end;
 
 initialization
-//  allocconsole;
+  AllocConsole;
+
   Client:= TClient.Create;
   KakaoHandle:= FindWindow('EVA_Window_Dblclk', '카카오톡');
 
