@@ -1,4 +1,4 @@
-package com.kakaoscan.profile.domain.config.kafka;
+package com.kakaoscan.profile.domain.kafka.config;
 
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 @Getter
 @Component
 public class KafkaProperties {
-    public static final String TOPIC = "kakaoscan.mail.send";
-    public static final String CONSUMER_GROUP_ID = "group.kakaoscan.mail.send";
+    public static final String TOPIC_EVENT = "kakaoscan.scan.event";
+    public static final String GROUP_EVENT = "group.kakaoscan.scan.event";
 
     @Value("${spring.kafka.bootstrap-servers}")
     private String bootstrapServers;
