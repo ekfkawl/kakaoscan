@@ -10,6 +10,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity(name = "tb_user")
 @NoArgsConstructor
@@ -41,6 +42,9 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserRequest request;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<UserHistory> historyList;
 
     public void setRole(Role role) {
         this.role = role;
