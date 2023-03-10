@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpSession;
 
 @Component
-@Profile("dev")
+@Profile("!prod")
 public class HttpSessionManager implements SessionManager {
     private final HttpSession httpSession;
 
