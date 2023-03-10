@@ -20,7 +20,7 @@ public class NettyClient {
     @Value("${tcp.port}")
     private int port;
 
-    private static final int READ_TIMEOUT = 0;
+    private static final int READ_TIMEOUT = 3;
     private static final int SEND_TIMEOUT = 1;
 
     private final NettyClientInstance nettyClientInstance;

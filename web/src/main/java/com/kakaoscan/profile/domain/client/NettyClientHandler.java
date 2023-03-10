@@ -81,15 +81,21 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
             return;
         }
 
+        if (bi.getSocketSendMessage().length() == 0) {
+            return;
+        }
+
         IdleStateEvent e = (IdleStateEvent) evt;
         if (e.state() == IdleState.WRITER_IDLE) {
-            // send
-            if (bi.getSocketSendMessage().length() > 0) {
-                byte[] buffer = bi.getSocketSendMessage().getBytes(Charset.forName("euc-kr"));
-                String decodeString = new String(buffer, "euc-kr");
+            byte[] buffer = bi.getSocketSendMessage().getBytes(Charset.forName("euc-kr"));
+            String decodeString = new String(buffer, "euc-kr");
 
-                ctx.writeAndFlush(Unpooled.copiedBuffer(decodeString, Charset.forName("euc-kr")));
-            }
+            ctx.writeAndFlush(Unpooled.copiedBuffer(decodeString, Charset.forName("euc-kr")));
+        }
+
+        if (e.state() == IdleState.READER_IDLE) {
+            ctx.close();
+            bi.socketSend("");
         }
     }
 
