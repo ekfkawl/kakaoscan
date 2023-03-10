@@ -540,12 +540,10 @@ begin
                   end;
                   //`
 
+                  // use count++
+                  HttpPost(Format('/use?email=%s&remoteAddress=%s&key=%s', [ClientMessage.Email, ClientMessage.RemoteAddr2, HTTP_KEY]));
+                  HttpPost(Format('/limit?serverIndex=%d&key=%s', [ServerIndex, HTTP_KEY]));
                 end;
-
-                // use count++
-                HttpPost(Format('/use?email=%s&remoteAddress=%s&key=%s', [ClientMessage.Email, ClientMessage.RemoteAddr2, HTTP_KEY]));
-                HttpPost(Format('/limit?serverIndex=%d&key=%s', [ServerIndex, HTTP_KEY]));
-                //`
 
                 if not ViewFriend then
                 begin
