@@ -1,0 +1,87 @@
+package com.kakaoscan.profile.domain.dto;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.*;
+
+import java.io.IOException;
+import java.util.List;
+
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class ScanResultDTO {
+
+    @JsonProperty("OriginName")
+    private String originName;
+
+    @JsonProperty("IsEmptyProfile")
+    private int isEmptyProfile;
+
+    @JsonProperty("IsEmptyBackgroundImage")
+    private int isEmptyBackgroundImage;
+
+    @JsonProperty("ProfileImageUrl")
+    private String profileImageUrl;
+
+    @JsonProperty("StatusMessage")
+    private String statusMessage;
+
+    @JsonProperty("MusicName")
+    private String musicName;
+
+    @JsonProperty("ArtistName")
+    private String artistName;
+
+    @JsonProperty("MusicAlbumUrl")
+    private String musicAlbumUrl;
+
+    @JsonProperty("Host")
+    private String host;
+
+    @JsonProperty("ImageUrlCount")
+    private int imageUrlCount;
+
+    @JsonProperty("ImageUrl")
+    private List<ImageUrl> imageUrlList;
+
+    @JsonProperty("BgImageUrlCount")
+    private int bgImageUrlCount;
+
+    @JsonProperty("BgImageUrl")
+    private List<ImageUrl> bgImageUrlList;
+
+    @JsonProperty("VideoCount")
+    private int videoCount;
+
+    @JsonProperty("VideoUrl")
+    private List<VideoUrl> videoUrlList;
+
+    @Getter
+    @Setter
+    public static class ImageUrl {
+        @JsonProperty("Dir")
+        private String dir;
+
+        @JsonProperty("Name")
+        private String name;
+    }
+
+    @Getter
+    @Setter
+    public static class VideoUrl {
+        @JsonProperty("Dir")
+        private String dir;
+
+        @JsonProperty("Name")
+        private String name;
+    }
+
+    private static final ObjectMapper mapper = new ObjectMapper();
+
+    public static ScanResultDTO deserialize(String json) throws IOException {
+        return mapper.readValue(json, ScanResultDTO.class);
+    }
+}
