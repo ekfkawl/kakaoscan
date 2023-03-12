@@ -71,12 +71,11 @@
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h6 class="modal-title" id="modal-title">11111</h6>
+                            <h6 class="modal-title" id="modal-title"></h6>
                             <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <p id="modal-body">
-
                             </p>
                         </div>
                     </div>
@@ -90,51 +89,51 @@
 <!-- MDB -->
 <script type="text/javascript" src="/mdb/js/mdb.min.js"></script>
 <script>
-    const instance = mdb.Datatable.getInstance(document.getElementById('datatable'));
-    const modal = document.getElementById('exampleModal2');
-    const modalTitle = document.getElementById('modal-title');
-    const modalBody = document.getElementById('modal-body');
-    const modalInstance = new mdb.Modal(modal);
+    $(document).ready(function() {
+        const instance = mdb.Datatable.getInstance(document.getElementById('datatable'));
+        const modal = document.getElementById('exampleModal2');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const modalInstance = new mdb.Modal(modal);
 
-    document.getElementById('datatable-search-input').addEventListener('input', (e) => {
-        instance.search(e.target.value);
-    });
-
-    datatable.addEventListener('selectRows.mdb.datatable', (e) => {
-        console.log(e.selectedRows, e.selectedIndexes, e.allSelected);
-    })
-
-    datatable.addEventListener('rowClick.mdb.datatable', (e) => {
-        var res = _get('/api/unlock?email=' + e.row.field_0);
-        if (res.message !== null) {
-            const date = new Date(res.modifyDt);
-            const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")} ${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}:${date.getSeconds().toString().padStart(2, "0")}`;
-            modalTitle.innerText = e.row.field_0;
-            modalBody.innerText = `[${formattedDate}]\n\n${res.message}`;
-            modalInstance.show();
-        }
-    });
-
-    $(document).on("click", "#save_users", function() {
-        const selectedValues = $('.datatable-table tbody tr')
-            .filter((index, element) => $(element).find('.datatable-row-checkbox').is(':checked'))
-            .map((index, element) => $(element).find('td:eq(1)').text())
-            .toArray();
-
-        console.log(selectedValues);
-
-        const userRole = $('#user_role').val();
-        const useCount = $('#user_use_count').val();
-
-        _post('api/modify', {
-            "emails": selectedValues,
-            "role": userRole,
-            "useCount": useCount
+        document.getElementById('datatable-search-input').addEventListener('input', (e) => {
+            instance.search(e.target.value);
         });
 
-        location.reload();
+        datatable.addEventListener('selectRows.mdb.datatable', (e) => {
+            console.log(e.selectedRows, e.selectedIndexes, e.allSelected);
+        })
+
+        datatable.addEventListener('rowClick.mdb.datatable', (e) => {
+            var res = _get('/api/unlock?email=' + e.row.field_0);
+            if (res.message !== null) {
+                const date = new Date(res.modifyDt);
+                const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")} ${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}:${date.getSeconds().toString().padStart(2, "0")}`;
+                modalTitle.innerText = e.row.field_0;
+                modalBody.innerText = `[${formattedDate}]\n\n${res.message}`;
+                modalInstance.show();
+            }
+        });
+
+        $(document).on("click", "#save_users", function () {
+            const selectedValues = $('.datatable-table tbody tr')
+                .filter((index, element) => $(element).find('.datatable-row-checkbox').is(':checked'))
+                .map((index, element) => $(element).find('td:eq(1)').text())
+                .toArray();
+
+            console.log(selectedValues);
+
+            const userRole = $('#user_role').val();
+            const useCount = $('#user_use_count').val();
+
+            _post('api/modify', {
+                "emails": selectedValues,
+                "role": userRole,
+                "useCount": useCount
+            });
+
+            location.reload();
+        });
     });
-
-
 </script>
 </body>
