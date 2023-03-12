@@ -4,6 +4,9 @@ import com.kakaoscan.profile.domain.bridge.BridgeInstance;
 import com.kakaoscan.profile.domain.bridge.ClientQueue;
 import com.kakaoscan.profile.domain.client.NettyClientInstance;
 import com.kakaoscan.profile.domain.enums.MessageSendType;
+import com.kakaoscan.profile.domain.enums.RecordType;
+import com.kakaoscan.profile.domain.kafka.service.KafkaProducerService;
+import com.kakaoscan.profile.domain.model.KafkaMessage;
 import com.kakaoscan.profile.domain.model.UseCount;
 import com.kakaoscan.profile.domain.respon.enums.Role;
 import com.kakaoscan.profile.domain.server.exception.InvalidAccess;
@@ -19,7 +22,6 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
-import java.time.LocalDate;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -47,6 +49,7 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
     private final AccessLimitService accessLimitService;
     private final UserRequestService userRequestService;
     private final BridgeInstance bi;
+    private final KafkaProducerService producerService;
 
     public String getRemoteAddress(WebSocketSession session) {
         Map<String, Object> map = session.getAttributes();
@@ -95,8 +98,6 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
             }
 
             if (isNumeric(receive) && receive.length() == 11) { // receive phone number
-                // 계정 별 사용 횟수 동기화
-                userRequestService.syncUserUseCount(getRemoteAddress(session), LocalDate.now());
 
                 // 전체 일일 사용 제한
                 UseCount useCount = accessLimitService.getUseCount();
@@ -126,19 +127,9 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
 
                 if (turn == 0) {
 
-                    UseCount useCount = accessLimitService.getUseCount();
-
-                    int connectIndex = 0;
-                    for (int i = 0; i < serverCount; i++) {
-                        if (useCount.getCount()[i] < allLimitCount) {
-                            connectIndex = i;
-                            break;
-                        }
-                    }
-
                     if (!clientQueue.isConnected()) {
                         clientQueue.setConnected(true);
-                        nettyClientInstance.connect(connectIndex, session.getId());
+                        nettyClientInstance.connect(0, session.getId());
                     }
 
                     // check connected
@@ -164,12 +155,13 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
 
                     viewMessage = MessageSendType.TURN_LOCAL.getType();
 
-                    String res = bi.getClients().get(session.getId()).getResponse();
+                    ClientQueue queue = bi.getClients().get(session.getId());
                     // check server response
-                    if (res.length() > 0) {
-                        viewMessage = res;
-
+                    if (queue.getResponse().length() > 0) {
+                        viewMessage = queue.getResponse();
                         removeSessionHash(session);
+
+                        producerService.send(user.getEmail(), new KafkaMessage(RecordType.UPSERT, viewMessage, queue.getRequest()));
                     }
                 }
 
