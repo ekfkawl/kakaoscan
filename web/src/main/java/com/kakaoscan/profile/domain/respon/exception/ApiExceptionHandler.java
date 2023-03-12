@@ -67,7 +67,7 @@ public class ApiExceptionHandler {
                 .status(HttpStatus.BAD_REQUEST.value())
                 .body(ApiErrorDTO.builder()
                         .status(HttpStatus.BAD_REQUEST.value())
-                        .message("해당 계정은 서비스 사용 권한이 없습니다")
+                        .message("서비스 사용 권한이 없습니다")
                         .build());
     }
 }
