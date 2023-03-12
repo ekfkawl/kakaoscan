@@ -56,7 +56,6 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
 
                 // response
                 if (jsonMessage.length() > 0) {
-                    clientQueue.setRequest("");
                     clientQueue.setResponse(jsonMessage);
                     clientQueue.setConnected(true);
                     clientQueue.setFail(false);
