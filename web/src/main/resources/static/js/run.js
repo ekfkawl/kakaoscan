@@ -104,18 +104,6 @@ function init(server) {
                         }
 
                         // current profile
-                        function decodeString(s) {
-                            const regex = /\\u([\dA-Fa-f]{4})|\\n/g;
-                            const result = s.replace(regex, (match, group) => {
-                                if (group) {
-                                    return String.fromCodePoint(parseInt(group, 16));
-                                } else {
-                                    return '';
-                                }
-                            }).replace(/\?\?/g, ''); // ?? -> ''
-                            return result;
-                        }
-
                         target.text(decodeString(name));
                         targetStatusMessage.text(decodeString(statusMessage));
 
@@ -131,56 +119,17 @@ function init(server) {
                             currentMusic.removeClass('hide');
                         }
 
-                        function render($ele, k, ext) {
-                            if (res.hasOwnProperty(k)) {
-                                res[k].sort(function (a, b) {
-                                    return Number(a.Name) - Number(b.Name);
-                                });
-
-                                for (let i in res[k]) {
-                                    let url = res['Host'] + res[k][i].Dir + '/' + res[k][i].Name + ext + '?t=' + Math.random();
-
-                                    switch (ext) {
-                                        case '.mp4.jpg':
-                                            $ele.append(`
-                                             <div class="col-lg-4 b-4">
-                                                <img
-                                                        src=${url}
-                                                        data-mdb-img=${url}
-                                                        alt=""
-                                                        class="w-100 shadow-1-strong rounded"
-                                                />
-                                            </div>
-                                        `)
-                                            break;
-
-                                        case '.mp4':
-                                            $ele.append(`
-                                            <div class="ratio ratio-16x9 b-4">
-                                                <iframe
-                                                        src=${url}
-                                                        data-mdb-img=${url}
-                                                        allowfullscreen
-                                                ></iframe>
-                                            </div>
-                                        `)
-                                            break;
-                                    }
-                                }
-                            }
-                        }
-
                         // preview
                         previewProfileImg.attr('src', res['Host'] + 'preview/preview.jpg?t=' + Math.random());
 
                         // find user profile image
-                        render(tab1, 'ImageUrl', '.mp4.jpg');
+                        render(tab1, res, 'ImageUrl', '.mp4.jpg', 'col-lg-4 b-4');
 
                         // find user bg image
-                        render(tab2, 'BgImageUrl', '.mp4.jpg');
+                        render(tab2, res, 'BgImageUrl', '.mp4.jpg', 'col-lg-4 b-4');
 
                         // find user video
-                        render(tab3, 'VideoUrl', '.mp4');
+                        render(tab3, res, 'VideoUrl', '.mp4', 'ratio ratio-16x9 b-4');
 
                         moveTop.removeClass('hide');
 
@@ -206,7 +155,7 @@ function init(server) {
         }
 
         let res = _get('/api/cache?phoneNumber=' + number.val());
-        console.log(res);
+        // console.log(res);
         if (res === false) {
             alert('유효하지 않은 전화번호입니다');
             return;
