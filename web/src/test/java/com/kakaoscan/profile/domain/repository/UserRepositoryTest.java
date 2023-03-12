@@ -5,7 +5,6 @@ import com.kakaoscan.profile.domain.entity.User;
 import com.kakaoscan.profile.domain.entity.UserHistory;
 import com.kakaoscan.profile.domain.entity.UserRequestUnlock;
 import com.kakaoscan.profile.domain.respon.enums.Role;
-import com.kakaoscan.profile.utils.GenerateUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,8 +50,9 @@ class UserRepositoryTest {
         for (int i = 1; i <= 2; i++) {
             UserHistory userHistory = UserHistory.builder()
                     .email("test@test.com")
-                    .phoneNumberMd5(GenerateUtils.StrToMD5("01012345678", ""))
-                    .urls(String.format("test%d.com", i))
+                    .phoneNumber("01012345678")
+                    .message(String.format("test%d.com", i))
+                    .modifyDt(LocalDateTime.now())
                     .createDt(LocalDateTime.now())
                     .build();
             userHistoryRepository.save(userHistory);
