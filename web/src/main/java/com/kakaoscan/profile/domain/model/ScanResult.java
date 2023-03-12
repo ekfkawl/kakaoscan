@@ -1,18 +1,20 @@
-package com.kakaoscan.profile.domain.dto;
+package com.kakaoscan.profile.domain.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScanResultDTO {
+public class ScanResult {
 
     @JsonProperty("OriginName")
     private String originName;
@@ -59,6 +61,14 @@ public class ScanResultDTO {
     @JsonProperty("VideoUrl")
     private List<VideoUrl> videoUrlList;
 
+    public String getOriginName() {
+        return Objects.isNull(originName) || originName.isEmpty() ? "이름 없음" : originName;
+    }
+
+    public String getStatusMessage() {
+        return Objects.isNull(statusMessage) || statusMessage.isEmpty() ? "상태메세지 없음" : statusMessage;
+    }
+
     @Getter
     @Setter
     public static class ImageUrl {
@@ -67,6 +77,9 @@ public class ScanResultDTO {
 
         @JsonProperty("Name")
         private String name;
+
+        @JsonIgnore
+        private String url;
     }
 
     @Getter
@@ -77,11 +90,14 @@ public class ScanResultDTO {
 
         @JsonProperty("Name")
         private String name;
+
+        @JsonIgnore
+        private String url;
     }
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public static ScanResultDTO deserialize(String json) throws IOException {
-        return mapper.readValue(json, ScanResultDTO.class);
+    public static ScanResult deserialize(String json) throws IOException {
+        return mapper.readValue(json, ScanResult.class);
     }
 }
