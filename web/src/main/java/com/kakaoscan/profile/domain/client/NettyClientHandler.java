@@ -2,7 +2,6 @@ package com.kakaoscan.profile.domain.client;
 
 import com.kakaoscan.profile.domain.bridge.BridgeInstance;
 import com.kakaoscan.profile.domain.bridge.ClientQueue;
-import com.kakaoscan.profile.domain.server.WebSocketServerHandler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandler;
@@ -22,7 +21,6 @@ import java.nio.charset.Charset;
 @Component
 @ChannelHandler.Sharable
 public class NettyClientHandler extends ChannelInboundHandlerAdapter {
-    private static final int RECONNECT_DELAY = 5;
     private static final int REQUEST_TIMEOUT_TICK = 3 * 1000;
 
     private final NettyClientInstance nettyClientInstance;
@@ -40,36 +38,36 @@ public class NettyClientHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf buf = (ByteBuf)msg;
         String receivedMessage = buf.toString(Charset.forName("euc-kr"));
+//        log.info("[received] " + receivedMessage);
+
         try {
             String[] s = receivedMessage.split(":", 2);
+            String wsSession = s[0];
+            String jsonMessage = s[1];
             // check session
-            if (!bi.getClients().containsKey(s[0])) {
-                bi.getClients().remove(s[0]);
+            if (!bi.getClients().containsKey(wsSession)) {
+                bi.getClients().remove(wsSession);
                 ctx.close();
 
             }else {
-                ClientQueue clientQueue = bi.getClients().get(s[0]);
+                ClientQueue clientQueue = bi.getClients().get(wsSession);
 
                 clientQueue.setLastReceivedTick(System.currentTimeMillis() + REQUEST_TIMEOUT_TICK);
 
                 // response
-                if (s.length >= 2 && s[1].length() > 0) {
+                if (jsonMessage.length() > 0) {
                     clientQueue.setRequest("");
-                    clientQueue.setResponse(s[1]);
+                    clientQueue.setResponse(jsonMessage);
                     clientQueue.setConnected(true);
                     clientQueue.setFail(false);
-
                     bi.socketSend("");
                 }
 
-                bi.getClients().put(s[0], clientQueue);
+                bi.getClients().put(wsSession, clientQueue);
             }
         }finally {
             buf.release();
-            buf = null;
         }
-
-//        log.info("[received] " + receivedMessage);
     }
 
     /**
