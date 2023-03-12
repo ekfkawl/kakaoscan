@@ -1,6 +1,5 @@
 package com.kakaoscan.profile.domain.service;
 
-import com.kakaoscan.profile.domain.dto.UserRequestUnlockDTO;
 import com.kakaoscan.profile.domain.entity.UserRequestUnlock;
 import com.kakaoscan.profile.domain.repository.UserRequestUnlockRepository;
 import lombok.RequiredArgsConstructor;
