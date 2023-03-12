@@ -1,10 +1,8 @@
 package com.kakaoscan.profile.domain.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -21,9 +19,12 @@ public class UserHistory {
 
     private String email;
 
-    private String phoneNumberMd5;
+    private String phoneNumber;
 
-    private String urls;
+    private String message;
+
+    @UpdateTimestamp
+    private LocalDateTime modifyDt;
 
     @CreationTimestamp
     private LocalDateTime createDt;
@@ -31,4 +32,10 @@ public class UserHistory {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "email", insertable = false, updatable = false)
     private User user;
+
+    public void update(String email, String phoneNumber, String message) {
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.message = message;
+    }
 }
