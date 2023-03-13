@@ -44,13 +44,13 @@ class UserHistoryServiceTest {
     public void deleteOldHistoryTest() {
         userHistoryService.deleteOldHistory();
 
-        Optional<List<UserHistory>> optionalUserHistories = userHistoryRepository.findByCreateDtBefore(LocalDateTime.now().minusDays(7));
+        Optional<List<UserHistory>> optionalUserHistories = userHistoryRepository.findByModifyDtBefore(LocalDateTime.now().minusDays(7));
         assertThat(optionalUserHistories.isPresent()).isTrue();
     }
 
     @AfterEach
     public void tearDown() {
-        Optional<List<UserHistory>> optionalUserHistories = userHistoryRepository.findByCreateDtBefore(LocalDateTime.now().minusDays(7));
+        Optional<List<UserHistory>> optionalUserHistories = userHistoryRepository.findByModifyDtBefore(LocalDateTime.now().minusDays(7));
         optionalUserHistories.ifPresent(userHistoryRepository::deleteAll);
     }
 }

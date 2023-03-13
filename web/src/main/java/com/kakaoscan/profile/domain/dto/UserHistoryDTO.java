@@ -17,15 +17,15 @@ import static com.kakaoscan.profile.utils.DateUtils.getBeforeDiffToString;
 public class UserHistoryDTO {
     private String phoneNumber;
     private ScanResult scanResult;
-    private LocalDateTime createDt;
+    private LocalDateTime modifyDt;
     private String remainingPeriod;
 
     public static UserHistoryDTO toDTO(UserHistory entity) throws IOException {
         return UserHistoryDTO.builder()
                 .phoneNumber(entity.getPhoneNumber())
                 .scanResult(ScanResult.deserialize(entity.getMessage()))
-                .createDt(entity.getCreateDt())
-                .remainingPeriod(getBeforeDiffToString(entity.getCreateDt(), LocalDateTime.now()) + " 전")
+                .modifyDt(entity.getModifyDt())
+                .remainingPeriod(getBeforeDiffToString(entity.getModifyDt(), LocalDateTime.now()) + " 전")
                 .build();
     }
 }

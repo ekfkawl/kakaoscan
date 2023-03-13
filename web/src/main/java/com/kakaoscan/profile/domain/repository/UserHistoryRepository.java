@@ -13,6 +13,6 @@ public interface UserHistoryRepository extends JpaRepository<UserHistory, Long> 
     Optional<List<UserHistory>> findByEmail(String email);
     Optional<List<UserHistory>> findByEmailOrderByCreateDtDesc(String email);
     Optional<UserHistory> findByEmailAndPhoneNumber(String email, String phoneNumber);
-    Optional<List<UserHistory>> findByCreateDtBefore(LocalDateTime createDt);
+    Optional<List<UserHistory>> findByModifyDtBefore(LocalDateTime createDt);
 }
 

@@ -37,5 +37,6 @@ public class UserHistory {
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.message = message;
+        this.modifyDt = LocalDateTime.now();
     }
 }

@@ -82,7 +82,7 @@ public class UserHistoryService {
     @Transactional
     @Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행
     public void deleteOldHistory() {
-        Optional<List<UserHistory>> optionalUserHistories = userHistoryRepository.findByCreateDtBefore(LocalDateTime.now().minusDays(7));
+        Optional<List<UserHistory>> optionalUserHistories = userHistoryRepository.findByModifyDtBefore(LocalDateTime.now().minusDays(7));
         optionalUserHistories.ifPresent(userHistoryRepository::deleteAll);
     }
 
