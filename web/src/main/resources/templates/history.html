@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:include="head :: head"></th:block>
+</head>
+<body>
+<div class="container my-2">
+    <div class="body_search mb-7 m-2">
+        <th:block th:include="nav :: nav"></th:block>
+
+        <div class="container_0">
+            <table class="table align-middle mb-0 bg-white">
+                <thead class="bg-light">
+                <tr>
+                    <th>프로필</th>
+                    <th>조회일자</th>
+                </tr>
+                </thead>
+                <tbody>
+
+                <tr th:each="res : ${historyDTOS}">
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img
+                                    th:src="${res.scanResult.imageUrlList != null and not #lists.isEmpty(res.scanResult.imageUrlList)} ? ${res.scanResult.imageUrlList[0].url} : '/img/empty_profile.png'"
+                                    alt=""
+                                    style="width: 45px; height: 45px"
+                                    class="rounded-circle"
+                            />
+                            <div class="ms-3">
+                                <p class="fw-bold mb-1" th:text="${res.scanResult.originName}"></p>
+                                <p class="text-muted mb-0" th:text="${res.phoneNumber}"></p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        <p class="fw-normal mb-1" th:text="${#temporals.format(res.createDt, 'yyyy-MM-dd HH:mm')}"></p>
+                        <p class="text-muted mb-0" th:text="${res.remainingPeriod}"></p>
+
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="text-center mt-5">
+                <p class="text-grayish">조회일 기준으로 일주일이 지난 데이터는 자동으로 삭제됩니다.</p>
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h6 class="modal-title" id="modal-title"></h6>
+                            <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div id="result">
+                                <!-- Tabs navs -->
+                                <ul class="nav nav-tabs mb-3" id="ex-with-icons" role="tablist">
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link active" id="ex-with-icons-tab-1" data-mdb-toggle="tab" href="#ex-with-icons-tabs-1" role="tab"
+                                           aria-controls="ex-with-icons-tabs-1" aria-selected="true"><i class="fas fa-user-alt fa-fw me-2 a-ico"></i><span>프로필</span></a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link" id="ex-with-icons-tab-2" data-mdb-toggle="tab" href="#ex-with-icons-tabs-2" role="tab"
+                                           aria-controls="ex-with-icons-tabs-2" aria-selected="false"><i class="fas fa-image fa-fw me-2 a-ico"></i><span>배경사진</span></a>
+                                    </li>
+                                    <li class="nav-item" role="presentation">
+                                        <a class="nav-link" id="ex-with-icons-tab-3" data-mdb-toggle="tab" href="#ex-with-icons-tabs-3" role="tab"
+                                           aria-controls="ex-with-icons-tabs-3" aria-selected="false"><i class="fas fa-video fa-fw me-3 a-ico"></i><span>동영상</span></a>
+                                    </li>
+                                </ul>
+                                <!-- Tabs navs -->
+
+                                <!-- Tabs content -->
+                                <div class="tab-content" id="ex-with-icons-content">
+                                    <!-- 1 -->
+                                    <div class="tab-pane fade show active" id="ex-with-icons-tabs-1" role="tabpanel" aria-labelledby="ex-with-icons-tab-1">
+                                        <div id="lightbox" class="lightbox" data-mdb-zoom-level="0.25">
+                                            <div class="row" id="tab1_res">
+                                                <!---->
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 2 -->
+                                    <div class="tab-pane fade" id="ex-with-icons-tabs-2" role="tabpanel" aria-labelledby="ex-with-icons-tab-2">
+                                        <div class="lightbox" data-mdb-zoom-level="0.25">
+                                            <div class="row" id="tab2_res">
+                                                <!---->
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 3 -->
+                                    <div class="tab-pane fade" id="ex-with-icons-tabs-3" role="tabpanel" aria-labelledby="ex-with-icons-tab-3">
+                                        <div class="row" id="tab3_res">
+                                            <!---->
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <!-- Tabs content -->
+
+                                <div id="move-top" class="float-end my-2">
+                                    <a href="#result"><small class="text-muted">맨 위로</small></a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script th:src="@{|/js/common.js?t=${tick}|}"></script>
+<!-- MDB -->
+<script type="text/javascript" src="/mdb/js/mdb.min.js"></script>
+<script th:inline="javascript">
+    $(document).ready(function() {
+        const modal = document.getElementById('exampleModal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalInstance = new mdb.Modal(modal);
+
+        const tab1 = $('#tab1_res');
+        const tab2 = $('#tab2_res');
+        const tab3 = $('#tab3_res');
+
+        const historyList = [[${historyDTOS}]];
+
+        $('table tr').click(function () {
+            var name = $(this).find('td:first-child .fw-bold').text();
+            var phone = $(this).find('td:first-child .text-muted').text();
+
+            for (var i = 0; i < historyList.length; i++) {
+                var v = historyList[i];
+                if (v.phoneNumber === phone) {
+                    render(tab1, v.scanResult, 'ImageUrl', '.mp4.jpg', 'col-lg-auto b-4');
+                    render(tab2, v.scanResult, 'BgImageUrl', '.mp4.jpg', 'col-lg-auto b-4');
+                    render(tab3, v.scanResult, 'VideoUrl', '.mp4', 'ratio ratio-16x9 b-4');
+                    break;
+                }
+            }
+
+            modalTitle.innerText = name;
+            modalInstance.show();
+        });
+    });
+
+</script>
+</body>

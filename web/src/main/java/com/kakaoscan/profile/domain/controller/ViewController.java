@@ -1,11 +1,14 @@
 package com.kakaoscan.profile.domain.controller;
 
+import com.kakaoscan.profile.domain.dto.UserHistoryDTO;
+import com.kakaoscan.profile.domain.model.ScanResult;
 import com.kakaoscan.profile.domain.dto.UserDTO;
 import com.kakaoscan.profile.domain.dto.UserRequestUnlockDTO;
 import com.kakaoscan.profile.domain.entity.UserRequestUnlock;
 import com.kakaoscan.profile.domain.model.UseCount;
 import com.kakaoscan.profile.domain.respon.enums.Role;
 import com.kakaoscan.profile.domain.service.AccessLimitService;
+import com.kakaoscan.profile.domain.service.UserHistoryService;
 import com.kakaoscan.profile.domain.service.UserRequestUnlockService;
 import com.kakaoscan.profile.domain.service.UserService;
 import com.kakaoscan.profile.global.oauth.OAuthAttributes;
@@ -39,6 +42,8 @@ public class ViewController {
     private final UserRequestUnlockService userRequestUnlockService;
 
     private final UserService userService;
+
+    private final UserHistoryService userHistoryService;
 
     @GetMapping("/")
     public ModelAndView index(@RequestParam(required = false, defaultValue = "") String phoneNumber) {
@@ -81,6 +86,18 @@ public class ViewController {
                 .collect(Collectors.toList());
 
         mv.addObject("users", users);
+
+        return mv;
+    }
+
+    @GetMapping("/history")
+    @PreAuthorize("isAuthenticated()")
+    public ModelAndView history(@UserAttributes OAuthAttributes attributes) {
+        ModelAndView mv = new ModelAndView("history");
+
+        List<UserHistoryDTO> historyDTOS = userHistoryService.getHistory(attributes.getEmail());
+
+        mv.addObject("historyDTOS", historyDTOS);
 
         return mv;
     }
