@@ -24,6 +24,6 @@ public class KafkaEventListener {
                 break;
         }
 
-        log.info("Received event with key: {}, value: {}, {}", event.getKey(), event.getValue().getType(), event.getValue().getMessage());
+//        log.info("Received event with key: {}, value: {}, {}", event.getKey(), event.getValue().getType(), event.getValue().getMessage());
     }
 }

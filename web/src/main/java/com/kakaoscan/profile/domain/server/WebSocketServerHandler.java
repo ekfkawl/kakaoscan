@@ -196,13 +196,13 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
 
         clientsRemoteAddress.put(session, remoteAddress);
 
-        log.info("[web client connect] " + session.getId());
+//        log.info("[web client connect] " + session.getId());
     }
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         removeSessionHash(session);
 
-        log.info("[web client disconnect] " + session.getId());
+//        log.info("[web client disconnect] " + session.getId());
     }
 }
