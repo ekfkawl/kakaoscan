@@ -244,3 +244,11 @@ ol li {
 .ne-3 {
     margin-right: 1rem!important;
 }
+
+table tr {
+     cursor: pointer;
+}
+
+table tr:hover, table tr:active {
+    background-color: #f9f9f9;
+}
