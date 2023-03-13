@@ -16,5 +16,6 @@ public class KafkaMessage {
     public KafkaMessage(@NonNull RecordType type, @NonNull String message) {
         this.type = type;
         this.message = message;
+        this.subMessage = "";
     }
 }

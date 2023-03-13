@@ -6,5 +6,5 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum RecordType {
-    UPSERT;
+    UPSERT, EMAIL
 }

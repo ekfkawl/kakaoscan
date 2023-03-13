@@ -1,5 +1,7 @@
 package com.kakaoscan.profile.domain.kafka.event;
 
+import com.kakaoscan.profile.domain.model.EmailMessage;
+import com.kakaoscan.profile.domain.service.EmailService;
 import com.kakaoscan.profile.domain.service.UserHistoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -13,6 +15,8 @@ import org.springframework.stereotype.Component;
 public class KafkaEventListener {
     private final UserHistoryService userHistoryService;
 
+    private final EmailService emailService;
+
     @Async
     @EventListener
     public void onEvent(KafkaEvent event) {
@@ -21,6 +25,16 @@ public class KafkaEventListener {
             case UPSERT:
                 // email, phone, json
                 userHistoryService.updateHistory(event.getKey(), event.getValue().getSubMessage(), event.getValue().getMessage());
+                break;
+
+            case EMAIL:
+                EmailMessage emailMessage = EmailMessage.builder()
+                        .to(event.getKey())
+                        .subject("[카카오스캔] 서비스 사용 허가 안내")
+                        .message("")
+                        .build();
+                emailService.send(emailMessage, "email");
+                log.info("send mail : {}", event.getKey());
                 break;
         }
 

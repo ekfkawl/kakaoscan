@@ -25,8 +25,6 @@ import org.springframework.util.backoff.FixedBackOff;
 public class KafkaConsumerService {
     private final ApplicationEventPublisher eventPublisher;
 
-    private final EmailService emailService;
-
     @KafkaListener(topics = {KafkaProperties.TOPIC_EVENT}, groupId = KafkaProperties.GROUP_EVENT)
     public void onMessage(ConsumerRecord<String, String> record, Acknowledgment ack) {
         log.info("Received - {}", record);
