@@ -10,7 +10,9 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
 import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import java.io.UnsupportedEncodingException;
 
 @Log4j2
 @Service
@@ -28,9 +30,12 @@ public class EmailService implements SendMail {
             mimeMessageHelper.setTo(emailMessage.getTo());
             mimeMessageHelper.setSubject(emailMessage.getSubject());
             mimeMessageHelper.setText(setContext(template), true);
+            mimeMessageHelper.setFrom(new InternetAddress("mail.kakaoscan@gmail.com", "카카오스캔"));
             javaMailSender.send(mimeMessage);
         } catch (MessagingException e) {
             log.error("MessagingException", e);
+            throw new RuntimeException(e);
+        } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
     }
