@@ -371,6 +371,9 @@ var
 begin
   Thread:= TThread.CreateAnonymousThread(procedure
   begin
+    CreateSharable;
+    SharableMemory.SharableInstance.gSaveStep:= 1;
+
     while True do
     begin
       Sleep(500);
@@ -475,7 +478,7 @@ begin
 
             GetWindowRect(ViewProfileHandle, Rect);
   //          writeln(Rect.Width, ' / ' , Rect.Height);
-            if (Rect.Width = 565) And (Rect.Height = 470) then
+//            if (Rect.Width = 565) And (Rect.Height = 470) then
             begin
               BeforeImagePage:= '0';
 
@@ -520,7 +523,7 @@ begin
                 FileCase[0]:= Format('%s%s\%s\%s.mp4', [ROOT, StrToMD5(AnsiString(SharableMemory.SharableInstance.GetFriendCustomName)), Path, ImagePage[1]]);
                 FileCase[1]:= Format('%s.jpg', [FileCase[0]]);
 
-                const TimeOut = GetTickCount + 2000;
+                const TimeOut = GetTickCount + 3000;
                 var IsExists:= False;
                 while GetTickCount < TimeOut do
                 begin
@@ -537,7 +540,7 @@ begin
 
                   for var f in FileCase do
                   begin
-                    if FileSize(f) > 1000 then // > 1kb
+                    if FileSize(f) > 2100 then // > 1kb
                     begin
                       IsExists:= True;
                       break;
@@ -554,8 +557,8 @@ begin
             end;
           end
           else begin
-            if Step = 1 then
-              Sleep(1000);
+//            if Step = 1 then
+//              Sleep(1000);
 
             Inc(GetViewProfileHandleCount);
 
