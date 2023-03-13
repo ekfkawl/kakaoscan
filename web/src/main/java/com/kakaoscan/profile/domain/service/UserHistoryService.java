@@ -37,7 +37,7 @@ public class UserHistoryService {
 
     @Transactional
     public List<UserHistoryDTO> getHistory(String email) {
-        Optional<List<UserHistory>> optionalUserHistories = userHistoryRepository.findByEmailOrderByCreateDtDesc(email);
+        Optional<List<UserHistory>> optionalUserHistories = userHistoryRepository.findByEmailOrderByModifyDtDesc(email);
         if (optionalUserHistories.isEmpty()) {
             return null;
         }
