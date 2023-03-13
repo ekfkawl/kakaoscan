@@ -10,12 +10,8 @@ uses
 
 type
   TForm1 = class(TForm)
-    ListBox1: TListBox;
     SS: TServerSocket;
-    CheckBox1: TCheckBox;
-    Label1: TLabel;
     CheckBox2: TCheckBox;
-    BitBtn1: TBitBtn;
     procedure SSClientRead(Sender: TObject; Socket: TCustomWinSocket);
     procedure SSClientError(Sender: TObject; Socket: TCustomWinSocket;
       ErrorEvent: TErrorEvent; var ErrorCode: Integer);
@@ -27,7 +23,6 @@ type
     procedure FormCreate(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure CheckBox2Click(Sender: TObject);
-    procedure BitBtn1Click(Sender: TObject);
   private
     { Private declarations }
     procedure InjectKakaoSDKThread;
@@ -151,11 +146,6 @@ begin
   Writeln(Format('[%s] %s', [FormatDateTime('YY-MM-DD hh:mm:ss', now), s]));
 end;
 
-procedure TForm1.BitBtn1Click(Sender: TObject);
-begin
-  ListBox1.Clear;
-end;
-
 procedure TForm1.Button2Click(Sender: TObject);
 begin
   TThread.CreateAnonymousThread(MacroThread).Start;
@@ -269,7 +259,6 @@ begin
         end;
       end;
 
-      Label1.Caption:= 'ActiveConnections : ' + ActiveConnections.ToString;
     end;
   except
     on E: Exception do
