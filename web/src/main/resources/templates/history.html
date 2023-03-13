@@ -22,7 +22,7 @@
                     <td>
                         <div class="d-flex align-items-center">
                             <img
-                                    th:src="${res.scanResult.imageUrlList != null and not #lists.isEmpty(res.scanResult.imageUrlList)} ? ${res.scanResult.imageUrlList[0].url} : '/img/empty_profile.png'"
+                                    th:src="${res.scanResult.profileImageUrl != null and not #lists.isEmpty(res.scanResult.profileImageUrl)} ? ${res.scanResult.profileImageUrl} : '/img/empty_profile.png'"
                                     alt=""
                                     style="width: 45px; height: 45px"
                                     class="rounded-circle"
@@ -34,7 +34,7 @@
                         </div>
                     </td>
                     <td>
-                        <p class="fw-normal mb-1" th:text="${#temporals.format(res.createDt, 'yyyy-MM-dd HH:mm')}"></p>
+                        <p class="fw-normal mb-1" th:text="${#temporals.format(res.getModifyDt, 'yyyy-MM-dd HH:mm')}"></p>
                         <p class="text-muted mb-0" th:text="${res.remainingPeriod}"></p>
 
                     </td>
@@ -43,7 +43,7 @@
             </table>
 
             <div class="text-center mt-5">
-                <p class="text-grayish">조회일 기준으로 일주일이 지난 데이터는 자동으로 삭제됩니다.</p>
+                <p class="text-grayish">조회일 기준으로 일주일 이상 지난 데이터는 자동으로 삭제됩니다.</p>
             </div>
 
             <!-- Modal -->
