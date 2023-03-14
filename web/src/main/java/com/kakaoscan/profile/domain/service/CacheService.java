@@ -4,7 +4,6 @@ import com.kakaoscan.profile.domain.entity.Cache;
 import com.kakaoscan.profile.domain.repository.CacheRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,7 +48,7 @@ public class CacheService {
      * @param phoneNumber
      * @return
      */
-    @Cacheable(value = "phoneNumberCache", key = "#phoneNumber", unless = "#result == false")
+    @Cacheable(value = "phoneNumberCache", key = "#phoneNumber", cacheManager = "cacheManager")
     @Transactional
     public boolean isEnabledPhoneNumber(String phoneNumber) {
         Optional<Cache> cache = cacheRepository.findById(phoneNumber);

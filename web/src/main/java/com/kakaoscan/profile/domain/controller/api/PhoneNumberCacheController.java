@@ -4,7 +4,6 @@ import com.kakaoscan.profile.domain.service.CacheService;
 import com.kakaoscan.profile.domain.validator.annotation.CheckKey;
 import com.kakaoscan.profile.domain.validator.annotation.Phone;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.PropertySource;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
