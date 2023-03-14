@@ -21,7 +21,7 @@ public class UserDTO {
     private String email;
     private String name;
     private String profileUrl;
-    private transient Role role;
+    private Role role;
     private transient long useCount;
     private transient LocalDateTime modifyDt;
     private transient LocalDateTime createDt;
@@ -43,6 +43,7 @@ public class UserDTO {
                 .email(attributes.getEmail())
                 .name(attributes.getName())
                 .profileUrl(attributes.getProfileUrl())
+                .role(attributes.getRole())
                 .build();
     }
 }
