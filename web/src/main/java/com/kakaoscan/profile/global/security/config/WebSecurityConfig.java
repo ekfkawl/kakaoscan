@@ -3,6 +3,7 @@ package com.kakaoscan.profile.global.security.config;
 import com.kakaoscan.profile.domain.respon.enums.Role;
 import com.kakaoscan.profile.global.oauth.service.CustomOAuth2UserService;
 import com.kakaoscan.profile.global.security.handler.CustomAuthenticationSuccessHandler;
+import com.kakaoscan.profile.global.security.handler.CustomLogoutHandler;
 import com.kakaoscan.profile.global.security.provider.CustomAuthenticationProvider;
 import com.kakaoscan.profile.global.security.service.CustomUserDetailsService;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class WebSecurityConfig {
     private final CustomAuthenticationProvider customAuthenticationProvider;
     private final CustomUserDetailsService customUserDetailsService;
     private final CustomAuthenticationSuccessHandler customAuthenticationSuccessHandler;
+    private final CustomLogoutHandler customLogoutHandler;
 
 
     @Bean
@@ -49,7 +51,7 @@ public class WebSecurityConfig {
 //                .anyRequest().authenticated()
 
                 .and()
-                .logout().logoutSuccessUrl("/")
+                .logout().addLogoutHandler(customLogoutHandler).logoutSuccessUrl("/")
                 .and()
                 .oauth2Login().successHandler(customAuthenticationSuccessHandler)
                 .userInfoEndpoint().userService(customOAuth2UserService);
