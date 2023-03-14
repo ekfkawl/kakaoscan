@@ -304,10 +304,22 @@ function TKakao.SearchFriend(CustomName: String): Boolean;
 var
   Thread: TThread;
   p: TPoint;
+  BaseDir: WideString;
 begin
   Thread:= TThread.CreateAnonymousThread(procedure
   begin
     CreateSharable;
+
+    // 유저 데이터 폴더 생성
+    BaseDir:= ROOT + StrToMD5(AnsiString(CustomName));
+    if DirectoryExists(BaseDir) then
+    begin
+      TDirectory.Delete(BaseDir, True);
+    end;
+    CreateDir(BaseDir);
+    CreateDir(Format('%s\%s', [BaseDir, IIS_PROFILE_PATH]));
+    CreateDir(Format('%s\%s', [BaseDir, IIS_BG_PATH]));
+    CreateDir(Format('%s\%s', [BaseDir, IIS_PREVIEW_PATH]));
 
     FriendConfigHandle:= 0;
     EnumWindows(@GetFriendConfigHandleCallback, 0);
@@ -420,23 +432,11 @@ var
   Rect: TRect;
   BeforeImagePage: String;
   FileCase: Array [0..1] of String;
-  BaseDir: WideString;
   ViewFriendBitmap: TBitmap;
 begin
   Thread:= TThread.CreateAnonymousThread(procedure
   begin
     CreateSharable;
-
-    // 유저 데이터 폴더 생성
-    BaseDir:= ROOT + StrToMD5(AnsiString(SharableMemory.SharableInstance.GetFriendCustomName));
-    if DirectoryExists(BaseDir) then
-    begin
-      TDirectory.Delete(BaseDir, True);
-    end;
-    CreateDir(BaseDir);
-    CreateDir(Format('%s\%s', [BaseDir, IIS_PROFILE_PATH]));
-    CreateDir(Format('%s\%s', [BaseDir, IIS_BG_PATH]));
-    CreateDir(Format('%s\%s', [BaseDir, IIS_PREVIEW_PATH]));
 
     GetViewProfileHandleCount:= 0;
 
@@ -523,7 +523,7 @@ begin
                 FileCase[0]:= Format('%s%s\%s\%s.mp4', [ROOT, StrToMD5(AnsiString(SharableMemory.SharableInstance.GetFriendCustomName)), Path, ImagePage[1]]);
                 FileCase[1]:= Format('%s.jpg', [FileCase[0]]);
 
-                const TimeOut = GetTickCount + 3000;
+                const TimeOut = GetTickCount + 1500;
                 var IsExists:= False;
                 while GetTickCount < TimeOut do
                 begin
@@ -540,7 +540,7 @@ begin
 
                   for var f in FileCase do
                   begin
-                    if FileSize(f) > 2100 then // > 1kb
+                    if (FileExists(f)) And (FileSize(f) > 2100) then // > 1kb
                     begin
                       IsExists:= True;
                       break;
@@ -607,6 +607,18 @@ begin
       finally
         ViewFriendBitmap.Free;
       end;
+
+      const firstProfileImage = Format('%s%s\%s\1.mp4.jpg', [ROOT, StrToMD5(AnsiString(SharableMemory.SharableInstance.GetFriendCustomName)), IIS_PROFILE_PATH]);
+      if not FileExists(firstProfileImage) then
+      begin
+        SharableMemory.SharableInstance.UpdateMemory;
+        SharableMemory.SharableInstance.gSaveStep:= 1;
+        SharableMemory.SharableInstance.WriteMemory;
+        Sleep(1000);
+        for var i := 1 to 4 do
+          Click(ViewFriendHandle, 150, 390);
+      end;
+
     finally
       LeaveCriticalSection(CriticalSection);
     end;
