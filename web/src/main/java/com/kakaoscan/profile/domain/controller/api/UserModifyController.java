@@ -20,7 +20,7 @@ public class UserModifyController extends ApiBaseController {
     @PostMapping("/modify")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> modifyUser(@RequestBody UserModifyDTO userModifyDTO) {
-        userService.modifyUser(userModifyDTO);
+        userService.modifyUserRole(userModifyDTO);
 
         return ResponseEntity.ok().build();
     }

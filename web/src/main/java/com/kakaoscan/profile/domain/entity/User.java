@@ -21,6 +21,8 @@ public class User {
      */
     @Id
     private String email;
+
+    private long totalUseCount;
     /**
      * 권한
      */
@@ -46,5 +48,9 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public void incTotalUseCount() {
+        this.totalUseCount++;
     }
 }
