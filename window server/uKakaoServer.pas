@@ -547,7 +547,7 @@ begin
 
                 if not ViewFriend then
                 begin
-                  JSONObject.AddPair('Error', '프로필을 찾지 못했습니다');
+                  JSONObject.AddPair('Error', '프로필을 찾지 못했습니다. 잠시 후 시도해주세요');
                   Log(Format('Connections[%d] Error ViewFriend', [i]));
                   Continue;
                 end;
