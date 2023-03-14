@@ -85,7 +85,7 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
             if (user == null) {
                 throw new InvalidAccess(MessageSendType.USER_NOT_FOUND.getType());
             }
-            if (Role.GUEST.equals(user.getRole())) {
+            if (Role.GUEST.equals(user.getRole()) || user.getRole() == null) {
                 throw new InvalidAccess(MessageSendType.USER_NO_PERMISSION.getType());
             }
 
