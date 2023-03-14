@@ -39,6 +39,9 @@ public class UserService {
         for (String email : userModifyDTO.getEmails()) {
 
             User user = findByEmail(email);
+            if (user == null) {
+                continue;
+            }
             
             // guest -> user 사용 허가 메일 발송
             if (Role.GUEST.getKey().equals(user.getRole().getKey()) && Role.USER.getKey().equals(userModifyDTO.getRole().getKey())) {
