@@ -1,11 +1,13 @@
 package com.kakaoscan.profile.global.oauth.service;
 
+import com.kakaoscan.profile.domain.dto.UserDTO;
 import com.kakaoscan.profile.domain.entity.User;
 import com.kakaoscan.profile.domain.repository.UserRepository;
 import com.kakaoscan.profile.domain.respon.enums.Role;
 import com.kakaoscan.profile.global.oauth.OAuthAttributes;
 import com.kakaoscan.profile.global.session.instance.SessionManager;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -15,12 +17,23 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.Optional;
+
+import static com.kakaoscan.profile.global.session.instance.SessionManager.SESSION_FORMAT;
+import static com.kakaoscan.profile.global.session.instance.SessionManager.SESSION_KEY;
+import static com.kakaoscan.profile.utils.GenerateUtils.StrToMD5;
 
 @RequiredArgsConstructor
 @Service
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
+
+    @Value("${md5.encryption.salt-key}")
+    private String saltKey;
+
+    private final HttpServletResponse response;
 
     private final UserRepository userRepository;
     private final SessionManager sessionManager;
@@ -51,8 +64,15 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                         .build());
         userRepository.save(user);
 
-        attributes.setRole(user.getRole());
-        sessionManager.setValue("user", attributes);
+        String emailHash = StrToMD5(attributes.getEmail(), saltKey);
+        sessionManager.setValue(String.format(SESSION_FORMAT, emailHash), UserDTO.toDTO(attributes));
+
+        Cookie cookie = new Cookie(SESSION_KEY, emailHash);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setMaxAge(60 * 30); // 30분
+        cookie.setPath("/");
+        response.addCookie(cookie);
 
         return new DefaultOAuth2User(
                 Collections.singleton(new SimpleGrantedAuthority(
