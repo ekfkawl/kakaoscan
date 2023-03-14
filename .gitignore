@@ -31,3 +31,4 @@ web/app_logs
 web/src/main/resources/application-smtp.properties
 web/src/main/resources/application-oauth.yml
 web/src/main/resources/application-redis.properties
+sdk/uPrivateHook.pas
