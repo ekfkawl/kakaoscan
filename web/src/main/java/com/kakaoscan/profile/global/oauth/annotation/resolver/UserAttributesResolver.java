@@ -4,6 +4,7 @@ import com.kakaoscan.profile.domain.dto.UserDTO;
 import com.kakaoscan.profile.global.oauth.annotation.UserAttributes;
 import com.kakaoscan.profile.global.session.instance.SessionManager;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -18,9 +19,9 @@ import static com.kakaoscan.profile.utils.HttpRequestUtils.getCookie;
 
 @RequiredArgsConstructor
 @Component
+@Log4j2
 public class UserAttributesResolver implements HandlerMethodArgumentResolver {
 
-    private final HttpServletRequest request;
     private final SessionManager sessionManager;
 
     @Override
@@ -34,6 +35,12 @@ public class UserAttributesResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+        HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
+        try {
+            assert request != null;
+        } catch (AssertionError e) {
+            log.error("request instance null: {}", e.getMessage(), e);
+        }
         return getCookie(request)
                 .map(cookie -> sessionManager.getValue(String.format(SESSION_FORMAT, cookie.getValue())))
                 .orElse(null);
