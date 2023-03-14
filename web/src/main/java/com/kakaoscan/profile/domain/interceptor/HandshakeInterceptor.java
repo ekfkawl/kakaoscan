@@ -10,15 +10,12 @@ import org.springframework.http.server.ServletServerHttpRequest;
 import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.kakaoscan.profile.global.session.instance.SessionManager.SESSION_FORMAT;
-import static com.kakaoscan.profile.global.session.instance.SessionManager.SESSION_KEY;
 import static com.kakaoscan.profile.utils.GenerateUtils.StrToMD5;
+import static com.kakaoscan.profile.utils.HttpRequestUtils.getCookie;
 import static com.kakaoscan.profile.utils.HttpRequestUtils.getRemoteAddress;
 
 @Configuration
@@ -37,12 +34,8 @@ public class HandshakeInterceptor extends HttpSessionHandshakeInterceptor {
         String remoteAddress = StrToMD5(getRemoteAddress(httpRequest), "");
         attributes.put("remoteAddress", remoteAddress);
 
-        Optional<Cookie> optionalCookie = Arrays.stream(((ServletServerHttpRequest) request).getServletRequest().getCookies())
-                .filter(cookie -> SESSION_KEY.equals(cookie.getName()))
-                .findFirst();
-
-        optionalCookie.ifPresent(cookie -> {
-            Object userObj = sessionManager.getValue(String.format(SESSION_FORMAT, cookie.getValue()));
+        getCookie(((ServletServerHttpRequest) request).getServletRequest()).ifPresent(cookie -> {
+            Object userObj = sessionManager.getValue(String.format(SESSION_FORMAT,  cookie.getValue()));
             if (userObj instanceof UserDTO) {
                 UserDTO user = (UserDTO) userObj;
                 attributes.put("user", user);

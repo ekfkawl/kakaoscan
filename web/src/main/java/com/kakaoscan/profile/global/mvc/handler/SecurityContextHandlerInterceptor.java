@@ -10,12 +10,11 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 
 import static com.kakaoscan.profile.global.session.instance.SessionManager.SESSION_FORMAT;
-import static com.kakaoscan.profile.global.session.instance.SessionManager.SESSION_KEY;
+import static com.kakaoscan.profile.utils.HttpRequestUtils.getCookie;
 
 @Component
 @RequiredArgsConstructor
@@ -31,16 +30,13 @@ public class SecurityContextHandlerInterceptor implements HandlerInterceptor {
         boolean isAnonymousUser = authorities.stream().anyMatch(auth -> "ROLE_ANONYMOUS".equals(auth.getAuthority()));
 
         if (isAnonymousUser) {
-            Optional<Cookie> optionalCookie = Arrays.stream(request.getCookies())
-                    .filter(cookie -> SESSION_KEY.equals(cookie.getName()))
-                    .findFirst();
-
-            optionalCookie.ifPresent(cookie -> {
-                Object userObj = sessionManager.getValue(String.format(SESSION_FORMAT, cookie.getValue()));
+            Optional<Cookie> optionalCookie = getCookie(request);
+            if (optionalCookie.isPresent()) {
+                Object userObj = sessionManager.getValue(String.format(SESSION_FORMAT, optionalCookie.get().getValue()));
                 if (userObj != null) {
-                    sessionManager.deleteValue(String.format(SESSION_FORMAT, cookie.getValue()));
+                    sessionManager.deleteValue(String.format(SESSION_FORMAT, optionalCookie.get().getValue()));
                 }
-            });
+            }
         }
 
         return true;
