@@ -81,7 +81,12 @@ public class ViewController {
 
         List<UserDTO> users = userService.findByAll().stream()
                 .filter(user -> !Role.ADMIN.equals(user.getRole()))
-                .map(UserDTO::toDTO)
+                .map(user -> {
+                    if (user.getRequestUnlock() != null) {
+                        user.setEmail(user.getEmail() + " *");
+                    }
+                    return UserDTO.toDTO(user);
+                })
                 .collect(Collectors.toList());
 
         mv.addObject("users", users);
@@ -90,7 +95,7 @@ public class ViewController {
     }
 
     @GetMapping("/history")
-    @PreAuthorize("isAuthenticated()")
+    @PreAuthorize("hasAnyRole('ROLE_GUEST', 'ROLE_USER', 'ROLE_ADMIN')")
     public ModelAndView history(@UserAttributes UserDTO attributes) {
         ModelAndView mv = new ModelAndView("history");
 
