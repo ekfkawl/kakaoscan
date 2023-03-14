@@ -70,7 +70,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         Cookie cookie = new Cookie(SESSION_KEY, emailHash);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+//        cookie.setSecure(true);
         cookie.setMaxAge(60 * 60); // 60분
         cookie.setPath("/");
         response.addCookie(cookie);
