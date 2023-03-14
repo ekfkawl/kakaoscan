@@ -1,6 +1,6 @@
 package com.kakaoscan.profile.domain.dto;
 
-import com.kakaoscan.profile.domain.respon.enums.Role;
+import com.kakaoscan.profile.domain.enums.Role;
 import lombok.*;
 
 import java.util.List;

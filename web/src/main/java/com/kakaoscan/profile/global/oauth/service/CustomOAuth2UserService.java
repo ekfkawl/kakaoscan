@@ -3,7 +3,7 @@ package com.kakaoscan.profile.global.oauth.service;
 import com.kakaoscan.profile.domain.dto.UserDTO;
 import com.kakaoscan.profile.domain.entity.User;
 import com.kakaoscan.profile.domain.repository.UserRepository;
-import com.kakaoscan.profile.domain.respon.enums.Role;
+import com.kakaoscan.profile.domain.enums.Role;
 import com.kakaoscan.profile.global.oauth.OAuthAttributes;
 import com.kakaoscan.profile.global.session.instance.SessionManager;
 import lombok.RequiredArgsConstructor;

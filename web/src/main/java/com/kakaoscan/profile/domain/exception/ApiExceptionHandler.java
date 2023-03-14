@@ -1,7 +1,7 @@
-package com.kakaoscan.profile.domain.respon.exception;
+package com.kakaoscan.profile.domain.exception;
 
 import com.kakaoscan.profile.domain.dto.ApiErrorDTO;
-import com.kakaoscan.profile.domain.respon.enums.ApiErrorCase;
+import com.kakaoscan.profile.domain.enums.ApiErrorCase;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolationException;
 import java.util.List;
-
-import static com.kakaoscan.profile.domain.enums.MessageSendType.USER_NO_PERMISSION;
 
 /**
  * 예외 처리 핸들러

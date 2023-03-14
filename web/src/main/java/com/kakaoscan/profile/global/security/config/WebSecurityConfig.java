@@ -1,6 +1,5 @@
 package com.kakaoscan.profile.global.security.config;
 
-import com.kakaoscan.profile.domain.respon.enums.Role;
 import com.kakaoscan.profile.global.oauth.service.CustomOAuth2UserService;
 import com.kakaoscan.profile.global.security.handler.CustomAuthenticationSuccessHandler;
 import com.kakaoscan.profile.global.security.handler.CustomLogoutHandler;

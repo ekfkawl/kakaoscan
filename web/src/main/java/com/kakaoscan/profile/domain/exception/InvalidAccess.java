@@ -1,4 +1,4 @@
-package com.kakaoscan.profile.domain.server.exception;
+package com.kakaoscan.profile.domain.exception;
 
 public class InvalidAccess extends Exception {
     public InvalidAccess() {

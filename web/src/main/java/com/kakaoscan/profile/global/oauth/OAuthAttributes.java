@@ -1,6 +1,6 @@
 package com.kakaoscan.profile.global.oauth;
 
-import com.kakaoscan.profile.domain.respon.enums.Role;
+import com.kakaoscan.profile.domain.enums.Role;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

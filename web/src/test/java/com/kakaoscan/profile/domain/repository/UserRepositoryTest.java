@@ -4,7 +4,7 @@ import com.kakaoscan.profile.domain.config.TestProperties;
 import com.kakaoscan.profile.domain.entity.User;
 import com.kakaoscan.profile.domain.entity.UserHistory;
 import com.kakaoscan.profile.domain.entity.UserRequestUnlock;
-import com.kakaoscan.profile.domain.respon.enums.Role;
+import com.kakaoscan.profile.domain.enums.Role;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

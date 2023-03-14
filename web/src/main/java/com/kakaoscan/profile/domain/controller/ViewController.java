@@ -5,7 +5,7 @@ import com.kakaoscan.profile.domain.dto.UserHistoryDTO;
 import com.kakaoscan.profile.domain.dto.UserRequestUnlockDTO;
 import com.kakaoscan.profile.domain.entity.UserRequestUnlock;
 import com.kakaoscan.profile.domain.model.UseCount;
-import com.kakaoscan.profile.domain.respon.enums.Role;
+import com.kakaoscan.profile.domain.enums.Role;
 import com.kakaoscan.profile.domain.service.AccessLimitService;
 import com.kakaoscan.profile.domain.service.UserHistoryService;
 import com.kakaoscan.profile.domain.service.UserRequestUnlockService;

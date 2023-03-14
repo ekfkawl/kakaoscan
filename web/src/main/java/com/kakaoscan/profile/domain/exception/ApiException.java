@@ -1,6 +1,6 @@
-package com.kakaoscan.profile.domain.respon.exception;
+package com.kakaoscan.profile.domain.exception;
 
-import com.kakaoscan.profile.domain.respon.enums.ApiErrorCase;
+import com.kakaoscan.profile.domain.enums.ApiErrorCase;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

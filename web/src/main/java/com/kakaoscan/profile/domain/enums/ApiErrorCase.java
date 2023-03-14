@@ -1,4 +1,4 @@
-package com.kakaoscan.profile.domain.respon.enums;
+package com.kakaoscan.profile.domain.enums;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

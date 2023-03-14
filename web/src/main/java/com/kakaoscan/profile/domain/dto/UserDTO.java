@@ -2,7 +2,7 @@ package com.kakaoscan.profile.domain.dto;
 
 import com.kakaoscan.profile.domain.entity.User;
 import com.kakaoscan.profile.domain.entity.UserRequestUnlock;
-import com.kakaoscan.profile.domain.respon.enums.Role;
+import com.kakaoscan.profile.domain.enums.Role;
 import com.kakaoscan.profile.global.oauth.OAuthAttributes;
 import lombok.*;
 import org.springframework.data.annotation.Id;

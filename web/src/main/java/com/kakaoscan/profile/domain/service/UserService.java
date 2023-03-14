@@ -6,7 +6,7 @@ import com.kakaoscan.profile.domain.enums.RecordType;
 import com.kakaoscan.profile.domain.kafka.service.KafkaProducerService;
 import com.kakaoscan.profile.domain.model.KafkaMessage;
 import com.kakaoscan.profile.domain.repository.UserRepository;
-import com.kakaoscan.profile.domain.respon.enums.Role;
+import com.kakaoscan.profile.domain.enums.Role;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Sort;

@@ -1,7 +1,7 @@
 package com.kakaoscan.profile.domain.validator;
 
-import com.kakaoscan.profile.domain.respon.enums.ApiErrorCase;
-import com.kakaoscan.profile.domain.respon.exception.ApiException;
+import com.kakaoscan.profile.domain.enums.ApiErrorCase;
+import com.kakaoscan.profile.domain.exception.ApiException;
 import com.kakaoscan.profile.domain.validator.annotation.CheckKey;
 import org.springframework.beans.factory.annotation.Value;
 
