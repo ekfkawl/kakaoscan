@@ -64,13 +64,14 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                         .build());
         userRepository.save(user);
 
-        String emailHash = StrToMD5(attributes.getEmail(), saltKey);
+        String emailHash = StrToMD5(user.getEmail(), saltKey);
+        attributes.setRole(user.getRole());
         sessionManager.setValue(String.format(SESSION_FORMAT, emailHash), UserDTO.toDTO(attributes));
 
         Cookie cookie = new Cookie(SESSION_KEY, emailHash);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
-        cookie.setMaxAge(60 * 30); // 30분
+        cookie.setMaxAge(60 * 60); // 60분
         cookie.setPath("/");
         response.addCookie(cookie);
 
