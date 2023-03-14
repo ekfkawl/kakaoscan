@@ -20,10 +20,6 @@ public class Cache implements Serializable {
     @Id
     private String phoneNumber;
     /**
-     * 활성화 상태
-     */
-    private boolean enabled;
-    /**
      * 수정 날짜
      */
     @UpdateTimestamp

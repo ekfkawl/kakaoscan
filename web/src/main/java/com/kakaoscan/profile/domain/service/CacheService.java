@@ -3,6 +3,8 @@ package com.kakaoscan.profile.domain.service;
 import com.kakaoscan.profile.domain.entity.Cache;
 import com.kakaoscan.profile.domain.repository.CacheRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,11 +22,11 @@ public class CacheService {
     /**
      * 하루 이상 지난 전화번호 유효 상태 업데이트
      * @param phoneNumber
-     * @param enabled
      * @return
      */
+    @CacheEvict(value = "phoneNumberCache", key = "#phoneNumber", cacheManager = "cacheManager")
     @Transactional
-    public boolean updatePhoneNumberCache(String phoneNumber, boolean enabled) {
+    public boolean updatePhoneNumberCache(String phoneNumber) {
         boolean isSave = true;
 
         Optional<Cache> cache = cacheRepository.findById(phoneNumber);
@@ -36,7 +38,6 @@ public class CacheService {
         if (isSave) {
             cacheRepository.save(Cache.builder()
                     .phoneNumber(phoneNumber)
-                    .enabled(enabled)
                     .build());
         }
 
@@ -48,9 +49,9 @@ public class CacheService {
      * @param phoneNumber
      * @return
      */
-    @Cacheable(value = "phoneNumberCache", key = "#phoneNumber", cacheManager = "cacheManager")
+    @CachePut(value = "phoneNumberCache", key = "#phoneNumber", cacheManager = "cacheManager")
     @Transactional
-    public boolean isEnabledPhoneNumber(String phoneNumber) {
+    public boolean updateEnabledPhoneNumber(String phoneNumber) {
         Optional<Cache> cache = cacheRepository.findById(phoneNumber);
         if (cache.isPresent()) {
             long d = ChronoUnit.DAYS.between(cache.get().getModifyDt(), LocalDateTime.now());
@@ -59,5 +60,10 @@ public class CacheService {
         }else {
             return true;
         }
+    }
+
+    @Cacheable(value = "phoneNumberCache", key = "#phoneNumber", cacheManager = "cacheManager")
+    public boolean isEnabledPhoneNumber(String phoneNumber) {
+        return updateEnabledPhoneNumber(phoneNumber);
     }
 }

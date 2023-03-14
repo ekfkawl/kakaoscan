@@ -26,9 +26,8 @@ public class PhoneNumberCacheController extends ApiBaseController {
 
     @PostMapping("/cache")
     public boolean updateCache(@RequestParam(required = false) @Phone String phoneNumber,
-                               @RequestParam(defaultValue = "false") boolean enabled,
                                @RequestParam @CheckKey String key) {
 
-        return cacheService.updatePhoneNumberCache(phoneNumber, enabled);
+        return cacheService.updatePhoneNumberCache(phoneNumber);
     }
 }

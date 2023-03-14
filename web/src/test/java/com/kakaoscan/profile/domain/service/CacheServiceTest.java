@@ -15,7 +15,7 @@ class CacheServiceTest {
 
     @Test
     void updatePhoneNumberCache() {
-        cacheService.updatePhoneNumberCache("01012341234", false);
+        cacheService.updatePhoneNumberCache("01012341234");
     }
 
     @Test
