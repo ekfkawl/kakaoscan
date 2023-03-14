@@ -452,7 +452,18 @@ begin
                   Log(Format('Connections[%d] Error SearchFriend', [i]));
                   Continue;
                 end;
-                Sleep(1500);
+
+                Sleep(1000);
+
+                TimeOut:= GetTickCount64 + 2000;
+                while SharableInstance.GetSearchCount <> 1 do
+                begin
+                  Sleep(100);
+                  if GetTickCount64 > TimeOut then
+                  begin
+                    break;
+                  end;
+                end;
 
                 if SharableInstance.GetSearchCount = 0 then
                 begin
@@ -467,7 +478,7 @@ begin
                       Log(Format('Connections[%d] Error AddFriend 2', [i]));
                       break;
                     end;
-                    Sleep(1000);
+                    Sleep(100);
 
                     if not Client.DictMessage.TryGetValue(Current.SocketHandle, ClientMessage) then
                     begin
@@ -518,7 +529,7 @@ begin
 //                    Continue;
 //                  end;
 
-                  TimeOut:= GetTickCount64 + 2000;
+                  TimeOut:= GetTickCount64 + 3000;
                   while SharableInstance.GetSearchCount <> 1 do
                   begin
                     Sleep(100);
