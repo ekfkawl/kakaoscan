@@ -19,7 +19,7 @@ var
   procedure Init;
 
 implementation
-  uses uKakaoHandle;
+  uses uKakaoHandle, uPrivateHook;
 
 function UTF8ArrayToString(Arr: Pointer; Size: Cardinal): String;
 var
@@ -40,7 +40,7 @@ function SaveFriendName(pOriginName: Pointer): Pointer; stdcall;
     OriginName:= PPointer(DWORD(pOriginName) - $14)^;
     CustomName:= PPointer(DWORD(pOriginName) - 4)^;
 
-    DecodeOriginName:= UTF8ArrayToString(OriginName, PDWORD(DWORD(OriginName) - 8)^);
+    DecodeOriginName:= UTF8String(UTF8ArrayToString(OriginName, PDWORD(DWORD(OriginName) - 8)^));
     WideOriginName:= UTF8ToWideString(DecodeOriginName);
 
     ZeroMemory(@Kakao.SharableInstance.FriendOriginName, SizeOf(Kakao.SharableInstance.FriendOriginName));
@@ -86,16 +86,6 @@ asm
   lea eax, [ecx+8] // pCount
   push eax
   call f
-  popad
-end;
-
-procedure SaveFile; stdcall;
-asm
-  pushad
-  test ecx, ecx
-  je @End
-  call pSaveFile
-  @End:
   popad
 end;
 
@@ -154,7 +144,7 @@ function SaveFileCustom(OpenFile: DWORD): Integer; stdcall;
 
               NewName:= Format('%s\%s\%s.mp4', [BaseDir, Path, ImagePage[1]]);
 
-              CopyMemory(PPointer(OpenFile + $1C)^, PDWORD(NewName), 200);
+              CopyMemory(PPointer(OpenFile + $1C)^, PDWORD(NewName), Length(NewName) * 2);
             end;
 
           end;
@@ -272,7 +262,7 @@ function HttpResponHijack(pRespon: Pointer): Pointer; stdcall;
             begin
               Kakao.SharableInstance.AddFriendResult:= ADD_FAIL;
 
-              HttpPost(Format('/cache?phoneNumber=%s&enabled=false&key=%s', [Kakao.SharableInstance.GetRequestPhoneNumber, HTTP_KEY]));
+              HttpPost(Format('/cache?phoneNumber=%s&key=%s', [Kakao.SharableInstance.GetRequestPhoneNumber, HTTP_KEY]));
             end;
           end;
         end;
@@ -356,11 +346,11 @@ begin
     WriteProtectMemory1(Kakao.HookSaveFileCustom + 5, $90); // nop
 
     // 프로필 next
-    pNextProfile:= Ptr(Kakao.FuncNextProfile);
+//    pNextProfile:= Ptr(Kakao.FuncNextProfile);
 
     // 친구 차단 리스트박스 카운트
-    pOriginSetBlockCount:= Ptr(GetCallPtr(Kakao.HookBlockCount));
-    CallHook(Kakao.HookBlockCount, @GetBlockCount);
+//    pOriginSetBlockCount:= Ptr(GetCallPtr(Kakao.HookBlockCount));
+//    CallHook(Kakao.HookBlockCount, @GetBlockCount);
 
     // 친구 동기화 60초 제한 해제
     JumpHook(Kakao.HookSyncFriend, Kakao.HookSyncFriend + $1A3);
