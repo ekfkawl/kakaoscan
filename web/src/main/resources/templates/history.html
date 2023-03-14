@@ -52,10 +52,32 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h6 class="modal-title" id="modal-title"></h6>
+                            <div id="phone-copy" class="text-muted ms-2 cursor-hand"><i class="far fa-copy"></i></div>
                             <button type="button" class="btn-close" data-mdb-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div id="result">
+
+                                <!-- 상메 -->
+                                <p id="target_status" class="text-break mb-4 text-default">-</p>
+
+                                <!-- 뮤직 -->
+                                <div id="current_profile_music" class="hide">
+                                    <div class="d-flex align-items-center mb-4">
+                                        <div class="flex-shrink-0">
+                                            <img src="" alt="" class="img-fluid border border-dark border-1" style="width: 50px;">
+                                        </div>
+                                        <div class="flex-grow-1 ms-3">
+                                            <div class="d-flex flex-row align-items-center">
+                                                <div>
+                                                    <strong class="mb-0 me-2">-</strong>
+                                                    <p class="text-break text-muted mb-0 me-2 text-default">-</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <!-- Tabs navs -->
                                 <ul class="nav nav-tabs mb-3" id="ex-with-icons" role="tablist">
                                     <li class="nav-item" role="presentation">
@@ -107,6 +129,29 @@
                                     <a href="#result"><small class="text-muted">맨 위로</small></a>
                                 </div>
 
+                                <!-- toast -->
+                                <div
+                                        class="toast fade mx-auto"
+                                        id="basic-success-example"
+                                        role="alert"
+                                        aria-live="assertive"
+                                        aria-atomic="true"
+                                        data-mdb-autohide="true"
+                                        data-mdb-delay="2000"
+                                        data-mdb-position="top-right"
+                                        data-mdb-append-to-body="true"
+                                        data-mdb-stacking="true"
+                                        data-mdb-width="350px"
+                                        data-mdb-color="success"
+                                >
+                                    <div class="toast-header">
+                                        <strong class="me-auto">kakaoscan</strong>
+                                        <button type="button" class="btn-close" data-mdb-dismiss="toast" aria-label="Close"></button>
+                                    </div>
+                                    <div class="toast-body">전화번호가 복사되었습니다.</div>
+                                </div>
+
+
                             </div>
                         </div>
                     </div>
@@ -121,32 +166,63 @@
 <script type="text/javascript" src="/mdb/js/mdb.min.js"></script>
 <script th:inline="javascript">
     $(document).ready(function() {
-        const modal = document.getElementById('exampleModal');
-        const modalTitle = document.getElementById('modal-title');
+        const modal = $('#exampleModal');
+        const modalTitle = $('#modal-title');
         const modalInstance = new mdb.Modal(modal);
-
+        const targetStatusMessage = $('#target_status');
+        const currentMusic = $('#current_profile_music');
+        const currentMusicName = $('#current_profile_music strong');
+        const currentArtistName = $('#current_profile_music p');
+        const currentMusicAlbumUrl = $('#current_profile_music img');
         const tab1 = $('#tab1_res');
         const tab2 = $('#tab2_res');
         const tab3 = $('#tab3_res');
+        const toastInstance = mdb.Toast.getInstance($('#basic-success-example'));
 
         const historyList = [[${historyDTOS}]];
 
         $('table tr').click(function () {
+            currentMusic.addClass('hide');
+            targetStatusMessage.text('');
+
             var name = $(this).find('td:first-child .fw-bold').text();
             var phone = $(this).find('td:first-child .text-muted').text();
 
             for (var i = 0; i < historyList.length; i++) {
                 var v = historyList[i];
                 if (v.phoneNumber === phone) {
-                    render(tab1, v.scanResult, 'ImageUrl', '.mp4.jpg', 'col-lg-auto b-4');
-                    render(tab2, v.scanResult, 'BgImageUrl', '.mp4.jpg', 'col-lg-auto b-4');
-                    render(tab3, v.scanResult, 'VideoUrl', '.mp4', 'ratio ratio-16x9 b-4');
+
+                    res = v.scanResult;
+
+                    targetStatusMessage.text(decodeString(res.StatusMessage));
+
+                    if (res.hasOwnProperty('MusicName') && res.MusicName.length > 0 && res.hasOwnProperty('MusicAlbumUrl') && res.MusicAlbumUrl.length > 0) {
+                        currentMusicName.text(res.MusicName);
+                        currentArtistName.text(res.ArtistName);
+                        currentMusicAlbumUrl.attr('src', res.MusicAlbumUrl.replace('http://', 'https://'));
+                        currentMusic.removeClass('hide');
+                    }
+
+                    render(tab1, res, 'ImageUrl', '.mp4.jpg', 'col-lg-auto b-4');
+                    render(tab2, res, 'BgImageUrl', '.mp4.jpg', 'col-lg-auto b-4');
+                    render(tab3, res, 'VideoUrl', '.mp4', 'ratio ratio-16x9 b-4');
                     break;
                 }
             }
 
-            modalTitle.innerText = name;
+            modalTitle.text(decodeString(name) + ' | ' + phone);
             modalInstance.show();
+        });
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    toastInstance.show();
+                })
+        }
+
+        $(document).on("click", "#phone-copy", function () {
+            copyToClipboard(modalTitle.text().split(' | ')[1]);
         });
     });
 

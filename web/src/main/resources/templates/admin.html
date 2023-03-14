@@ -33,7 +33,6 @@
                     </tbody>
                 </table>
             </div>
-            </div>
 
             <div class="text-center mt-2">
                 <button id="btn_send_message" type="button" class="btn btn-link px-3 mb-4" data-mdb-toggle="modal" data-mdb-target="#exampleModal">Edit</button>
@@ -90,10 +89,10 @@
 <script type="text/javascript" src="/mdb/js/mdb.min.js"></script>
 <script>
     $(document).ready(function() {
-        const instance = mdb.Datatable.getInstance(document.getElementById('datatable'));
-        const modal = document.getElementById('exampleModal2');
-        const modalTitle = document.getElementById('modal-title');
-        const modalBody = document.getElementById('modal-body');
+        const instance = mdb.Datatable.getInstance($('#datatable'));
+        const modal = $('#exampleModal2');
+        const modalTitle = $('#modal-title');
+        const modalBody = $('#modal-body');
         const modalInstance = new mdb.Modal(modal);
 
         document.getElementById('datatable-search-input').addEventListener('input', (e) => {
@@ -105,12 +104,12 @@
         })
 
         datatable.addEventListener('rowClick.mdb.datatable', (e) => {
-            var res = _get('/api/unlock?email=' + e.row.field_0);
+            var res = _get('/api/unlock?email=' + e.row.field_0.replace(" *", ""));
             if (res.message !== null) {
                 const date = new Date(res.modifyDt);
                 const formattedDate = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")} ${date.getHours().toString().padStart(2, "0")}:${date.getMinutes().toString().padStart(2, "0")}:${date.getSeconds().toString().padStart(2, "0")}`;
-                modalTitle.innerText = e.row.field_0;
-                modalBody.innerText = `[${formattedDate}]\n\n${res.message}`;
+                modalTitle.text(e.row.field_0);
+                modalBody.text(`[${formattedDate}]\n\n${res.message}`);
                 modalInstance.show();
             }
         });
