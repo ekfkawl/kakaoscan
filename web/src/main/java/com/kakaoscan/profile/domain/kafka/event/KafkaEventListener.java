@@ -1,6 +1,7 @@
 package com.kakaoscan.profile.domain.kafka.event;
 
 import com.kakaoscan.profile.domain.model.EmailMessage;
+import com.kakaoscan.profile.domain.model.ScanResult;
 import com.kakaoscan.profile.domain.service.EmailService;
 import com.kakaoscan.profile.domain.service.UserHistoryService;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,8 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
@@ -23,8 +26,15 @@ public class KafkaEventListener {
 
         switch (event.getValue().getType()) {
             case UPSERT:
-                // email, phone, json
-                userHistoryService.updateHistory(event.getKey(), event.getValue().getSubMessage(), event.getValue().getMessage());
+                try {
+                    ScanResult scanResult = ScanResult.deserialize(event.getValue().getMessage());
+                    if (scanResult != null && scanResult.getErrorMessage() == null) {
+                        // email, phone, json
+                        userHistoryService.updateHistory(event.getKey(), event.getValue().getSubMessage(), event.getValue().getMessage());
+                    }
+                } catch (IOException e){
+                  log.error(e);
+                }
                 break;
 
             case EMAIL:

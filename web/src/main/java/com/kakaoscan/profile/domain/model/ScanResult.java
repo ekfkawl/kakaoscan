@@ -61,6 +61,9 @@ public class ScanResult {
     @JsonProperty("VideoUrl")
     private List<VideoUrl> videoUrlList;
 
+    @JsonProperty("Error")
+    private String errorMessage;
+
     public String getOriginName() {
         return Objects.isNull(originName) || originName.isEmpty() ? "이름 없음" : originName;
     }
