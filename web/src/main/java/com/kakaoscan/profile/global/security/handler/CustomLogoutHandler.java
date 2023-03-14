@@ -6,10 +6,12 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static com.kakaoscan.profile.global.session.instance.SessionManager.SESSION_FORMAT;
+import static com.kakaoscan.profile.global.session.instance.SessionManager.SESSION_KEY;
 import static com.kakaoscan.profile.utils.HttpRequestUtils.getCookie;
 
 @Component
@@ -22,5 +24,10 @@ public class CustomLogoutHandler implements LogoutHandler {
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         getCookie(request)
                 .ifPresent(cookie -> sessionManager.deleteValue(String.format(SESSION_FORMAT, cookie.getValue())));
+
+        Cookie cookie = new Cookie(SESSION_KEY, "");
+        cookie.setPath("/");
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
     }
 }
