@@ -1,6 +1,6 @@
 package com.kakaoscan.profile.domain.controller;
 
-import com.kakaoscan.profile.global.oauth.OAuthAttributes;
+import com.kakaoscan.profile.domain.dto.UserDTO;
 import com.kakaoscan.profile.global.oauth.annotation.UserAttributes;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.ui.Model;
@@ -22,8 +22,7 @@ public class ViewControllerAdvice {
     private String lBlog;
 
     @ModelAttribute
-    public void addAttrSignIn(Model model, @UserAttributes OAuthAttributes attributes) {
-
+    public void addAttrSignIn(Model model, @UserAttributes UserDTO attributes) {
         model.addAttribute("user", attributes);
         model.addAttribute("tick", System.currentTimeMillis());
         model.addAttribute("server", server);

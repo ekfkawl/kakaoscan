@@ -1,9 +1,9 @@
 package com.kakaoscan.profile.domain.controller.api;
 
+import com.kakaoscan.profile.domain.dto.UserDTO;
 import com.kakaoscan.profile.domain.dto.UserRequestUnlockDTO;
 import com.kakaoscan.profile.domain.entity.UserRequestUnlock;
 import com.kakaoscan.profile.domain.service.UserRequestUnlockService;
-import com.kakaoscan.profile.global.oauth.OAuthAttributes;
 import com.kakaoscan.profile.global.oauth.annotation.UserAttributes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -25,7 +25,7 @@ public class UserRequestUnlockController extends ApiBaseController {
     @PostMapping("/unlock")
     @PreAuthorize("hasRole('ROLE_GUEST')")
     public ResponseEntity<?> updateUnlockMessage(@Valid @RequestBody UserRequestUnlockDTO userRequestUnlockDTO,
-                                                 @UserAttributes OAuthAttributes attributes) {
+                                                 @UserAttributes UserDTO attributes) {
 
         userRequestUnlockService.updateUnlockMessage(attributes.getEmail(), userRequestUnlockDTO.getMessage());
 

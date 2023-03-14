@@ -1,8 +1,7 @@
 package com.kakaoscan.profile.domain.controller;
 
-import com.kakaoscan.profile.domain.dto.UserHistoryDTO;
-import com.kakaoscan.profile.domain.model.ScanResult;
 import com.kakaoscan.profile.domain.dto.UserDTO;
+import com.kakaoscan.profile.domain.dto.UserHistoryDTO;
 import com.kakaoscan.profile.domain.dto.UserRequestUnlockDTO;
 import com.kakaoscan.profile.domain.entity.UserRequestUnlock;
 import com.kakaoscan.profile.domain.model.UseCount;
@@ -11,7 +10,6 @@ import com.kakaoscan.profile.domain.service.AccessLimitService;
 import com.kakaoscan.profile.domain.service.UserHistoryService;
 import com.kakaoscan.profile.domain.service.UserRequestUnlockService;
 import com.kakaoscan.profile.domain.service.UserService;
-import com.kakaoscan.profile.global.oauth.OAuthAttributes;
 import com.kakaoscan.profile.global.oauth.annotation.UserAttributes;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -47,6 +45,7 @@ public class ViewController {
 
     @GetMapping("/")
     public ModelAndView index(@RequestParam(required = false, defaultValue = "") String phoneNumber) {
+
         ModelAndView mv = new ModelAndView("index");
 
         UseCount useCount = accessLimitService.getUseCount();
@@ -63,7 +62,7 @@ public class ViewController {
 
     @GetMapping("/req-unlock")
     @PreAuthorize("hasRole('ROLE_GUEST')")
-    public ModelAndView unlock(@UserAttributes OAuthAttributes attributes) {
+    public ModelAndView unlock(@UserAttributes UserDTO attributes) {
         ModelAndView mv = new ModelAndView("unlock");
 
         UserRequestUnlock userRequestUnlock = userRequestUnlockService.findByEmail(attributes.getEmail());
@@ -77,7 +76,7 @@ public class ViewController {
 
     @GetMapping("/admin")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ModelAndView admin(@UserAttributes OAuthAttributes attributes) {
+    public ModelAndView admin() {
         ModelAndView mv = new ModelAndView("admin");
 
         List<UserDTO> users = userService.findByAll().stream()
@@ -92,7 +91,7 @@ public class ViewController {
 
     @GetMapping("/history")
     @PreAuthorize("isAuthenticated()")
-    public ModelAndView history(@UserAttributes OAuthAttributes attributes) {
+    public ModelAndView history(@UserAttributes UserDTO attributes) {
         ModelAndView mv = new ModelAndView("history");
 
         List<UserHistoryDTO> historyDTOS = userHistoryService.getHistory(attributes.getEmail());

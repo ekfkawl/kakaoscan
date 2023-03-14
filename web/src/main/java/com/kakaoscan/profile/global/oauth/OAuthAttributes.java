@@ -1,21 +1,20 @@
 package com.kakaoscan.profile.global.oauth;
 
 import com.kakaoscan.profile.domain.respon.enums.Role;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.Transient;
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
 @Getter
 @Setter
 @Builder
-public class OAuthAttributes implements UserDetails, Serializable {
+@NoArgsConstructor
+@AllArgsConstructor
+public class OAuthAttributes implements UserDetails {
 
     private Map<String, Object> attributes;
     private String nameAttributeKey;

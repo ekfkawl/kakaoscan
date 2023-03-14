@@ -3,6 +3,7 @@ package com.kakaoscan.profile.domain.server;
 import com.kakaoscan.profile.domain.bridge.BridgeInstance;
 import com.kakaoscan.profile.domain.bridge.ClientQueue;
 import com.kakaoscan.profile.domain.client.NettyClientInstance;
+import com.kakaoscan.profile.domain.dto.UserDTO;
 import com.kakaoscan.profile.domain.enums.MessageSendType;
 import com.kakaoscan.profile.domain.enums.RecordType;
 import com.kakaoscan.profile.domain.kafka.service.KafkaProducerService;
@@ -12,7 +13,6 @@ import com.kakaoscan.profile.domain.respon.enums.Role;
 import com.kakaoscan.profile.domain.server.exception.InvalidAccess;
 import com.kakaoscan.profile.domain.service.AccessLimitService;
 import com.kakaoscan.profile.domain.service.UserRequestService;
-import com.kakaoscan.profile.global.oauth.OAuthAttributes;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,12 +56,12 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
         return (String) map.get("remoteAddress");
     }
 
-    public OAuthAttributes getOAuthUser(WebSocketSession session) {
+    public UserDTO getUser(WebSocketSession session) {
         Map<String, Object> map = session.getAttributes();
         Object userObj = map.get("user");
 
-        if (userObj instanceof OAuthAttributes) {
-            return (OAuthAttributes) userObj;
+        if (userObj instanceof UserDTO) {
+            return (UserDTO) userObj;
         } else {
             return null;
         }
@@ -81,7 +81,7 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
                 return;
             }
 
-            OAuthAttributes user = getOAuthUser(session);
+            UserDTO user = getUser(session);
             if (user == null) {
                 throw new InvalidAccess(MessageSendType.USER_NOT_FOUND.getType());
             }
@@ -106,7 +106,7 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
                 }
 
                 // 클라이언트 일일 사용 제한
-                if (userRequestService.getUseCount(getOAuthUser(session).getEmail()) >= userLimitCount) {
+                if (userRequestService.getUseCount(getUser(session).getEmail()) >= userLimitCount) {
                     throw new InvalidAccess(String.format(MessageSendType.LOCAL_ACCESS_LIMIT.getType(), userLimitCount));
                 }
 
