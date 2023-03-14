@@ -117,7 +117,7 @@
         $(document).on("click", "#save_users", function () {
             const selectedValues = $('.datatable-table tbody tr')
                 .filter((index, element) => $(element).find('.datatable-row-checkbox').is(':checked'))
-                .map((index, element) => $(element).find('td:eq(1)').text())
+                .map((index, element) => $(element).find('td:eq(1)').text().replace(" *", ""))
                 .toArray();
 
             console.log(selectedValues);
