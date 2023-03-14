@@ -20,7 +20,7 @@ public class HttpRequestUtils {
     public static Optional<Cookie> getCookie(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
         if (cookies == null) {
-            return Optional.of(null);
+            return Optional.empty();
         }
         return Arrays.stream(cookies)
                 .filter(cookie -> SESSION_KEY.equals(cookie.getName()))
