@@ -10,7 +10,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -69,7 +68,8 @@ public class UserHistoryService {
 
                         return userHistoryDTO;
 
-                    } catch (IOException e) {
+                    } catch (Exception e) {
+                        log.error("get history error");
                         throw new RuntimeException(e);
                     }
                 })
