@@ -102,8 +102,7 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
             // receive phone number
             if (isNumeric(receive) && receive.length() == 11) {
 
-                if (userHistoryService.getHistory(user.getEmail()).stream()
-                        .noneMatch(history -> history.getPhoneNumber().equals(receive))) {
+                if (userHistoryService.isScannedHistory(user.getEmail())) {
 
                     // 클라이언트 일일 사용 제한
                     if (userRequestService.getTodayUseCount(user.getEmail()) >= userLimitCount) {

@@ -80,6 +80,17 @@ public class UserHistoryService {
     }
 
     @Transactional
+    public boolean isScannedHistory(String phoneNumber) {
+        Optional<List<UserHistory>> optionalUserHistories = userHistoryRepository.findByPhoneNumber(phoneNumber);
+        if (optionalUserHistories.isPresent()) {
+            List<UserHistory> userHistories = optionalUserHistories.get();
+            return userHistories.stream()
+                    .anyMatch(userHistory -> phoneNumber.equals(userHistory.getPhoneNumber()));
+        }
+        return false;
+    }
+
+    @Transactional
     @Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행
     public void deleteOldHistory() {
         Optional<List<UserHistory>> optionalUserHistories = userHistoryRepository.findByModifyDtBefore(LocalDateTime.now().minusDays(7));

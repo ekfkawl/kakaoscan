@@ -14,5 +14,6 @@ public interface UserHistoryRepository extends JpaRepository<UserHistory, Long> 
     Optional<List<UserHistory>> findByEmailOrderByModifyDtDesc(String email);
     Optional<UserHistory> findByEmailAndPhoneNumber(String email, String phoneNumber);
     Optional<List<UserHistory>> findByModifyDtBefore(LocalDateTime createDt);
+    Optional<List<UserHistory>> findByPhoneNumber(String phoneNumber);
 }
 
