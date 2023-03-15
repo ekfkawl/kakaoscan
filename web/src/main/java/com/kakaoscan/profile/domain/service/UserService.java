@@ -45,7 +45,7 @@ public class UserService {
             
             // guest -> user 사용 허가 메일 발송
             if (Role.GUEST.getKey().equals(user.getRole().getKey()) && Role.USER.getKey().equals(userModifyDTO.getRole().getKey())) {
-                producerService.send(user.getEmail(), new KafkaMessage(RecordType.EMAIL, user.getEmail()));
+                producerService.send(user.getEmail(), new KafkaMessage(RecordType.SEND_EMAIL, user.getEmail()));
             }
             
             user.setRole(userModifyDTO.getRole());

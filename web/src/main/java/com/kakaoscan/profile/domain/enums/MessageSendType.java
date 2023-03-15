@@ -20,9 +20,9 @@ public enum MessageSendType {
     REQUEST_TIME_OUT("{\"Error\":\"요청 시간이 초과되었습니다\"}"),
     EMPTY_IP("{\"Error\":\"잘못된 접근입니다\"}");
 
-    private String type;
+    private String message;
 
-    MessageSendType(String type) {
-        this.type = type;
+    MessageSendType(String message) {
+        this.message = message;
     }
 }

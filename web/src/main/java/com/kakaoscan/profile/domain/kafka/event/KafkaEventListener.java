@@ -27,7 +27,7 @@ public class KafkaEventListener {
     public void onEvent(KafkaEvent event) {
 
         switch (event.getValue().getType()) {
-            case UPSERT:
+            case UPSERT_HISTORY:
                 try {
                     ScanResult scanResult = ScanResult.deserialize(event.getValue().getMessage());
                     if (scanResult != null && scanResult.getErrorMessage() == null) {
@@ -41,7 +41,7 @@ public class KafkaEventListener {
                 }
                 break;
 
-            case EMAIL:
+            case SEND_EMAIL:
                 EmailMessage emailMessage = EmailMessage.builder()
                         .to(event.getKey())
                         .subject("[카카오스캔] 서비스 사용 허가 안내")
