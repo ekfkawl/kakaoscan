@@ -104,15 +104,16 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
 
                 if (userHistoryService.getHistory(user.getEmail()).stream()
                         .noneMatch(history -> history.getPhoneNumber().equals(receive))) {
-                    // 전체 일일 사용 제한
-                    UseCount useCount = accessLimitService.getUseCount();
-                    if (useCount.getTotalCount() >= allLimitCount * serverCount) {
-                        throw new InvalidAccess(MessageSendType.ACCESS_LIMIT.getMessage());
-                    }
 
                     // 클라이언트 일일 사용 제한
                     if (userRequestService.getTodayUseCount(user.getEmail()) >= userLimitCount) {
                         throw new InvalidAccess(String.format(MessageSendType.LOCAL_ACCESS_LIMIT.getMessage(), userLimitCount));
+                    }
+
+                    // 전체 일일 사용 제한
+                    UseCount useCount = accessLimitService.getUseCount();
+                    if (useCount.getTotalCount() >= allLimitCount * serverCount) {
+                        throw new InvalidAccess(MessageSendType.ACCESS_LIMIT.getMessage());
                     }
                 }
 
