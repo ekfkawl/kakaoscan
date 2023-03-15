@@ -20,7 +20,7 @@ public class UserRequestUnlockService {
                  .build());
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public UserRequestUnlock findByEmail(String email) {
         return userRequestUnlockRepository.findById(email).orElse(null);
     }

@@ -34,7 +34,7 @@ public class UserHistoryService {
         userHistoryRepository.save(userHistory);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<UserHistoryDTO> getHistory(String email) {
         Optional<List<UserHistory>> optionalUserHistories = userHistoryRepository.findByEmailOrderByModifyDtDesc(email);
         if (optionalUserHistories.isEmpty()) {
@@ -79,7 +79,7 @@ public class UserHistoryService {
 
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean isScannedHistory(String phoneNumber) {
         Optional<List<UserHistory>> optionalUserHistories = userHistoryRepository.findByPhoneNumber(phoneNumber);
         if (optionalUserHistories.isPresent()) {

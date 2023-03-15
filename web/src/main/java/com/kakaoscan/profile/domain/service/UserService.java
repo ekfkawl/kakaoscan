@@ -24,12 +24,12 @@ public class UserService {
 
     private final KafkaProducerService producerService;
 
-    @Transactional
+    @Transactional(readOnly = true)
     public User findByEmail(String email) {
         return userRepository.findById(email).orElse(null);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<User> findByAll() {
         return userRepository.findAll(Sort.by(Sort.Direction.DESC, "modifyDt"));
     }
