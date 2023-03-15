@@ -20,9 +20,7 @@ public class UserRequestService {
 
     @Transactional
     public long getUseCount(String email) {
-//        Optional<UserRequest> userRequest = userRequestRepository.findByRemoteAddressAndLastUseDt(email, LocalDate.now());
         Optional<UserRequest> userRequest = userRequestRepository.findLockById(email);
-
         return userRequest.map(UserRequest::getUseCount).orElse(0L);
     }
 
@@ -45,6 +43,16 @@ public class UserRequestService {
                 .build());
 
         return true;
+    }
+
+    @Transactional
+    public void initUseCount(String email, String remoteAddress) {
+        userRequestRepository.save(UserRequest.builder()
+                .email(email)
+                .remoteAddress(remoteAddress)
+                .useCount(0)
+                .lastUseDt(LocalDate.now())
+                .build());
     }
 
     @Transactional

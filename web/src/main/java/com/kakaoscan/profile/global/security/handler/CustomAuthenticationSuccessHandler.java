@@ -4,6 +4,7 @@ import com.kakaoscan.profile.domain.service.UserRequestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.DefaultRedirectStrategy;
 import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -28,10 +29,16 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
 
     @Override
     public void onAuthenticationSuccess(final HttpServletRequest request, final HttpServletResponse response, final Authentication authentication) throws IOException {
-        // 계정 별 사용 횟수 동기화
-        String remoteAddress = StrToMD5(getRemoteAddress(request), "");
-        userRequestService.syncUserUseCount(remoteAddress, LocalDate.now());
-        log.info("login client remote address : {}, {}", getRemoteAddress(request), remoteAddress);
+        // remoteAddress 같은 계정 사용 횟수 동기화
+        DefaultOAuth2User oauth2User = (DefaultOAuth2User) authentication.getPrincipal();
+        String email = oauth2User.getAttribute("email");
+
+        if (userRequestService.getUseCount(email) == 0) {
+            String remoteAddress = StrToMD5(getRemoteAddress(request), "");
+
+            userRequestService.initUseCount(email, remoteAddress);
+            userRequestService.syncUserUseCount(remoteAddress, LocalDate.now());
+        }
 
         setDefaultTargetUrl("/");
 
