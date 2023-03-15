@@ -32,13 +32,13 @@ public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         // remoteAddress 같은 계정 사용 횟수 동기화
         DefaultOAuth2User oauth2User = (DefaultOAuth2User) authentication.getPrincipal();
         String email = oauth2User.getAttribute("email");
+        String remoteAddress = StrToMD5(getRemoteAddress(request), "");
 
-        if (userRequestService.getUseCount(email) == 0) {
-            String remoteAddress = StrToMD5(getRemoteAddress(request), "");
-
+        if (userRequestService.getTodayUseCount(email) == -1) {
             userRequestService.initUseCount(email, remoteAddress);
-            userRequestService.syncUserUseCount(remoteAddress, LocalDate.now());
         }
+        userRequestService.syncUserUseCount(remoteAddress, LocalDate.now());
+
 
         setDefaultTargetUrl("/");
 
