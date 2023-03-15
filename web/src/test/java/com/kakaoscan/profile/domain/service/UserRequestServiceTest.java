@@ -22,7 +22,7 @@ class UserRequestServiceTest {
 
     @Test
     void getUseCount() {
-        long aa7f43535f25ca70763fe1a296b0a789 = userRequestService.getUseCount("test@test.com");
+        long aa7f43535f25ca70763fe1a296b0a789 = userRequestService.getTodayUseCount("test@test.com");
         System.out.println("test@test.com = " + aa7f43535f25ca70763fe1a296b0a789);
     }
 

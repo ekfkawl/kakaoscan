@@ -19,9 +19,19 @@ public class UserRequestService {
     private final UserRequestRepository userRequestRepository;
 
     @Transactional
-    public long getUseCount(String email) {
-        Optional<UserRequest> userRequest = userRequestRepository.findLockById(email);
-        return userRequest.map(UserRequest::getUseCount).orElse(0L);
+    public long getTodayUseCount(String email) {
+        Optional<UserRequest> optionalUserRequest = userRequestRepository.findLockById(email);
+        if (optionalUserRequest.isPresent()) {
+            UserRequest userRequest = optionalUserRequest.get();
+
+            if (LocalDate.now().equals(userRequest.getLastUseDt())) {
+                return userRequest.getUseCount();
+            }else {
+                return 0;
+            }
+        }
+
+        return -1;
     }
 
     @Transactional

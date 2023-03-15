@@ -111,7 +111,7 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
                     }
 
                     // 클라이언트 일일 사용 제한
-                    if (userRequestService.getUseCount(user.getEmail()) >= userLimitCount) {
+                    if (userRequestService.getTodayUseCount(user.getEmail()) >= userLimitCount) {
                         throw new InvalidAccess(String.format(MessageSendType.LOCAL_ACCESS_LIMIT.getMessage(), userLimitCount));
                     }
                 }
