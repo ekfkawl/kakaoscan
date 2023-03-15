@@ -162,6 +162,7 @@
     </div>
 </div>
 <script th:src="@{|/js/common.js?t=${tick}|}"></script>
+<script src="https://unpkg.com/clipboard-polyfill@4.0.0/dist/es5/window-var/clipboard-polyfill.window-var.promise.es5.js"></script>
 <!-- MDB -->
 <script type="text/javascript" src="/mdb/js/mdb.min.js"></script>
 <script th:inline="javascript">
@@ -215,10 +216,13 @@
         });
 
         function copyToClipboard(text) {
-            navigator.clipboard.writeText(text)
+            clipboard.writeText(text)
                 .then(() => {
                     toastInstance.show();
                 })
+                .catch((error) => {
+                    console.error(error);
+                });
         }
 
         $(document).on("click", "#phone-copy", function () {
