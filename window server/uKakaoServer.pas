@@ -446,6 +446,7 @@ begin
 
 
               const StartTick = GetTickCount64;
+
               //
               try
                 if not SearchFriend(Current.Msg) then
@@ -573,6 +574,9 @@ begin
                 JSONObject.AddPair('ArtistName', SharableInstance.GetArtistName);
 
                 JSONObject.AddPair('MusicAlbumUrl', SharableInstance.GetMusicAlbumUrl);
+
+                const CurrentTick = GetTickCount64;
+                JSONObject.AddPair('Tick', CurrentTick);
                 //`
 
 
@@ -598,8 +602,6 @@ begin
                 JSONObject.AddPair('Host', Format('%s%s/', [HostPath, MD5FriendCustomName]));
 
                 const Dir = Format('%s%s\', [ROOT, MD5FriendCustomName]);
-
-                const CurrentTick = GetTickCount64;
 
                 // profile
                 sl:= TStringList.Create;
