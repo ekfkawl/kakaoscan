@@ -94,7 +94,15 @@ public class UserHistoryService {
     @Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행
     public void deleteOldHistory() {
         Optional<List<UserHistory>> optionalUserHistories = userHistoryRepository.findByModifyDtBefore(LocalDateTime.now().minusDays(7));
-        optionalUserHistories.ifPresent(userHistoryRepository::deleteAll);
+        if (optionalUserHistories.isPresent()) {
+            List<UserHistory> userHistories = optionalUserHistories.get();
+            int deletedCount = userHistories.size();
+            userHistoryRepository.deleteAll(userHistories);
+
+            log.info("scheduled.. delete old history : {}", deletedCount);
+        }else {
+            log.info("scheduled.. not found old history");
+        }
     }
 
 }
