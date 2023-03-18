@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -15,7 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
-public class User {
+public class User implements Serializable {
     /**
      * 이메일 아이디
      */

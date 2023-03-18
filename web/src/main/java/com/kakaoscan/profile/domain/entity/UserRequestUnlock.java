@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity(name = "tb_req_unlock")
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Builder
-public class UserRequestUnlock {
+public class UserRequestUnlock implements Serializable {
     /**
      * 이메일 아이디
      */

@@ -5,6 +5,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity(name = "tb_user_history")
@@ -12,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Builder
-public class UserHistory {
+public class UserHistory implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long seq;
