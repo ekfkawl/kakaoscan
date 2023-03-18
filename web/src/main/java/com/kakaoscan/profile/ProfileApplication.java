@@ -17,6 +17,7 @@ import org.springframework.context.event.EventListener;
 		  		 "classpath:application-link.properties",
 		  		 "classpath:application-smtp.properties",
 		  		 "classpath:application-redis.properties",
+		  		 "classpath:application-kafka.properties",
 		 		 "classpath:application-oauth.yml"})
 public class ProfileApplication {
 	@Value("${tcp.host}")
