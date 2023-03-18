@@ -16,10 +16,13 @@ import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSeriali
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+import org.springframework.session.data.redis.config.ConfigureRedisAction;
+import org.springframework.session.data.redis.config.annotation.web.http.EnableRedisHttpSession;
 
 import java.time.Duration;
 
 @Profile("prod")
+@EnableRedisHttpSession(maxInactiveIntervalInSeconds = 3600)
 @Configuration
 @EnableCaching
 public class RedisConfig {
@@ -32,6 +35,11 @@ public class RedisConfig {
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
         return new LettuceConnectionFactory(redisHost, redisPort);
+    }
+
+    @Bean
+    public ConfigureRedisAction configureRedisAction() {
+        return ConfigureRedisAction.NO_OP;
     }
 
     @Bean

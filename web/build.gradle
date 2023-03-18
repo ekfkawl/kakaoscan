@@ -40,6 +40,7 @@ dependencies {
 	implementation 'com.auth0:java-jwt:4.3.0'
 	implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.session:spring-session-data-redis'
 	implementation 'io.lettuce:lettuce-core'
 
 	// https://mvnrepository.com/artifact/io.netty/netty-all
