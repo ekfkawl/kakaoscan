@@ -53,7 +53,7 @@ function render($ele, res, k, ext, className) {
         });
 
         for (let i in res[k]) {
-            let url = res['Host'] + res[k][i].Dir + '/' + res[k][i].Name + ext + '?t=' + Math.random();
+            let url = `${res['Host']}${res['Tick']}/${res[k][i].Dir}/${res[k][i].Name}${ext}?t=${Math.random()}`;
 
             switch (ext) {
                 case '.mp4.jpg':

@@ -15,6 +15,8 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ScanResult {
+    @JsonProperty("Tick")
+    private String tick;
 
     @JsonProperty("OriginName")
     private String originName;
