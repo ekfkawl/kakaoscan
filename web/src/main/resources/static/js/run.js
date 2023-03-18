@@ -120,7 +120,7 @@ function init(server) {
                         }
 
                         // preview
-                        previewProfileImg.attr('src', res['Host'] + 'preview/preview.jpg?t=' + Math.random());
+                        previewProfileImg.attr('src', res['Host'] + res['Tick'] + '/preview/preview.jpg?t=' + Math.random());
 
                         // find user profile image
                         render(tab1, res, 'ImageUrl', '.mp4.jpg', 'col-lg-4 b-4');
