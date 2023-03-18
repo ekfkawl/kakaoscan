@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalDate;
 
 import static com.kakaoscan.profile.utils.GenerateUtils.StrToMD5;
 import static com.kakaoscan.profile.utils.HttpRequestUtils.getRemoteAddress;
@@ -23,22 +22,20 @@ import static com.kakaoscan.profile.utils.HttpRequestUtils.getRemoteAddress;
 @Component
 public class CustomAuthenticationSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
+    private final RedirectStrategy redirectStrategy = new DefaultRedirectStrategy();
 
     private final UserRequestService userRequestService;
 
     @Override
     public void onAuthenticationSuccess(final HttpServletRequest request, final HttpServletResponse response, final Authentication authentication) throws IOException {
-        // remoteAddress 같은 계정 사용 횟수 동기화
         DefaultOAuth2User oauth2User = (DefaultOAuth2User) authentication.getPrincipal();
         String email = oauth2User.getAttribute("email");
         String remoteAddress = StrToMD5(getRemoteAddress(request), "");
 
+        // 오늘 사용 데이터가 없으면 0으로 초기화
         if (userRequestService.getTodayUseCount(email) == -1) {
             userRequestService.initUseCount(email, remoteAddress);
         }
-        userRequestService.syncUserUseCount(remoteAddress, LocalDate.now());
-
 
         setDefaultTargetUrl("/");
 

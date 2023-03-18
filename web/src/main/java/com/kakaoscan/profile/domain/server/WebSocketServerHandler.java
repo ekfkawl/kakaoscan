@@ -24,6 +24,7 @@ import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -105,6 +106,9 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
             if (isNumeric(receive) && receive.length() == 11) {
 
                 if (!addedNumberService.isExistsPhoneNumberHash(receive)) {
+
+                    // remoteAddress 같은 계정 사용 횟수 동기화
+                    userRequestService.syncUserUseCount(getRemoteAddress(session), LocalDate.now());
 
                     // 클라이언트 일일 사용 제한
                     if (userRequestService.getTodayUseCount(user.getEmail()) >= userLimitCount) {
