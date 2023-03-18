@@ -598,13 +598,15 @@ begin
 
                 const Dir = Format('%s%s\', [ROOT, MD5FriendCustomName]);
 
+                const CurrentTick = GetTickCount64;
+
                 // profile
                 sl:= TStringList.Create;
                 try
                   FindFiles(Format('%s%s\', [Dir, IIS_PROFILE_PATH]), ['*.jpg'], sl, MD5FriendCustomName, False);
                   for var s in sl do
                   begin
-                    UploadFileToS3(s, String.Format('%s/%s/%s', [MD5FriendCustomName, IIS_PROFILE_PATH, ExtractFileName(s)]), 'image/jpeg');
+                    UploadFileToS3(s, String.Format('%s/%d/%s/%s', [MD5FriendCustomName, CurrentTick, IIS_PROFILE_PATH, ExtractFileName(s)]), 'image/jpeg');
                     JSONArray1.Add(TJSONObject.Create.AddPair('Dir', IIS_PROFILE_PATH).AddPair('Name', ExtractFileName(s).Split(['.'])[0]));
                   end;
                 finally
@@ -619,7 +621,7 @@ begin
                   FindFiles(Format('%s%s\', [Dir, IIS_BG_PATH]), ['*.jpg'], sl, MD5FriendCustomName, False);
                   for var s in sl do
                   begin
-                    UploadFileToS3(s, String.Format('%s/%s/%s', [MD5FriendCustomName, IIS_BG_PATH, ExtractFileName(s)]), 'image/jpeg');
+                    UploadFileToS3(s, String.Format('%s/%d/%s/%s', [MD5FriendCustomName, CurrentTick, IIS_BG_PATH, ExtractFileName(s)]), 'image/jpeg');
                     JSONArray2.Add(TJSONObject.Create.AddPair('Dir', IIS_BG_PATH).AddPair('Name', ExtractFileName(s).Split(['.'])[0]));
                   end;
                 finally
@@ -634,7 +636,7 @@ begin
                   FindFiles(Dir, ['*.mp4'], sl, MD5FriendCustomName, True);
                   for var s in sl do
                   begin
-                    UploadFileToS3(s, String.Format('%s/%s/%s', [MD5FriendCustomName, IIS_VIDEO_PATH, ExtractFileName(s)]), 'video/mp4');
+                    UploadFileToS3(s, String.Format('%s/%d/%s/%s', [MD5FriendCustomName, CurrentTick, IIS_VIDEO_PATH, ExtractFileName(s)]), 'video/mp4');
                     JSONArray3.Add(TJSONObject.Create.AddPair('Dir', IIS_VIDEO_PATH).AddPair('Name', ExtractFileName(s).Split(['.'])[0]));
                   end;
                 finally
@@ -644,7 +646,7 @@ begin
                 end;
 
                 // preview
-                UploadFileToS3(String.Format('%s%s\preview.jpg', [Dir, IIS_PREVIEW_PATH]), String.Format('%s/%s/preview.jpg', [MD5FriendCustomName, IIS_PREVIEW_PATH]), 'image/jpeg');
+                UploadFileToS3(String.Format('%s%s\preview.jpg', [Dir, IIS_PREVIEW_PATH]), String.Format('%s/%d/%s/preview.jpg', [MD5FriendCustomName, CurrentTick, IIS_PREVIEW_PATH]), 'image/jpeg');
 
                 (*
                 if not BlockAndClearFriend then
