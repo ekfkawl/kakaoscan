@@ -23,6 +23,7 @@ public class UserDTO {
     private String profileUrl;
     private Role role;
     private transient long useCount;
+    private transient long totalUseCount;
     private transient LocalDateTime modifyDt;
     private transient LocalDateTime createDt;
     private transient UserRequestUnlock requestUnlock;
@@ -35,6 +36,7 @@ public class UserDTO {
                 .createDt(entity.getCreateDt())
                 .requestUnlock(entity.getRequestUnlock())
                 .useCount(entity.getRequest() != null ? entity.getRequest().getUseCount() : -1)
+                .totalUseCount(entity.getTotalUseCount())
                 .build();
     }
 
