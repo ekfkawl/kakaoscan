@@ -178,7 +178,7 @@ function init(server) {
         results.addClass('hide');
         moveTop.addClass('hide');
         limitInfo.addClass('hide');
-        queueInfo.removeClass('hide');
+        // queueInfo.removeClass('hide');
         target.text('');
         targetStatusMessage.text('');
         tab1.empty();
