@@ -445,6 +445,7 @@ begin
 //              end;
 
 
+              const StartTick = GetTickCount64;
               //
               try
                 if not SearchFriend(Current.Msg) then
@@ -673,7 +674,8 @@ begin
 
                     Connections[i].Close;
 
-                    Log(Format('%s(%s) 응답 완료', [Current.RemoteAddr2, Current.Msg]));
+                    const ElapsedTime = (GetTickCount64 - StartTick) / 1000;
+                    Log(Format('%s(%s) 응답 완료 (%s 초)', [Current.RemoteAddr2, Current.Msg, FloatToStr(ElapsedTime)]));
                   end;
                 except;
                   Log(Format('%d Already Close', [CurrentSocketHandle]));
