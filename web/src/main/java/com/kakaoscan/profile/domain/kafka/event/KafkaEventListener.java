@@ -2,6 +2,7 @@ package com.kakaoscan.profile.domain.kafka.event;
 
 import com.kakaoscan.profile.domain.model.EmailMessage;
 import com.kakaoscan.profile.domain.model.ScanResult;
+import com.kakaoscan.profile.domain.service.AddedNumberService;
 import com.kakaoscan.profile.domain.service.EmailService;
 import com.kakaoscan.profile.domain.service.UserHistoryService;
 import com.kakaoscan.profile.domain.service.UserService;
@@ -17,8 +18,10 @@ import java.io.IOException;
 @RequiredArgsConstructor
 @Log4j2
 public class KafkaEventListener {
+
     private final UserHistoryService userHistoryService;
     private final UserService userService;
+    private final AddedNumberService addedNumberService;
 
     private final EmailService emailService;
 
@@ -32,12 +35,15 @@ public class KafkaEventListener {
                     ScanResult scanResult = ScanResult.deserialize(event.getValue().getMessage());
                     if (scanResult != null && scanResult.getErrorMessage() == null) {
                         // email, phone, json
-                        userHistoryService.updateHistory(event.getKey(), event.getValue().getSubMessage(), event.getValue().getMessage());
+                        String email = event.getKey();
+                        String phone = event.getValue().getSubMessage();
 
+                        userHistoryService.updateHistory(email, phone, event.getValue().getMessage());
+                        addedNumberService.appendPhoneNumberHash(phone);
                         userService.incTotalUseCount(event.getKey());
                     }
                 } catch (IOException e){
-                  log.error(e);
+                  log.error("update history event : {}", e.getMessage(), e);
                 }
                 break;
 

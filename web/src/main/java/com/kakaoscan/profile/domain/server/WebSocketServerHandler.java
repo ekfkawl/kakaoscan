@@ -12,6 +12,7 @@ import com.kakaoscan.profile.domain.kafka.service.KafkaProducerService;
 import com.kakaoscan.profile.domain.model.KafkaMessage;
 import com.kakaoscan.profile.domain.model.UseCount;
 import com.kakaoscan.profile.domain.service.AccessLimitService;
+import com.kakaoscan.profile.domain.service.AddedNumberService;
 import com.kakaoscan.profile.domain.service.UserHistoryService;
 import com.kakaoscan.profile.domain.service.UserRequestService;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +51,7 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
     private final AccessLimitService accessLimitService;
     private final UserRequestService userRequestService;
     private final UserHistoryService userHistoryService;
+    private final AddedNumberService addedNumberService;
     private final BridgeInstance bi;
     private final KafkaProducerService producerService;
 
@@ -102,7 +104,7 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
             // receive phone number
             if (isNumeric(receive) && receive.length() == 11) {
 
-                if (!userHistoryService.isScannedHistory(receive)) {
+                if (!addedNumberService.isExistsPhoneNumberHash(receive)) {
 
                     // 클라이언트 일일 사용 제한
                     if (userRequestService.getTodayUseCount(user.getEmail()) >= userLimitCount) {
