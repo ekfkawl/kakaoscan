@@ -20,6 +20,9 @@ public class AddedNumberService {
 
     @Transactional
     public void appendPhoneNumberHash(String phoneNumber) {
+        if (isExistsPhoneNumberHash(phoneNumber)) {
+            return;
+        }
         AddedNumber addedNumber = AddedNumber.builder()
                 .phoneNumberHash(StrToMD5(phoneNumber, saltKey))
                 .build();
