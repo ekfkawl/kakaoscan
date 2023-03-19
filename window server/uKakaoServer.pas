@@ -524,10 +524,14 @@ begin
                     end;
                   end;
 
+                  TThread.CreateAnonymousThread(procedure
+                  begin
+                    // use count++
+                    HttpPost(Format('/use?email=%s&remoteAddress=%s&key=%s', [ClientMessage.Email, ClientMessage.RemoteAddr2, HTTP_KEY]));
+                    HttpPost(Format('/limit?serverIndex=%d&key=%s', [ServerIndex, HTTP_KEY]));
+                  end).Start;
 
-                  // use count++
-                  HttpPost(Format('/use?email=%s&remoteAddress=%s&key=%s', [ClientMessage.Email, ClientMessage.RemoteAddr2, HTTP_KEY]));
-                  HttpPost(Format('/limit?serverIndex=%d&key=%s', [ServerIndex, HTTP_KEY]));
+                  SyncFriend;
 
                   //
 //                  if not SearchFriend(Current.Msg) then

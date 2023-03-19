@@ -68,6 +68,7 @@ type
       function ViewProfileImage(CustomName: String): Boolean;
       function ViewPreviewImage: Boolean;
       function BlockAndClearFriend: Boolean;
+      function SyncFriend: Boolean;
 
       constructor Create;
       destructor Destroy; override;
@@ -283,6 +284,8 @@ begin
                 SendMessage(AddFriendHandle, WM_CLOSE, 0, 0);
               end;
 
+//              SyncFriend;
+
               Exit;
             end;
           end;
@@ -304,35 +307,11 @@ function TKakao.SearchFriend(CustomName: String): Boolean;
 var
   Thread: TThread;
   p: TPoint;
-  BaseDir: WideString;
 begin
   Thread:= TThread.CreateAnonymousThread(procedure
   begin
     CreateSharable;
-
-    // 유저 데이터 폴더 생성
-    BaseDir:= ROOT + StrToMD5(AnsiString(CustomName));
-    if DirectoryExists(BaseDir) then
-    begin
-      TDirectory.Delete(BaseDir, True);
-    end;
-    CreateDir(BaseDir);
-    CreateDir(Format('%s\%s', [BaseDir, IIS_PROFILE_PATH]));
-    CreateDir(Format('%s\%s', [BaseDir, IIS_BG_PATH]));
-    CreateDir(Format('%s\%s', [BaseDir, IIS_PREVIEW_PATH]));
-
-    FriendConfigHandle:= 0;
-    EnumWindows(@GetFriendConfigHandleCallback, 0);
-    if FriendConfigHandle > 0 then
-    begin
-      for var i:= 1 to 3 do
-      begin
-        Click(GetParent(FriendConfigHandle), 70, 125); // 친구 동기화
-        Sleep(Random(100));
-      end;
-
-      Sleep(250);
-    end;
+//    SyncFriend;
 
     SharableMemory.SharableInstance.UpdateMemory;
     SharableMemory.SharableInstance.SearchCount:= -1;
@@ -375,6 +354,22 @@ begin
   Thread.Start;
 
   Result:= WaitFor(Thread, 5 * 1000);
+end;
+
+function TKakao.SyncFriend: Boolean;
+begin
+  FriendConfigHandle:= 0;
+  EnumWindows(@GetFriendConfigHandleCallback, 0);
+  if FriendConfigHandle > 0 then
+  begin
+    for var i:= 1 to 3 do
+    begin
+      Click(GetParent(FriendConfigHandle), 70, 125); // 친구 동기화
+      Sleep(Random(100));
+    end;
+  end;
+
+  Result:= True;
 end;
 
 function TKakao.ViewFriend: Boolean;
@@ -433,10 +428,22 @@ var
   BeforeImagePage: String;
   FileCase: Array [0..1] of String;
   ViewFriendBitmap: TBitmap;
+  BaseDir: WideString;
 begin
   Thread:= TThread.CreateAnonymousThread(procedure
   begin
     CreateSharable;
+
+    // 유저 데이터 폴더 생성
+    BaseDir:= ROOT + StrToMD5(AnsiString(CustomName));
+    if DirectoryExists(BaseDir) then
+    begin
+      TDirectory.Delete(BaseDir, True);
+    end;
+    CreateDir(BaseDir);
+    CreateDir(Format('%s\%s', [BaseDir, IIS_PROFILE_PATH]));
+    CreateDir(Format('%s\%s', [BaseDir, IIS_BG_PATH]));
+    CreateDir(Format('%s\%s', [BaseDir, IIS_PREVIEW_PATH]));
 
     GetViewProfileHandleCount:= 0;
 
@@ -729,11 +736,7 @@ begin
 
         end;
 
-        for var i:= 1 to 3 do
-        begin
-          Click(GetParent(FriendConfigHandle), 70, 125); // 친구 동기화
-          Sleep(Random(100));
-        end;
+//        SyncFriend;
 
         Exit;
 

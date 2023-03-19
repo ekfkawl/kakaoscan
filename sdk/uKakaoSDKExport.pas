@@ -42,6 +42,11 @@ begin
   Result:= Kakao.ViewPreviewImage;
 end;
 
+function SyncFriend: Boolean;
+begin
+  Result:= Kakao.SyncFriend;
+end;
+
 exports
   AddFriend,
   GetSharableMemory,
@@ -49,6 +54,7 @@ exports
   ViewFriend,
   ViewProfileImage,
   BlockAndClearFriend,
-  ViewPreviewImage;
+  ViewPreviewImage,
+  SyncFriend;
 
 end.
