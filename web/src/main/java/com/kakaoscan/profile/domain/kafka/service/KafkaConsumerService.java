@@ -5,7 +5,6 @@ import com.kakaoscan.profile.domain.kafka.config.KafkaProperties;
 import com.kakaoscan.profile.domain.kafka.event.KafkaDbAccessEvent;
 import com.kakaoscan.profile.domain.kafka.event.KafkaEvent;
 import com.kakaoscan.profile.domain.kafka.event.KafkaSendMailEvent;
-import com.kakaoscan.profile.domain.kafka.mapper.KafkaMessageDeserializer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -28,7 +27,6 @@ import java.util.Map;
 public class KafkaConsumerService {
     private final ApplicationEventPublisher eventPublisher;
 
-
     @KafkaListener(topics = {KafkaProperties.TOPIC_EVENT}, groupId = KafkaProperties.GROUP_EVENT)
     public void onMessage(ConsumerRecord<KafkaEventType, Map<String, Object>> record, Acknowledgment ack) {
         try {
@@ -38,12 +36,12 @@ public class KafkaConsumerService {
 
             switch (eventType) {
                 case DB_ACCESS_EVENT:
-                    KafkaEvent kafkaDbAccessEvent = KafkaMessageDeserializer.deserialize(map, KafkaDbAccessEvent.class);
+                    KafkaEvent kafkaDbAccessEvent = new KafkaDbAccessEvent(map);
                     eventPublisher.publishEvent(kafkaDbAccessEvent);
                     break;
 
                 case SEND_MAIL_EVENT:
-                    KafkaEvent kafkaSendMailEvent = KafkaMessageDeserializer.deserialize(map, KafkaSendMailEvent.class);
+                    KafkaEvent kafkaSendMailEvent = new KafkaSendMailEvent(map);
                     eventPublisher.publishEvent(kafkaSendMailEvent);
                     break;
 
