@@ -12,8 +12,6 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-
 @Component
 @RequiredArgsConstructor
 @Log4j2
@@ -27,37 +25,36 @@ public class KafkaEventListener {
 
     @Async
     @EventListener
-    public void onEvent(KafkaEvent event) {
+    public void onDbAccessEvent(KafkaDbAccessEvent event) {
+        try {
+            ScanResult scanResult = ScanResult.deserialize(event.getScanResultJson());
+            if (scanResult != null && scanResult.getErrorMessage() == null) {
+                userHistoryService.updateHistory(event.getEmail(), event.getPhoneNumber(), event.getScanResultJson());
+                addedNumberService.appendPhoneNumberHash(event.getPhoneNumber());
+                userService.incTotalUseCount(event.getEmail());
+            }
 
-        switch (event.getValue().getType()) {
-            case UPSERT_HISTORY:
-                try {
-                    ScanResult scanResult = ScanResult.deserialize(event.getValue().getMessage());
-                    if (scanResult != null && scanResult.getErrorMessage() == null) {
-                        // email, phone, json
-                        String email = event.getKey();
-                        String phone = event.getValue().getSubMessage();
-
-                        userHistoryService.updateHistory(email, phone, event.getValue().getMessage());
-                        addedNumberService.appendPhoneNumberHash(phone);
-                        userService.incTotalUseCount(event.getKey());
-                    }
-                } catch (IOException e){
-                  log.error("update history event : {}", e.getMessage(), e);
-                }
-                break;
-
-            case SEND_EMAIL:
-                EmailMessage emailMessage = EmailMessage.builder()
-                        .to(event.getKey())
-                        .subject("[카카오스캔] 서비스 사용 허가 안내")
-                        .message("")
-                        .build();
-                emailService.send(emailMessage, "email");
-                log.info("send mail : {}", event.getKey());
-                break;
+            log.info("update history : {}", event.getEmail());
+        } catch (Exception e){
+            log.error("update history event error : {}", e.getMessage(), e);
         }
-
-//        log.info("Received event with key: {}, value: {}, {}", event.getKey(), event.getValue().getType(), event.getValue().getMessage());
     }
+
+    @Async
+    @EventListener
+    public void onSendMailEvent(KafkaSendMailEvent event) {
+        try {
+            EmailMessage emailMessage = EmailMessage.builder()
+                    .to(event.getEmail())
+                    .subject("[카카오스캔] 서비스 사용 허가 안내")
+                    .message("")
+                    .build();
+            emailService.send(emailMessage, "email");
+
+            log.info("send mail : {}", event.getEmail());
+        } catch (Exception e){
+            log.error("send mail event error : {}", e.getMessage(), e);
+        }
+    }
+
 }

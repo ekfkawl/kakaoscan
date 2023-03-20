@@ -2,10 +2,9 @@ package com.kakaoscan.profile.domain.service;
 
 import com.kakaoscan.profile.domain.dto.UserModifyDTO;
 import com.kakaoscan.profile.domain.entity.User;
-import com.kakaoscan.profile.domain.enums.RecordType;
+import com.kakaoscan.profile.domain.enums.KafkaEventType;
 import com.kakaoscan.profile.domain.enums.Role;
 import com.kakaoscan.profile.domain.kafka.service.KafkaProducerService;
-import com.kakaoscan.profile.domain.model.KafkaMessage;
 import com.kakaoscan.profile.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -13,7 +12,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -45,7 +46,9 @@ public class UserService {
             
             // guest -> user 사용 허가 메일 발송
             if (Role.GUEST.getKey().equals(user.getRole().getKey()) && Role.USER.getKey().equals(userModifyDTO.getRole().getKey())) {
-                producerService.send(user.getEmail(), new KafkaMessage(RecordType.SEND_EMAIL, user.getEmail()));
+                Map<String, Object> map = new HashMap<>();
+                map.put("email", user.getEmail());
+                producerService.send(KafkaEventType.SEND_MAIL_EVENT, map);
             }
             
             user.setRole(userModifyDTO.getRole());

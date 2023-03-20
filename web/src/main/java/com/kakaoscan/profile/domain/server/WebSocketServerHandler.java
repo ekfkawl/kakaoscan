@@ -4,12 +4,11 @@ import com.kakaoscan.profile.domain.bridge.BridgeInstance;
 import com.kakaoscan.profile.domain.bridge.ClientQueue;
 import com.kakaoscan.profile.domain.client.NettyClientInstance;
 import com.kakaoscan.profile.domain.dto.UserDTO;
+import com.kakaoscan.profile.domain.enums.KafkaEventType;
 import com.kakaoscan.profile.domain.enums.MessageSendType;
-import com.kakaoscan.profile.domain.enums.RecordType;
 import com.kakaoscan.profile.domain.enums.Role;
 import com.kakaoscan.profile.domain.exception.InvalidAccess;
 import com.kakaoscan.profile.domain.kafka.service.KafkaProducerService;
-import com.kakaoscan.profile.domain.model.KafkaMessage;
 import com.kakaoscan.profile.domain.model.UseCount;
 import com.kakaoscan.profile.domain.service.AccessLimitService;
 import com.kakaoscan.profile.domain.service.AddedNumberService;
@@ -25,6 +24,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -173,7 +173,11 @@ public class WebSocketServerHandler extends TextWebSocketHandler {
                         viewMessage = queue.getResponse();
                         removeSessionHash(session);
 
-                        producerService.send(user.getEmail(), new KafkaMessage(RecordType.UPSERT_HISTORY, viewMessage, queue.getRequest()));
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("email", user.getEmail());
+                        map.put("phoneNumber", queue.getRequest());
+                        map.put("scanResultJson", viewMessage);
+                        producerService.send(KafkaEventType.DB_ACCESS_EVENT, map);
                     }
                 }
 
