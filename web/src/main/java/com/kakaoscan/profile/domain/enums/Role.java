@@ -1,10 +1,10 @@
 package com.kakaoscan.profile.domain.enums;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 @Getter
-@RequiredArgsConstructor
+@AllArgsConstructor
 public enum Role {
     GUEST("ROLE_GUEST"),
     USER("ROLE_USER"),

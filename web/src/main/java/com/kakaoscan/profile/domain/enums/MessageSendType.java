@@ -1,8 +1,10 @@
 package com.kakaoscan.profile.domain.enums;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
+@AllArgsConstructor
 public enum MessageSendType {
     // WindowServer
     PROFILE("Profile"),
@@ -20,9 +22,5 @@ public enum MessageSendType {
     REQUEST_TIME_OUT("{\"Error\":\"요청 시간이 초과되었습니다\"}"),
     EMPTY_IP("{\"Error\":\"잘못된 접근입니다\"}");
 
-    private String message;
-
-    MessageSendType(String message) {
-        this.message = message;
-    }
+    private final String message;
 }
