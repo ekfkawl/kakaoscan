@@ -55,7 +55,7 @@ public class KafkaConsumerService {
             ack.acknowledge();
 
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error("consumer onMessage error : {}", e.getMessage(), e);
         }
     }
 
