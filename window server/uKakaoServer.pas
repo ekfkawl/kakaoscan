@@ -480,7 +480,7 @@ begin
                       Log(Format('Connections[%d] Error AddFriend 2', [i]));
                       break;
                     end;
-                    Sleep(100);
+                    Sleep(250);
 
                     if not Client.DictMessage.TryGetValue(Current.SocketHandle, ClientMessage) then
                     begin
@@ -673,6 +673,7 @@ begin
 
               finally
                 try
+
                   if CurrentSocketHandle = Connections[i].SocketHandle then
                   begin
                     ClientMessage.WebResponMsg:= Format('%s:%s', [ClientMessage.Session, JSONObject.ToString]);
@@ -684,6 +685,8 @@ begin
                     const ElapsedTime = (GetTickCount64 - StartTick) / 1000;
                     Log(Format('%s(%s) 응답 완료 (%s 초)', [Current.RemoteAddr2, Current.Msg, FloatToStr(ElapsedTime)]));
                   end;
+
+                  SearchFriend('');
                 except;
                   Log(Format('%d Already Close', [CurrentSocketHandle]));
                 end;
