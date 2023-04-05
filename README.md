@@ -28,6 +28,7 @@
   * Spring Boot
   * Spring Data JPA
   * Spring Security
+  * Spring Batch
   * Netty TCP Socket Client
   * WebSocket Server
   * Kafka
