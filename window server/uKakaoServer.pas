@@ -241,6 +241,12 @@ end;
 procedure TForm1.SSClientConnect(Sender: TObject; Socket: TCustomWinSocket);
 begin
   try
+    if not Socket.RemoteAddress.Equals(EC2_PUBLIC_ADDRESS) then
+    begin
+      Socket.Close;
+      Exit;
+    end;
+
     Client.DictMessage.AddOrSetValue(Socket.SocketHandle, TClientMessage.Create(GetTickCount64, GetTickCount64 + 3000, Socket.SocketHandle, Socket.RemoteAddress, ''));
 
     Log(Format('%d %s', [Socket.SocketHandle, '연결']));
