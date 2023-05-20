@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, ProcessAPI, Generics.Collections, System.Generics.Defaults,
   System.Win.ScktComp, Vcl.ExtCtrls, ClientInstance, SharableMemory, KakaoAPI, System.JSON, StackTraceUtil, MD5, System.IOUtils,
-  Vcl.Buttons, HttpUtils, uKey, IniFiles, Data.Cloud.AmazonAPI, Data.Cloud.CloudAPI;
+  Vcl.Buttons, HttpUtils, uKey, IniFiles, Data.Cloud.AmazonAPI, Data.Cloud.CloudAPI, Kafka.Lib, Kafka.Factory, Kafka.Interfaces, Kafka.Helper, Kafka.Types, KafkaConst;
 
 type
   TForm1 = class(TForm)
@@ -29,6 +29,7 @@ type
   public
     { Public declarations }
   end;
+
 var
   Form1: TForm1;
 
@@ -43,6 +44,8 @@ var
   HostPath: String = 'https://bucket-kakaoscan.s3.ap-northeast-2.amazonaws.com/';
 
   {HostPath, }CachePath: String;
+
+  FKafkaProducer: IKafkaProducer;
 
 implementation
 
@@ -184,6 +187,25 @@ begin
   end;
 end;
 
+procedure CheckCrashProcess;
+begin
+  while True do
+  begin
+    Sleep(1000);
+
+    if Process.GetProcessId('CrashReporter.exe') then
+    begin
+      Process.Terminate('KakaoServer.exe');
+      Process.Terminate('KakaoTalk.exe');
+      Process.Terminate('CrashReporter.exe');
+
+      FKafkaProducer.Produce('kakaoscan.server-app', '[alert]' + #13#10 + 'server app error', GenerateRndKafkaKey(ALERT_SERVER_ERROR_EVENT), RD_KAFKA_PARTITION_UA, RD_KAFKA_MSG_F_COPY, nil);
+      TKafkaHelper.Flush(FKafkaProducer.KafkaHandle);
+    end;
+
+  end;
+end;
+
 procedure TForm1.FormCreate(Sender: TObject);
 var
   Ini: TIniFile;
@@ -191,6 +213,7 @@ begin
   TThread.CreateAnonymousThread(InjectKakaoSDKThread).Start;
   TThread.CreateAnonymousThread(MacroThread).Start;
   TThread.CreateAnonymousThread(RemoveDataThread).Start;
+  TThread.CreateAnonymousThread(CheckCrashProcess).Start;
 
   const IniPath = 'C:\config.ini';
   Ini:= TiniFile.Create(IniPath);
@@ -723,6 +746,8 @@ initialization
 
   Client:= TClient.Create;
   KakaoHandle:= FindWindow('EVA_Window_Dblclk', '카카오톡');
+
+  FKafkaProducer:= TKafkaFactory.NewProducer(['bootstrap.servers'], [BOOTSTRAP_SERVER]);
 
 finalization
   Client.Free;

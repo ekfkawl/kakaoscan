@@ -10,7 +10,8 @@ uses
   ProcessAPI in '..\common\ProcessAPI.pas',
   MD5 in '..\common\MD5.pas',
   HttpUtils in '..\common\HttpUtils.pas',
-  uKey in '..\common\uKey.pas';
+  uKey in '..\common\uKey.pas',
+  KafkaConst in 'KafkaConst.pas';
 
 {$R *.res}
 
