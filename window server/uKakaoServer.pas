@@ -188,21 +188,23 @@ begin
 end;
 
 procedure CheckCrashProcess;
+var
+  Process: TProcess;
 begin
   while True do
   begin
     Sleep(1000);
 
-    if Process.GetProcessId('CrashReporter.exe') then
+    if (FindWindow(nil, 'CrashReporter') > 0) And (Process.GetProcessId('CrashReporter.exe')) then
     begin
-      Process.Terminate('KakaoServer.exe');
       Process.Terminate('KakaoTalk.exe');
       Process.Terminate('CrashReporter.exe');
 
       FKafkaProducer.Produce('kakaoscan.server-app', '[alert]' + #13#10 + 'server app error', GenerateRndKafkaKey(ALERT_SERVER_ERROR_EVENT), RD_KAFKA_PARTITION_UA, RD_KAFKA_MSG_F_COPY, nil);
       TKafkaHelper.Flush(FKafkaProducer.KafkaHandle);
-    end;
 
+      ExitProcess(0);
+    end;
   end;
 end;
 
