@@ -35,3 +35,4 @@ sdk/uPrivateHook.pas
 web/src/main/resources/application-kafka.properties
 web/src/main/resources/application-messagebot.properties
 window server/KafkaConst.pas
+*.iml
