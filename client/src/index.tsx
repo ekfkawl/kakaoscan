@@ -1,19 +1,27 @@
-import React from "react";
-import { createRoot } from "react-dom/client";
-import { Provider } from "react-redux";
-import { store } from "./app/store";
-import App from "./App";
 import "./index.css";
-import DarkModeToggle from "./components/DarkModeToggle";
+import React from "react";
+import ReactDOM from 'react-dom';
+import {BrowserRouter, Route, Routes} from "react-router-dom";
+import AuthPage from "./pages/AuthPage";
+import LoginForm from "./components/auth/LoginForm";
+import RegisterForm from "./components/auth/RegisterForm";
+import Layout from "./components/Layout";
 
-const container = document.getElementById("root")!;
-const root = createRoot(container);
+ReactDOM.render(
+    <React.StrictMode>
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<Layout />}>
+                    <Route index element={<AuthPage>
+                        <LoginForm />
+                    </AuthPage>} />
 
-root.render(
-  <React.StrictMode>
-    <Provider store={store}>
-      <DarkModeToggle />
-      <App />
-    </Provider>
-  </React.StrictMode>,
+                    <Route path="register" element={<AuthPage>
+                        <RegisterForm />
+                    </AuthPage>} />
+                </Route>
+            </Routes>
+        </BrowserRouter>
+    </React.StrictMode>,
+    document.getElementById("root")
 );
