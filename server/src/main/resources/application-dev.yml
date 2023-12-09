@@ -4,7 +4,9 @@ spring:
     properties:
       hibernate:
         format_sql: true
-        ddl-auto: update
+        highlight_sql: true
+        hbm2ddl:
+          auto: update
 
 logging:
   level:
