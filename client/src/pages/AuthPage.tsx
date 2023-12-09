@@ -19,10 +19,10 @@ const AuthPage: React.FC<PropsWithChildren<{}>> = ({ children }) => {
                             kakaoscan
                         </a>
                         <h1 className="mb-4 text-3xl font-extrabold leading-none tracking-tight text-white xl:text-5xl">
-                            View and download Kakaotalk profile.
+                            View and download kakaotalk profile
                         </h1>
                         <p className="mb-4 text-primary-200 lg:mb-8">
-                            클라우드 인스턴스 환경에서 카카오톡 프로필을 대신 조회해줍니다.
+                            카카오스캔은 클라우드 인스턴스 환경에서 카카오톡 프로필을 대신 조회해주는 서비스입니다.
                         </p>
                     </div>
                 </div>
