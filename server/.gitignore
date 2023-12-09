@@ -39,3 +39,4 @@ out/
 ### yml ###
 src/main/resources/application-db.yml
 src/main/resources/application-prod.yml
+src/main/resources/application-jwt.yml

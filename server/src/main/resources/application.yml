@@ -2,7 +2,14 @@ spring:
   profiles:
     include:
       - db
+      - jwt
   mvc:
     hidden-method:
       filter:
         enabled: true
+
+cors:
+  allowed-origins:
+    - http://localhost:8080
+    - http://kakaoscan.com
+    - https://kakaoscan.com
