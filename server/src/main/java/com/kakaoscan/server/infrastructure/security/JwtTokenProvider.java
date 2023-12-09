@@ -68,7 +68,7 @@ public class JwtTokenProvider {
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody();
         List<SimpleGrantedAuthority> authorities = ((List<?>) claims.get("roles")).stream()
-                .map(authority -> new SimpleGrantedAuthority((String) authority))
+                .map(authority -> new SimpleGrantedAuthority(authority.toString()))
                 .collect(Collectors.toList());
 
         return new UsernamePasswordAuthenticationToken(claims.getSubject(), "", authorities);
