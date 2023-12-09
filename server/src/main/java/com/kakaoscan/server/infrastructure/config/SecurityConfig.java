@@ -30,7 +30,7 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final UserDetailsService userDetailsService;
 
-    private final String[] permitAllEndpoints = {"/", "login", "/logout", "/index.html", "/static/**", "/favicon.png", "/api/auth/**"};
+    private final String[] permitAllEndpoints = {"/", "/api/**", "/index.html", "/static/**", "/favicon.png"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
