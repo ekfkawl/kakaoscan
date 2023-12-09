@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaoscan.server.application.dto.LoginRequest;
 import com.kakaoscan.server.application.dto.LoginResponse;
 import com.kakaoscan.server.application.port.AuthPort;
+import com.kakaoscan.server.infrastructure.security.JwtTokenUtils;
+import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,16 +17,21 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class AuthControllerTest {
     private MockMvc mockMvc;
 
     @Mock
     private AuthPort authPort;
+
+    @Mock
+    private JwtTokenUtils jwtTokenUtils;
 
     @InjectMocks
     private AuthController authController;
@@ -43,12 +50,13 @@ public class AuthControllerTest {
         LoginResponse loginResponse = new LoginResponse("access-token", "refresh-token");
 
         given(authPort.authenticate(any(LoginRequest.class))).willReturn(loginResponse);
+        doNothing().when(jwtTokenUtils).saveRefreshTokenInCookie(anyString(), any(HttpServletResponse.class));
 
         ObjectMapper objectMapper = new ObjectMapper();
         String jsonRequest = objectMapper.writeValueAsString(loginRequest);
 
         // when
-        mockMvc.perform(post("/login")
+        mockMvc.perform(post("/api/login")
                         .content(jsonRequest)
                         .contentType(MediaType.APPLICATION_JSON))
         // then
