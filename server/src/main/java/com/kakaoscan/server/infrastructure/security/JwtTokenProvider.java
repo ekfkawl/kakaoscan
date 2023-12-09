@@ -1,10 +1,7 @@
 package com.kakaoscan.server.infrastructure.security;
 
 import com.kakaoscan.server.infrastructure.config.JwtProperties;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,10 +12,7 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
-import java.util.Base64;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
@@ -34,16 +28,19 @@ public class JwtTokenProvider {
     }
 
     public String createAccessToken(Authentication authentication) {
-        return createToken(authentication.getName(), jwtProperties.getAccessTokenValidity(), authentication.getAuthorities());
+        String username = authentication.getName();
+        return createToken(username, jwtProperties.getAccessTokenValidity(), authentication.getAuthorities(), "access");
     }
 
     public String createRefreshToken(Authentication authentication) {
-        return createToken(authentication.getName(), jwtProperties.getRefreshTokenValidity(), authentication.getAuthorities());
+        String username = authentication.getName();
+        return createToken(username, jwtProperties.getRefreshTokenValidity(), Collections.emptyList(), "refresh");
     }
 
-    private String createToken(String subject, long validityDuration, Collection<? extends GrantedAuthority> authorities) {
+    private String createToken(String subject, long validityDuration, Collection<? extends GrantedAuthority> authorities, String tokenType) {
         Claims claims = Jwts.claims().setSubject(subject);
         claims.put("roles", authorities);
+        claims.put("token_type", tokenType);
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityDuration);
@@ -56,13 +53,22 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public boolean validateToken(String token) {
+    private boolean validateToken(String token, String expectedTokenType) {
         try {
-            Jwts.parser().setSigningKey(key).parseClaimsJws(token);
-            return true;
+            Jws<Claims> claims = Jwts.parser().setSigningKey(key).parseClaimsJws(token);
+            String tokenType = claims.getBody().get("token_type", String.class);
+            return expectedTokenType.equals(tokenType);
         } catch (JwtException | IllegalArgumentException e) {
             throw new JwtException("expired or invalid jwt token");
         }
+    }
+
+    public boolean validateAccessToken(String token) {
+        return validateToken(token, "access");
+    }
+
+    public boolean validateRefreshToken(String token) {
+        return validateToken(token, "refresh");
     }
 
     public Authentication getAuthentication(String token) {
