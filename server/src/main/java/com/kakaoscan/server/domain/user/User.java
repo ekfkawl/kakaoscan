@@ -1,6 +1,5 @@
 package com.kakaoscan.server.domain.user;
 
-import com.kakaoscan.server.domain.authentication.AuthenticationType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
