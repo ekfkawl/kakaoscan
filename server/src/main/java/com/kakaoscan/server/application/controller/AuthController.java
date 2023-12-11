@@ -6,6 +6,8 @@ import com.kakaoscan.server.application.port.AuthPort;
 import com.kakaoscan.server.infrastructure.security.JwtTokenProvider;
 import com.kakaoscan.server.infrastructure.security.JwtTokenUtils;
 import io.jsonwebtoken.JwtException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +21,14 @@ import java.util.Collections;
 
 @RequiredArgsConstructor
 @RestController
+@Tag(name = "Authenticate", description = "Authenticate API")
 public class AuthController extends ApiPathPrefix {
     private final JwtTokenUtils jwtTokenUtils;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthPort authPort;
 
     @PostMapping("/login")
+    @Operation(summary = "Returns AccessTokens and RefreshTokens", description = "AccessTokens validity is 1 hour")
     public ResponseEntity<LoginResponse> authenticateUser(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         LoginResponse loginResponse = authPort.authenticate(loginRequest);
 
@@ -34,6 +38,7 @@ public class AuthController extends ApiPathPrefix {
     }
 
     @PostMapping("/logout")
+    @Operation(summary = "Delete RefreshToken from cookie", description = "(Access tokens are not blacklisted)")
     public ResponseEntity<?> logout(HttpServletResponse response) {
         jwtTokenUtils.deleteRefreshTokenFromCookie(response);
 
@@ -41,6 +46,7 @@ public class AuthController extends ApiPathPrefix {
     }
 
     @PostMapping("/refresh-token")
+    @Operation(summary = "AccessToken reissue by RefreshToken")
     public ResponseEntity<?> refreshToken(HttpServletRequest request) {
         String refreshToken = jwtTokenUtils.extractRefreshTokenFromCookie(request);
         if (refreshToken == null || !jwtTokenProvider.validateRefreshToken(refreshToken)) {
