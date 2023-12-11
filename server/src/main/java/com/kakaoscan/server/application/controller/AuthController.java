@@ -28,7 +28,7 @@ public class AuthController extends ApiPathPrefix {
     private final AuthPort authPort;
 
     @PostMapping("/login")
-    @Operation(summary = "Returns AccessTokens and RefreshTokens", description = "AccessTokens validity is 1 hour")
+    @Operation(summary = "Returns AccessToken and RefreshToken", description = "AccessToken validity is 1 hour")
     public ResponseEntity<LoginResponse> authenticateUser(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         LoginResponse loginResponse = authPort.authenticate(loginRequest);
 
@@ -38,7 +38,7 @@ public class AuthController extends ApiPathPrefix {
     }
 
     @PostMapping("/logout")
-    @Operation(summary = "Delete RefreshToken from cookie", description = "(Access tokens are not blacklisted)")
+    @Operation(summary = "Delete RefreshToken from cookie", description = "(AccessToken not blacklisted)")
     public ResponseEntity<?> logout(HttpServletResponse response) {
         jwtTokenUtils.deleteRefreshTokenFromCookie(response);
 
