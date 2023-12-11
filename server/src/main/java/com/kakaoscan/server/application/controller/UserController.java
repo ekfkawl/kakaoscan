@@ -3,6 +3,7 @@ package com.kakaoscan.server.application.controller;
 import com.kakaoscan.server.application.dto.ApiResponse;
 import com.kakaoscan.server.application.dto.RegisterRequest;
 import com.kakaoscan.server.application.port.UserPort;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
+@Tag(name = "User", description = "User API")
 public class UserController extends ApiPathPrefix {
     private final UserPort userPort;
 
