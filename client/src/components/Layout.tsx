@@ -1,22 +1,11 @@
 import React from 'react';
 import {Outlet} from 'react-router-dom';
-import {DarkThemeToggle} from "flowbite-react";
-import {FaGithub} from "react-icons/fa";
+import Header from "./Header";
 
 const Layout = () => {
     return (
         <div className="relative">
-            <div className="absolute top-1 right-1">
-                <DarkThemeToggle
-                    iconDark={FaGithub}
-                    iconLight={FaGithub}
-                    onClick={(e) => {
-                        e.preventDefault();
-                        window.open('https://github.com/ekfkawl/kakaoscan', '_blank');
-                    }}
-                />
-                <DarkThemeToggle />
-            </div>
+            <Header />
             <Outlet />
         </div>
     );
