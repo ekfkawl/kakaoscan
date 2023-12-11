@@ -1,0 +1,30 @@
+springdoc:
+  swagger-ui:
+    # 각 API의 그룹 표시 순서
+    # path, query, body, response 순으로 출력
+    groups-order: DESC
+
+    # 태그 정렬 순서.
+    tags-sorter: alpha
+
+    # 컨트롤러 정렬 순서.
+    operations-sorter: method
+
+    # swagger-ui default url인 petstore html의 비활성화 설정
+    disable-swagger-default-url: true
+
+    # swagger-ui에서 try 했을 때 request duration을 알려주는 설정
+    display-request-duration: true
+
+  # Spring Actuator의 endpoint까지 표시 여부
+  show-actuator: true
+
+  # request media type 의 기본 값
+  default-consumes-media-type: application/json
+
+  # response media type 의 기본 값
+  default-produces-media-type: application/json
+
+  # 해당 패턴에 매칭되는 controller만 swagger-ui에 노출한다.
+  paths-to-match:
+    - /api/**

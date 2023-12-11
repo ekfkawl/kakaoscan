@@ -4,6 +4,7 @@ spring:
       - db
       - jwt
       - smtp
+      - swagger
   mvc:
     hidden-method:
       filter:
