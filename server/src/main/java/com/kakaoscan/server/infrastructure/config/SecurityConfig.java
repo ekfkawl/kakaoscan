@@ -30,7 +30,7 @@ public class SecurityConfig {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final UserDetailsService userDetailsService;
 
-    private final String[] permitAllEndpoints = {"/", "/api/login", "/api/logout", "/api/refresh-token", "/index.html", "/static/**", "/favicon.png"};
+    private static final String[] PERMIT_ALL_ENDPOINTS = {"/", "/api/verify/**", "/api/login", "/api/logout", "/api/refresh-token", "/index.html", "/static/**", "/favicon.png"};
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -41,7 +41,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(permitAllEndpoints).permitAll()
+                        .requestMatchers(PERMIT_ALL_ENDPOINTS).permitAll()
                         .anyRequest().authenticated())
 
                 .exceptionHandling(exception -> exception

@@ -3,6 +3,7 @@ spring:
     include:
       - db
       - jwt
+      - smtp
   mvc:
     hidden-method:
       filter:
