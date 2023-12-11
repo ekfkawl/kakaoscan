@@ -16,3 +16,7 @@ logging:
         type:
           descriptor:
             sql: TRACE
+
+verify:
+  prefix: http://localhost:8080/api/verify/
+  replace: http://localhost:8080
