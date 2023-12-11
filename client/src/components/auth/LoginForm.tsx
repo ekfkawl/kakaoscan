@@ -75,12 +75,12 @@ const LoginForm = () => {
             </Button>
             <div className="max-w-xs mx-auto">
                 <div className="flex items-center justify-between">
-                    <a
-                        href="#"
+                    <Link
+                        to="/"
                         className="text-sm font-medium text-gray-500 hover:underline dark:text-gray-300"
                     >
                         비밀번호 찾기
-                    </a>
+                    </Link>
                     <Link
                         to="/register"
                         className="text-sm font-medium text-gray-500 hover:underline dark:text-gray-300"
@@ -89,7 +89,7 @@ const LoginForm = () => {
                     </Link>
                     <div className="flex items-start">
                         <div className="flex h-5 items-center">
-                            <Checkbox id="remember-description" required />
+                            <Checkbox id="remember-description" />
                         </div>
                         <div className="ml-2 text-sm">
                             <Label htmlFor="remember-description" className="text-gray-500 dark:text-gray-300">로그인 유지</Label>
