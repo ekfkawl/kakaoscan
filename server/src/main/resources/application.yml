@@ -13,5 +13,18 @@ spring:
 cors:
   allowed-origins:
     - http://localhost:8080
+    - http://localhost:3000
     - http://kakaoscan.com
     - https://kakaoscan.com
+  permit-all-endpoints:
+    - /
+    - /api/verify/**
+    - /api/login
+    - /api/register
+    - /api/logout
+    - /api/refresh-token
+    - /swagger-ui/**
+    - /v3/api-docs/**
+    - /index.html
+    - /static/**
+    - /favicon.png
