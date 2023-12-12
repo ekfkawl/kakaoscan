@@ -46,7 +46,7 @@ public class UserAdapter implements UserPort {
         EmailVerificationToken verificationToken = createVerificationToken(newUser);
         emailPort.send(new VerificationEmail(registerRequest.getEmail(), verifyPrefix + verificationToken.getToken()));
 
-        return new ApiResponse(true, USER_REGISTRATION_SUCCESS);
+        return new ApiResponse(true, USER_REGISTRATION_SUCCESS, true);
     }
 
     @Override
