@@ -6,6 +6,7 @@ import com.kakaoscan.server.domain.user.Role;
 import com.kakaoscan.server.domain.user.User;
 import com.kakaoscan.server.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,6 +15,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
     private static final String ALREADY_REGISTERED_EMAIL = "이미 가입된 이메일입니다.";
 
@@ -28,7 +30,7 @@ public class UserService {
         }else {
             return userRepository.save(User.builder()
                     .email(email)
-                    .password(password)
+                    .password(passwordEncoder.encode(password))
                     .role(Role.USER)
                     .authenticationType(AuthenticationType.LOCAL)
                     .build());
