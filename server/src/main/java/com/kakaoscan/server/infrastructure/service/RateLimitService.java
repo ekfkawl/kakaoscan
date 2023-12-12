@@ -16,7 +16,7 @@ public class RateLimitService {
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
 
     public Bucket createBucket() {
-        long capacity = 3;
+        long capacity = 10;
         Refill refill = Refill.greedy(capacity, Duration.ofHours(1));
         Bandwidth limit = Bandwidth.classic(capacity, refill);
 
