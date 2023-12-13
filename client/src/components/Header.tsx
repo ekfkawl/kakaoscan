@@ -4,7 +4,7 @@ import { FaGithub } from 'react-icons/fa';
 
 const Header = () => {
     return (
-        <div className="absolute top-1 right-1">
+        <div className="absolute top-2.5 right-2 flex items-center">
             <DarkThemeToggle
                 iconDark={FaGithub}
                 iconLight={FaGithub}
