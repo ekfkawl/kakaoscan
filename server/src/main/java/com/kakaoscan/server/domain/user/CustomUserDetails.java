@@ -1,5 +1,6 @@
 package com.kakaoscan.server.domain.user;
 
+import com.kakaoscan.server.application.dto.UserData;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +18,17 @@ public class CustomUserDetails implements UserDetails {
         this.email = email;
         this.password = password;
         this.authorities = new ArrayList<>(authorities);
+    }
+
+    public UserData convertToUserData() {
+        String authority = this.authorities.stream()
+                .findFirst()
+                .map(GrantedAuthority::getAuthority)
+                .orElseThrow(() -> new IllegalStateException("no authorities"));
+
+        Role role = Role.fromAuthority(authority);
+
+        return new UserData(this.email, role);
     }
 
     @Override
