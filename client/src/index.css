@@ -3,11 +3,11 @@
 @tailwind utilities;
 
 @layer base {
-  svg {
-    display: unset;
-  }
+    svg {
+        display: unset;
+    }
 }
 
 .quicksand {
-  font-family: 'Quicksand', sans-serif;
+    font-family: 'Quicksand', sans-serif;
 }
