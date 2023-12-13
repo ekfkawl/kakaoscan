@@ -1,6 +1,6 @@
 import React from 'react';
-import {DarkThemeToggle} from "flowbite-react";
-import {FaGithub} from "react-icons/fa";
+import { DarkThemeToggle } from 'flowbite-react';
+import { FaGithub } from 'react-icons/fa';
 
 const Header = () => {
     return (
