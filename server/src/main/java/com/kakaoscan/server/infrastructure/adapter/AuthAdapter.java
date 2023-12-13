@@ -2,12 +2,15 @@ package com.kakaoscan.server.infrastructure.adapter;
 
 import com.kakaoscan.server.application.dto.LoginRequest;
 import com.kakaoscan.server.application.dto.LoginResponse;
+import com.kakaoscan.server.application.exception.EmailNotVerifiedException;
 import com.kakaoscan.server.application.port.AuthPort;
 import com.kakaoscan.server.infrastructure.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,7 +20,7 @@ public class AuthAdapter implements AuthPort {
     private final AuthenticationManager authenticationManager;
 
     @Override
-    public LoginResponse authenticate(LoginRequest request) {
+    public LoginResponse authenticate(LoginRequest request) throws BadCredentialsException, EmailNotVerifiedException {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
         String accessToken = jwtTokenProvider.createAccessToken(authentication);

@@ -2,15 +2,15 @@ package com.kakaoscan.server.application.controller.exception;
 
 import com.kakaoscan.server.application.dto.ApiResponse;
 import com.kakaoscan.server.application.dto.RegisterRequest;
+import com.kakaoscan.server.application.exception.EmailNotVerifiedException;
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -27,9 +27,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    @ResponseBody
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ApiResponse handleValidationExceptions(MethodArgumentNotValidException ex) {
+    public ResponseEntity<ApiResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
         List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
 
         List<String> messages = fieldErrors.stream()
@@ -38,7 +36,18 @@ public class GlobalExceptionHandler {
                 .toList();
 
         String message = messages.isEmpty() ? "validation error" : messages.get(0);
-        return new ApiResponse(false, message);
+        return ResponseEntity
+                .badRequest()
+                .body(new ApiResponse(false, message));
     }
 
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiResponse> handleUsernameNotFoundException(BadCredentialsException ex) {
+        return ResponseEntity.ok(new ApiResponse(false, "아이디 또는 비밀번호 오류입니다."));
+    }
+
+    @ExceptionHandler(EmailNotVerifiedException.class)
+    public ResponseEntity<ApiResponse> handleEmailNotVerifiedException(EmailNotVerifiedException ex) {
+        return ResponseEntity.ok(new ApiResponse(false, "이메일 인증을 완료해 주세요."));
+    }
 }

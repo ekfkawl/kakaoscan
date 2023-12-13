@@ -1,5 +1,6 @@
 package com.kakaoscan.server.application.controller;
 
+import com.kakaoscan.server.application.dto.ApiResponse;
 import com.kakaoscan.server.application.dto.LoginRequest;
 import com.kakaoscan.server.application.dto.LoginResponse;
 import com.kakaoscan.server.application.port.AuthPort;
@@ -17,8 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
-
 @RequiredArgsConstructor
 @RestController
 @Tag(name = "Authenticate", description = "Authenticate API")
@@ -31,7 +30,6 @@ public class AuthController extends ApiPathPrefix {
     @Operation(summary = "Returns AccessToken and RefreshToken", description = "AccessToken validity is 1 hour")
     public ResponseEntity<LoginResponse> authenticateUser(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         LoginResponse loginResponse = authPort.authenticate(loginRequest);
-
         jwtTokenUtils.saveRefreshTokenInCookie(loginResponse.getRefreshToken(), response);
 
         return ResponseEntity.ok(new LoginResponse(loginResponse.getAccessToken(), loginResponse.getRefreshToken()));
@@ -39,15 +37,15 @@ public class AuthController extends ApiPathPrefix {
 
     @PostMapping("/logout")
     @Operation(summary = "Delete RefreshToken from cookie", description = "(AccessToken not blacklisted)")
-    public ResponseEntity<?> logout(HttpServletResponse response) {
+    public ResponseEntity<ApiResponse> logout(HttpServletResponse response) {
         jwtTokenUtils.deleteRefreshTokenFromCookie(response);
 
-        return ResponseEntity.ok(Collections.singletonMap("message", "logged out"));
+        return ResponseEntity.ok(new ApiResponse(true, "logged out"));
     }
 
     @PostMapping("/refresh-token")
     @Operation(summary = "AccessToken reissue by RefreshToken")
-    public ResponseEntity<?> refreshToken(HttpServletRequest request) {
+    public ResponseEntity<LoginResponse> refreshToken(HttpServletRequest request) {
         String refreshToken = jwtTokenUtils.extractRefreshTokenFromCookie(request);
         if (refreshToken == null || !jwtTokenProvider.validateRefreshToken(refreshToken)) {
             throw new JwtException("refresh token missing or invalid");
