@@ -32,9 +32,7 @@ public class AuthController extends ApiPathPrefix {
         LoginResponse loginResponse = authPort.authenticate(loginRequest);
         jwtTokenUtils.saveRefreshTokenInCookie(loginResponse.getRefreshToken(), response);
 
-        return ResponseEntity.ok(new ApiResponse(
-                true, new LoginResponse(loginResponse.getAccessToken(), loginResponse.getRefreshToken()))
-        );
+        return ResponseEntity.ok(new ApiResponse(true, loginResponse));
     }
 
     @PostMapping("/logout")
