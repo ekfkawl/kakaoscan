@@ -28,11 +28,13 @@ public class AuthController extends ApiPathPrefix {
 
     @PostMapping("/login")
     @Operation(summary = "Returns AccessToken and RefreshToken", description = "AccessToken validity is 1 hour")
-    public ResponseEntity<LoginResponse> authenticateUser(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<ApiResponse> authenticateUser(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         LoginResponse loginResponse = authPort.authenticate(loginRequest);
         jwtTokenUtils.saveRefreshTokenInCookie(loginResponse.getRefreshToken(), response);
 
-        return ResponseEntity.ok(new LoginResponse(loginResponse.getAccessToken(), loginResponse.getRefreshToken()));
+        return ResponseEntity.ok(new ApiResponse(
+                true, new LoginResponse(loginResponse.getAccessToken(), loginResponse.getRefreshToken()))
+        );
     }
 
     @PostMapping("/logout")
@@ -40,12 +42,12 @@ public class AuthController extends ApiPathPrefix {
     public ResponseEntity<ApiResponse> logout(HttpServletResponse response) {
         jwtTokenUtils.deleteRefreshTokenFromCookie(response);
 
-        return ResponseEntity.ok(new ApiResponse(true, "logged out"));
+        return ResponseEntity.ok(new ApiResponse(true));
     }
 
     @PostMapping("/refresh-token")
     @Operation(summary = "AccessToken reissue by RefreshToken")
-    public ResponseEntity<LoginResponse> refreshToken(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse> refreshToken(HttpServletRequest request) {
         String refreshToken = jwtTokenUtils.extractRefreshTokenFromCookie(request);
         if (refreshToken == null || !jwtTokenProvider.validateRefreshToken(refreshToken)) {
             throw new JwtException("refresh token missing or invalid");
@@ -60,7 +62,7 @@ public class AuthController extends ApiPathPrefix {
 
         String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
 
-        return ResponseEntity.ok(new LoginResponse(newAccessToken, refreshToken));
+        return ResponseEntity.ok(new ApiResponse(true, new LoginResponse(newAccessToken, refreshToken)));
     }
 
 }
