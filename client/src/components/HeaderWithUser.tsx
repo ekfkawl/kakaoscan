@@ -14,7 +14,7 @@ const HeaderWithUser = () => {
 
     return (
         <header>
-            <Navbar className="dark:bg-gray-900">
+            <Navbar className="w-full px-3 py-3 dark:bg-gray-900">
                 <Navbar.Brand href="/">
                     <img src="/favicon.png" className="mr-3 h-6 sm:h-9" alt="Kakaoscan Logo" />
                     <span className="self-center whitespace-nowrap text-xl quicksand font-semibold dark:text-white">
