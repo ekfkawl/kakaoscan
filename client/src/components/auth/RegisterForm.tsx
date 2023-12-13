@@ -1,11 +1,15 @@
-import React from "react";
-import {Button, Label, Modal, TextInput} from "flowbite-react";
-import {Link, useNavigate} from "react-router-dom";
-import useEmailValidation from "../../hooks/useEmailValidation";
-import usePasswordValidation from "../../hooks/usePasswordValidation";
-import useModalState from "../../hooks/useModalState";
+import React from 'react';
+import { Alert, Button, Label, Modal, TextInput } from 'flowbite-react';
+import { Link, useNavigate } from 'react-router-dom';
+import useEmailValidation from '../../hooks/useEmailValidation';
+import usePasswordValidation from '../../hooks/usePasswordValidation';
+import useModalState from '../../hooks/useModalState';
+import useRegister from '../../hooks/useRegister';
+import useRedirectIfAuthenticated from '../../hooks/useRedirectIfAuthenticated';
 
 const RegisterForm = () => {
+    useRedirectIfAuthenticated('/');
+
     const {
         email,
         setEmail,
@@ -20,12 +24,16 @@ const RegisterForm = () => {
         handleBlur: handlePasswordBlur,
     } = usePasswordValidation();
 
+    const { register, isLoading, error: registerError } = useRegister();
     const { isOpen, openModal, closeModal } = useModalState();
     const navigate = useNavigate();
 
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        openModal();
+        const res = await register({ email, password });
+        if (res && res.success) {
+            openModal();
+        }
     };
 
     const handleModalClose = () => {
@@ -34,16 +42,19 @@ const RegisterForm = () => {
     };
 
     return (
-        <form className="w-full max-w-md space-y-4 md:space-y-6 xl:max-w-xl" onSubmit={handleSubmit}>
+        <form
+            className="w-full max-w-md space-y-4 md:space-y-6 xl:max-w-xl"
+            onSubmit={handleSubmit}
+        >
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                 귀하의 계정을 생성하세요
             </h1>
-            <div className="flex items-center">
-                <div className="h-0.5 w-full bg-gray-200 dark:bg-gray-700"></div>
-                <div className="h-0.5 w-full bg-gray-200 dark:bg-gray-700"></div>
-            </div>
+            <div className="h-0.5 w-full bg-gray-200 dark:bg-gray-700"></div>
+            {registerError && <Alert color="red">{registerError}</Alert>}
             <div>
-                <Label htmlFor="email" className="mb-2 block dark:text-white">이메일</Label>
+                <Label htmlFor="email" className="mb-2 block dark:text-white">
+                    이메일
+                </Label>
                 <TextInput
                     id="email"
                     placeholder="이메일 주소"
@@ -53,10 +64,14 @@ const RegisterForm = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     onBlur={handleEmailBlur}
                 />
-                {emailError && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{emailError}</p>}
+                {emailError && (
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-500">{emailError}</p>
+                )}
             </div>
             <div>
-                <Label htmlFor="password" className="mb-2 block dark:text-white">비밀번호</Label>
+                <Label htmlFor="password" className="mb-2 block dark:text-white">
+                    비밀번호
+                </Label>
                 <TextInput
                     id="password"
                     type="password"
@@ -65,9 +80,11 @@ const RegisterForm = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     onBlur={handlePasswordBlur}
                 />
-                {passwordError && <p className="mt-2 text-sm text-red-600 dark:text-red-500">{passwordError}</p>}
+                {passwordError && (
+                    <p className="mt-2 text-sm text-red-600 dark:text-red-500">{passwordError}</p>
+                )}
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={isLoading}>
                 회원가입
             </Button>
             <Modal show={isOpen} onClose={handleModalClose} position="center">
@@ -75,7 +92,8 @@ const RegisterForm = () => {
                 <Modal.Body>
                     <div className="space-y-6 p-6">
                         <p className="text-base leading-relaxed text-gray-500 dark:text-gray-400">
-                            이메일로 보내드린 인증 링크를 클릭하시면 가입이 완료됩니다. 이메일을 확인하시고, 인증 링크를 클릭하여 가입을 마무리해 주세요.
+                            이메일로 보내드린 인증 링크를 클릭하시면 가입이 완료됩니다. 이메일을
+                            확인하시고, 인증 링크를 클릭하여 가입을 마무리해 주세요.
                         </p>
                     </div>
                 </Modal.Body>
@@ -89,7 +107,7 @@ const RegisterForm = () => {
                 <p className="text-sm text-gray-900 dark:text-white font-medium">
                     이미 계정이 있나요?&nbsp;
                     <Link
-                        to="/"
+                        to="/login"
                         className="font-medium text-primary-600 hover:underline dark:text-primary-500"
                     >
                         로그인
@@ -98,6 +116,6 @@ const RegisterForm = () => {
             </div>
         </form>
     );
-}
+};
 
 export default RegisterForm;
