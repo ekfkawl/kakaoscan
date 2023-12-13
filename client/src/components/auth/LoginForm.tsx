@@ -1,15 +1,40 @@
-import React from "react";
-import { Button, Checkbox, Label, TextInput } from "flowbite-react";
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { Alert, Button, Checkbox, Label, TextInput } from 'flowbite-react';
+import useEmailValidation from '../../hooks/useEmailValidation';
+import usePasswordValidation from '../../hooks/usePasswordValidation';
+import useLogin from '../../hooks/useLogin';
+import useRedirectIfAuthenticated from '../../hooks/useRedirectIfAuthenticated';
 
 const LoginForm = () => {
+    useRedirectIfAuthenticated('/');
+
+    const navigate = useNavigate();
+    const { email, setEmail } = useEmailValidation();
+    const { password, setPassword } = usePasswordValidation();
+    const { login, isLoading, error: loginError } = useLogin();
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        let res = await login({ email, password });
+        if (res && res.success) {
+            navigate('/');
+        }
+    };
+
     return (
-        <form className="w-full max-w-md space-y-4 md:space-y-6 xl:max-w-xl" action="#">
+        <form
+            className="w-full max-w-md space-y-4 md:space-y-6 xl:max-w-xl"
+            onSubmit={handleSubmit}
+        >
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">
                 귀하의 계정에 로그인하세요
             </h1>
             <div className="items-center space-x-0 space-y-3 sm:flex sm:space-x-4 sm:space-y-0">
-                <Button color="gray" href="#" className="w-full md:w-full hover:bg-gray-50 dark:hover:bg-gray-700">
+                <Button
+                    color="gray"
+                    href="#"
+                    className="w-full md:w-full hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
                     <svg
                         aria-hidden
                         className="mr-2 h-5 w-5"
@@ -49,28 +74,34 @@ const LoginForm = () => {
                     구글 계정으로 로그인
                 </Button>
             </div>
-            <div className="flex items-center">
-                <div className="h-0.5 w-full bg-gray-200 dark:bg-gray-700"></div>
-                <div className="h-0.5 w-full bg-gray-200 dark:bg-gray-700"></div>
-            </div>
+            <div className="h-0.5 w-full bg-gray-200 dark:bg-gray-700"></div>
+            {loginError && <Alert color="red">{loginError}</Alert>}
             <div>
-                <Label htmlFor="email" className="mb-2 block dark:text-white">이메일</Label>
+                <Label htmlFor="email" className="mb-2 block dark:text-white">
+                    이메일
+                </Label>
                 <TextInput
                     id="email"
                     placeholder="이메일 주소"
                     required
                     type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                 />
             </div>
             <div>
-                <Label htmlFor="password" className="mb-2 block dark:text-white">비밀번호</Label>
+                <Label htmlFor="password" className="mb-2 block dark:text-white">
+                    비밀번호
+                </Label>
                 <TextInput
                     id="password"
                     required
                     type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                 />
             </div>
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" disabled={isLoading}>
                 로그인
             </Button>
             <div className="max-w-xs mx-auto">
@@ -92,13 +123,18 @@ const LoginForm = () => {
                             <Checkbox id="remember-description" />
                         </div>
                         <div className="ml-2 text-sm">
-                            <Label htmlFor="remember-description" className="text-gray-500 dark:text-gray-300">로그인 유지</Label>
+                            <Label
+                                htmlFor="remember-description"
+                                className="text-gray-500 dark:text-gray-300"
+                            >
+                                로그인 유지
+                            </Label>
                         </div>
                     </div>
                 </div>
             </div>
         </form>
     );
-}
+};
 
 export default LoginForm;
