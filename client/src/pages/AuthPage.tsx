@@ -3,7 +3,7 @@ import React, { PropsWithChildren } from 'react';
 const AuthPage: React.FC<PropsWithChildren<{}>> = ({ children }) => {
     return (
         <section className="bg-white dark:bg-gray-900">
-            <div className="grid lg:h-screen lg:grid-cols-2">
+            <div className="grid lg:h-screen lg:grid-cols-2 min-h-screen">
                 <div className="flex items-center justify-center bg-[#1E283C] px-4 py-6 sm:px-0 lg:py-0">
                     <div className="max-w-md xl:max-w-xl">
                         <div className="mb-4 flex items-center text-2xl quicksand text-[#00FFC0]">
