@@ -14,9 +14,10 @@ const HeaderWithUser = () => {
 
     return (
         <header>
-            <Navbar className="w-full px-3 py-3 dark:bg-gray-900">
+            <Navbar className="dark:bg-gray-900">
                 <Navbar.Brand href="/">
-                    <img src="/favicon.png" className="mr-3 h-6 sm:h-9" alt="Kakaoscan Logo" />
+                    <img src="/favicon.png" className="mr-3 h-6 sm:h-9 dark:hidden" alt="Kakaoscan Logo" />
+                    <img src="/favicon-dark.png" className="mr-3 h-6 sm:h-9 hidden dark:block" alt="Kakaoscan Logo" />
                     <span className="self-center whitespace-nowrap text-xl quicksand font-semibold dark:text-white">
                         kakaoscan
                     </span>
@@ -40,10 +41,7 @@ const HeaderWithUser = () => {
                             <Dropdown.Header>
                                 <strong className="block text-sm">email@test.com</strong>
                             </Dropdown.Header>
-                            <Dropdown.Item
-                                className="text-gray-500 dark:text-gray-400"
-                                onClick={handleLogout}
-                            >
+                            <Dropdown.Item className="text-gray-500 dark:text-gray-400" onClick={handleLogout}>
                                 로그아웃
                             </Dropdown.Item>
                         </Dropdown>
