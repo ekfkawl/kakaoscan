@@ -1,10 +1,10 @@
 package com.kakaoscan.server.application.service;
 
 import com.kakaoscan.server.application.exception.AlreadyRegisteredException;
-import com.kakaoscan.server.domain.user.AuthenticationType;
-import com.kakaoscan.server.domain.user.Role;
-import com.kakaoscan.server.domain.user.User;
-import com.kakaoscan.server.domain.user.UserRepository;
+import com.kakaoscan.server.domain.user.enums.AuthenticationType;
+import com.kakaoscan.server.domain.user.enums.Role;
+import com.kakaoscan.server.domain.user.model.User;
+import com.kakaoscan.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.kakaoscan.server.domain.user;
+package com.kakaoscan.server.domain.user.enums;
 
 public enum Role {
     USER,
