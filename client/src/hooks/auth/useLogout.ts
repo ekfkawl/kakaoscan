@@ -1,8 +1,8 @@
 import { AxiosResponse } from 'axios';
-import axiosInstance from '../utils/axiosInstance';
-import store from '../redux/store';
-import { clearToken } from '../redux/slices/authSlice';
-import { ApiResponse } from '../types/apiResponse';
+import axiosInstance from '../../utils/api/axiosInstance';
+import store from '../../redux/store';
+import { clearToken } from '../../redux/slices/authSlice';
+import { ApiResponse } from '../../types/apiResponse';
 
 const useLogout = () => {
     const logout = async (): Promise<ApiResponse | null> => {

@@ -1,7 +1,7 @@
 import axios, { AxiosError, AxiosResponse } from 'axios';
 import { useState } from 'react';
-import { ApiResponse } from '../types/apiResponse';
-import axiosInstance from '../utils/axiosInstance';
+import { ApiResponse } from '../../types/apiResponse';
+import axiosInstance from '../../utils/api/axiosInstance';
 
 interface RegisterRequest {
     email: string;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { isPassword } from '../utils/validateAuth';
+import { isPassword } from '../../utils/validation/validateAuth';
 
 const usePasswordValidation = () => {
     const [password, setPassword] = useState<string>('');

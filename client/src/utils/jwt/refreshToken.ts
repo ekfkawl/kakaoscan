@@ -1,7 +1,7 @@
-import axiosInstance from './axiosInstance';
-import store from '../redux/store';
-import { clearToken, setToken } from '../redux/slices/authSlice';
-import { ApiResponse } from '../types/apiResponse';
+import axiosInstance from '../api/axiosInstance';
+import store from '../../redux/store';
+import { clearToken, setToken } from '../../redux/slices/authSlice';
+import { ApiResponse } from '../../types/apiResponse';
 
 export const refreshToken = async (): Promise<void> => {
     try {

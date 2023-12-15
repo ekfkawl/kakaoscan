@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { isEmail } from '../utils/validateAuth';
+import { isEmail } from '../../utils/validation/validateAuth';
 
 const useEmailValidation = () => {
     const [email, setEmail] = useState<string>('');

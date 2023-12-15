@@ -1,7 +1,7 @@
 import { Avatar, DarkThemeToggle, Dropdown, Navbar } from 'flowbite-react';
 import React from 'react';
 import { FaGithub } from 'react-icons/fa';
-import useLogout from '../hooks/useLogout';
+import useLogout from '../../hooks/auth/useLogout';
 import { useNavigate } from 'react-router-dom';
 
 const HeaderWithUser = () => {

@@ -1,5 +1,5 @@
 import React, { PropsWithChildren } from 'react';
-import SearchBar from '../components/searchbar/SearchBar';
+import SearchBar from '../components/SearchBar/SearchBar';
 
 const AuthPage: React.FC<PropsWithChildren<{}>> = () => {
     return (
