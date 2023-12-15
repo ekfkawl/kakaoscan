@@ -1,10 +1,10 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Alert, Button, Checkbox, Label, TextInput } from 'flowbite-react';
-import useEmailValidation from '../../hooks/useEmailValidation';
-import usePasswordValidation from '../../hooks/usePasswordValidation';
-import useLogin from '../../hooks/useLogin';
-import useRedirectIfAuthenticated from '../../hooks/useRedirectIfAuthenticated';
+import useEmailValidation from '../../hooks/validation/useEmailValidation';
+import usePasswordValidation from '../../hooks/validation/usePasswordValidation';
+import useLogin from '../../hooks/auth/useLogin';
+import useRedirectIfAuthenticated from '../../hooks/auth/useRedirectIfAuthenticated';
 
 const LoginForm = () => {
     useRedirectIfAuthenticated('/');

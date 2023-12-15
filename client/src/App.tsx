@@ -3,10 +3,10 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import AuthPage from './pages/AuthPage';
 import LoginForm from './components/auth/LoginForm';
 import RegisterForm from './components/auth/RegisterForm';
-import Layout from './components/Layout';
-import { refreshToken } from './utils/refreshToken';
+import AppLayout from './components/Layout/AppLayout';
+import { refreshToken } from './utils/jwt/refreshToken';
 import Main from './pages/Main';
-import ProtectedRoute from './components/auth/ProtectedRoute';
+import ProtectedRoute from './components/Routes/ProtectedRoute';
 import { useDispatch } from 'react-redux';
 import { setInitialized } from './redux/slices/authSlice';
 
@@ -22,7 +22,7 @@ const App = () => {
     return (
         <BrowserRouter>
             <Routes>
-                <Route path="/" element={<Layout />}>
+                <Route path="/" element={<AppLayout />}>
                     <Route
                         index
                         element={

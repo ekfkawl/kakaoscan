@@ -1,11 +1,11 @@
 import React from 'react';
 import { Alert, Button, Label, Modal, TextInput } from 'flowbite-react';
 import { Link, useNavigate } from 'react-router-dom';
-import useEmailValidation from '../../hooks/useEmailValidation';
-import usePasswordValidation from '../../hooks/usePasswordValidation';
-import useModalState from '../../hooks/useModalState';
-import useRegister from '../../hooks/useRegister';
-import useRedirectIfAuthenticated from '../../hooks/useRedirectIfAuthenticated';
+import useEmailValidation from '../../hooks/validation/useEmailValidation';
+import usePasswordValidation from '../../hooks/validation/usePasswordValidation';
+import useModalState from '../../hooks/ui/useModalState';
+import useRegister from '../../hooks/auth/useRegister';
+import useRedirectIfAuthenticated from '../../hooks/auth/useRedirectIfAuthenticated';
 
 const RegisterForm = () => {
     useRedirectIfAuthenticated('/');
