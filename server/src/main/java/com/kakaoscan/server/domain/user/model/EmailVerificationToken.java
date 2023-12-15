@@ -1,4 +1,4 @@
-package com.kakaoscan.server.domain.user;
+package com.kakaoscan.server.domain.user.model;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;

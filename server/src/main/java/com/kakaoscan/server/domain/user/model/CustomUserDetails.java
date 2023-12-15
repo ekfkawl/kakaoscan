@@ -1,6 +1,7 @@
-package com.kakaoscan.server.domain.user;
+package com.kakaoscan.server.domain.user.model;
 
 import com.kakaoscan.server.application.dto.UserData;
+import com.kakaoscan.server.domain.user.enums.Role;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
