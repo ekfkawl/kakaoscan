@@ -1,6 +1,6 @@
 import React from 'react';
 import './SearchBar.css';
-import usePhoneNumberFormat from "../../hooks/Formats/usePhoneNumberFormat";
+import usePhoneNumberFormat from "../../hooks/formats/usePhoneNumberFormat";
 
 const SearchBar = () => {
     const [phoneNumber, handlePhoneNumberChange] = usePhoneNumberFormat();
