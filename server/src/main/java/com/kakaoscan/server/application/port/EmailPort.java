@@ -1,6 +1,6 @@
 package com.kakaoscan.server.application.port;
 
-import com.kakaoscan.server.application.dto.EmailTemplate;
+import com.kakaoscan.server.infrastructure.email.template.EmailTemplate;
 
 public interface EmailPort {
     <T extends EmailTemplate> void send(T emailTemplate);
