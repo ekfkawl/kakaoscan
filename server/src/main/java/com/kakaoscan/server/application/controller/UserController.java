@@ -1,7 +1,7 @@
 package com.kakaoscan.server.application.controller;
 
-import com.kakaoscan.server.application.dto.ApiResponse;
-import com.kakaoscan.server.application.dto.RegisterRequest;
+import com.kakaoscan.server.application.dto.response.ApiResponse;
+import com.kakaoscan.server.application.dto.request.RegisterRequest;
 import com.kakaoscan.server.application.port.UserPort;
 import com.kakaoscan.server.infrastructure.service.RateLimitService;
 import com.kakaoscan.server.infrastructure.utils.WebUtils;
