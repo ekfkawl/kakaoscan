@@ -1,4 +1,4 @@
-package com.kakaoscan.server.application.dto;
+package com.kakaoscan.server.application.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

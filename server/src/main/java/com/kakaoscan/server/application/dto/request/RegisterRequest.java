@@ -1,4 +1,4 @@
-package com.kakaoscan.server.application.dto;
+package com.kakaoscan.server.application.dto.request;
 
 import com.kakaoscan.server.common.validation.ValidationPatterns;
 import jakarta.validation.constraints.NotBlank;
