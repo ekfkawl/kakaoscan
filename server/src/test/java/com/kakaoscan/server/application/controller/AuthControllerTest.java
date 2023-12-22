@@ -1,8 +1,8 @@
 package com.kakaoscan.server.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kakaoscan.server.application.dto.LoginRequest;
-import com.kakaoscan.server.application.dto.LoginResponse;
+import com.kakaoscan.server.application.dto.request.LoginRequest;
+import com.kakaoscan.server.application.dto.response.LoginResponse;
 import com.kakaoscan.server.application.port.AuthPort;
 import com.kakaoscan.server.infrastructure.security.JwtTokenUtils;
 import jakarta.servlet.http.HttpServletResponse;
@@ -61,7 +61,7 @@ public class AuthControllerTest {
                         .contentType(MediaType.APPLICATION_JSON))
         // then
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").value("access-token"))
-                .andExpect(jsonPath("$.refreshToken").value("refresh-token"));
+                .andExpect(jsonPath("$.data.accessToken").value("access-token"))
+                .andExpect(jsonPath("$.data.refreshToken").value("refresh-token"));
     }
 }
