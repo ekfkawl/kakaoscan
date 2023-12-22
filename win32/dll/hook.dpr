@@ -1,0 +1,20 @@
+library hook;
+
+uses
+  Winapi.Windows,
+  System.SysUtils,
+  System.Classes,
+  LogUtil in '..\common\LogUtil.pas',
+  RedisUtil in 'utils\RedisUtil.pas',
+  RedisConfig in 'config\RedisConfig.pas',
+  RedisSearchEventHandler in 'event\handler\RedisSearchEventHandler.pas',
+  GuardObjectUtil in '..\common\GuardObjectUtil.pas',
+  EventMetadata in 'event\model\EventMetadata.pas',
+  SearchEvent in 'event\model\SearchEvent.pas',
+  SetStatusEvent in 'event\model\SetStatusEvent.pas';
+
+{$R *.res}
+
+begin
+  AllocConsole;
+end.
