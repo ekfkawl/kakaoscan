@@ -54,3 +54,5 @@ desktop.ini
 # Excluding specific directories
 /Bin/
 /Output/
+
+RedisConfig.pas
