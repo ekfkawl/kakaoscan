@@ -1,8 +1,8 @@
 package com.kakaoscan.server.infrastructure.adapter;
 
-import com.kakaoscan.server.application.dto.EmailTemplate;
-import com.kakaoscan.server.application.dto.VerificationEmail;
 import com.kakaoscan.server.application.port.EmailPort;
+import com.kakaoscan.server.infrastructure.email.template.EmailTemplate;
+import com.kakaoscan.server.infrastructure.email.types.VerificationEmail;
 import com.kakaoscan.server.infrastructure.exception.EmailSendingException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
