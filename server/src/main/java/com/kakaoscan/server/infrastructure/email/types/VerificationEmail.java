@@ -1,5 +1,6 @@
-package com.kakaoscan.server.application.dto;
+package com.kakaoscan.server.infrastructure.email.types;
 
+import com.kakaoscan.server.infrastructure.email.template.EmailTemplate;
 import lombok.Getter;
 
 @Getter
