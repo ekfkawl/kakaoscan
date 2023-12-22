@@ -1,0 +1,56 @@
+# Compiled binary and executable files
+*.exe
+*.dll
+*.bpl
+*.dcp
+
+# Compiled intermediate files
+*.dcu
+*.drc
+*.res
+*.obj
+*.o
+*.pch
+*.dres
+*.tpp
+*.map
+
+# IDE and editor files
+__history/
+__recovery/
+*.dproj.local
+*.identcache
+*.tvsconfig
+*.skn
+*.el
+*.~*
+
+# Project backups and other temporary files
+*.~*
+*.bak
+*.tmp
+*.temp
+
+# Model support files
+_ModelSupport/
+
+# Environment-specific files
+*.cfg
+*.dof
+*.cfg
+*.stat
+*.dep
+*.dsk
+*.local
+
+# Deployment files
+*.deployproj
+
+# Other files to ignore
+*.DS_Store
+thumbs.db
+desktop.ini
+
+# Excluding specific directories
+/Bin/
+/Output/
