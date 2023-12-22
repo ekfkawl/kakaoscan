@@ -18,7 +18,7 @@ const AppLayout = () => {
             {isAuthenticated && (
                 <div className="mx-auto max-w-8xl w-full px-3 py-3">
                     <HeaderWithUser />
-                    <div className="px-2 py-10 sm:py-10 md:py-10 lg:py-20 xl:py-32">
+                    <div className="px-2 py-14 sm:py-14 md:py-14 lg:py-24 xl:py-40">
                         <Outlet />
                     </div>
                 </div>
