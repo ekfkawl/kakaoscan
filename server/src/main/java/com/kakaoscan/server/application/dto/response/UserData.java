@@ -1,4 +1,4 @@
-package com.kakaoscan.server.application.dto;
+package com.kakaoscan.server.application.dto.response;
 
 import com.kakaoscan.server.domain.user.enums.Role;
 import lombok.AllArgsConstructor;
