@@ -41,3 +41,4 @@ src/main/resources/application-db.yml
 src/main/resources/application-prod.yml
 src/main/resources/application-jwt.yml
 src/main/resources/application-smtp.yml
+src/main/resources/application-redis.yml
