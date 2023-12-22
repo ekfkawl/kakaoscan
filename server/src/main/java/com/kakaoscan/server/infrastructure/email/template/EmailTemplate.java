@@ -1,4 +1,4 @@
-package com.kakaoscan.server.application.dto;
+package com.kakaoscan.server.infrastructure.email.template;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
