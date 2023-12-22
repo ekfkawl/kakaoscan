@@ -1,8 +1,12 @@
 import React from 'react';
 import './SearchBar.css';
-import usePhoneNumberFormat from "../../hooks/formats/usePhoneNumberFormat";
+import usePhoneNumberFormat from '../../hooks/formats/usePhoneNumberFormat';
 
-const SearchBar = () => {
+interface SearchBarProps {
+    onKeyPress?: React.KeyboardEventHandler<HTMLInputElement>;
+}
+
+const SearchBar: React.FC<SearchBarProps> = ({ onKeyPress }) => {
     const [phoneNumber, handlePhoneNumberChange] = usePhoneNumberFormat();
 
     return (
@@ -35,6 +39,7 @@ const SearchBar = () => {
                     className="search_input_box flex-1 mx-3 py-2 px-3 border-none bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-0 focus:border-none text-xl font-semibold"
                     value={phoneNumber}
                     onChange={handlePhoneNumberChange}
+                    onKeyPress={onKeyPress}
                 />
 
                 <div className="search_logo">
