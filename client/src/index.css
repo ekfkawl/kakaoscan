@@ -11,3 +11,7 @@
 .quicksand {
     font-family: 'Quicksand', sans-serif;
 }
+
+body {
+    @apply dark:bg-gray-900;
+}
