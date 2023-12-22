@@ -5,6 +5,7 @@ spring:
       - jwt
       - smtp
       - swagger
+      - redis
   mvc:
     hidden-method:
       filter:
@@ -28,3 +29,4 @@ cors:
     - /index.html
     - /static/**
     - /favicon.png
+    - /ws/**
