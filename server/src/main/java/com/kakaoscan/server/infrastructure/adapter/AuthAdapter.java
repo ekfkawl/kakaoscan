@@ -1,7 +1,7 @@
 package com.kakaoscan.server.infrastructure.adapter;
 
-import com.kakaoscan.server.application.dto.LoginRequest;
-import com.kakaoscan.server.application.dto.LoginResponse;
+import com.kakaoscan.server.application.dto.request.LoginRequest;
+import com.kakaoscan.server.application.dto.response.LoginResponse;
 import com.kakaoscan.server.application.exception.EmailNotVerifiedException;
 import com.kakaoscan.server.application.port.AuthPort;
 import com.kakaoscan.server.domain.user.model.CustomUserDetails;

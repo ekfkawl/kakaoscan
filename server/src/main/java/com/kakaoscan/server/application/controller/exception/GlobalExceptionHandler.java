@@ -1,7 +1,7 @@
 package com.kakaoscan.server.application.controller.exception;
 
-import com.kakaoscan.server.application.dto.ApiResponse;
-import com.kakaoscan.server.application.dto.RegisterRequest;
+import com.kakaoscan.server.application.dto.response.ApiResponse;
+import com.kakaoscan.server.application.dto.request.RegisterRequest;
 import com.kakaoscan.server.application.exception.EmailNotVerifiedException;
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;

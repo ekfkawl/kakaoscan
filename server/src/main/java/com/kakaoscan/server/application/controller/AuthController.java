@@ -1,8 +1,8 @@
 package com.kakaoscan.server.application.controller;
 
-import com.kakaoscan.server.application.dto.ApiResponse;
-import com.kakaoscan.server.application.dto.LoginRequest;
-import com.kakaoscan.server.application.dto.LoginResponse;
+import com.kakaoscan.server.application.dto.response.ApiResponse;
+import com.kakaoscan.server.application.dto.request.LoginRequest;
+import com.kakaoscan.server.application.dto.response.LoginResponse;
 import com.kakaoscan.server.application.port.AuthPort;
 import com.kakaoscan.server.infrastructure.security.JwtTokenProvider;
 import com.kakaoscan.server.infrastructure.security.JwtTokenUtils;

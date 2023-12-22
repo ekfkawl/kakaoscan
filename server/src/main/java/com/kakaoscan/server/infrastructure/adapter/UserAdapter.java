@@ -1,15 +1,15 @@
 package com.kakaoscan.server.infrastructure.adapter;
 
-import com.kakaoscan.server.application.dto.ApiResponse;
-import com.kakaoscan.server.application.dto.RegisterRequest;
-import com.kakaoscan.server.application.dto.VerificationEmail;
+import com.kakaoscan.server.application.dto.request.RegisterRequest;
+import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.application.exception.AlreadyRegisteredException;
 import com.kakaoscan.server.application.port.EmailPort;
 import com.kakaoscan.server.application.port.UserPort;
 import com.kakaoscan.server.application.service.UserService;
 import com.kakaoscan.server.domain.user.model.EmailVerificationToken;
-import com.kakaoscan.server.domain.user.repository.EmailVerificationTokenRepository;
 import com.kakaoscan.server.domain.user.model.User;
+import com.kakaoscan.server.domain.user.repository.EmailVerificationTokenRepository;
+import com.kakaoscan.server.infrastructure.email.types.VerificationEmail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
