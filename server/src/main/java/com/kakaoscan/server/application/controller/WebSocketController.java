@@ -1,28 +1,44 @@
 package com.kakaoscan.server.application.controller;
 
+import com.kakaoscan.server.application.exception.EmptyQueueException;
 import com.kakaoscan.server.application.service.MessageService;
-import com.kakaoscan.server.domain.events.types.external.SearchEvent;
+import com.kakaoscan.server.application.service.websocket.EventProcessService;
+import com.kakaoscan.server.application.service.websocket.MessageQueueService;
 import com.kakaoscan.server.domain.search.model.Message;
-import com.kakaoscan.server.infrastructure.redis.publisher.EventPublisher;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.socket.messaging.SessionConnectedEvent;
 
 import java.security.Principal;
-
-import static com.kakaoscan.server.infrastructure.redis.enums.Topics.SEARCH_EVENT_TOPIC;
+import java.util.Optional;
 
 @Controller
 @RequiredArgsConstructor
 public class WebSocketController {
-
+    private final MessageQueueService messageQueueService;
     private final MessageService messageService;
-    private final EventPublisher eventPublisher;
+    private final EventProcessService eventProcessService;
+
+    @EventListener
+    public void handleWebSocketConnectListener(SessionConnectedEvent event) {
+        // @TODO 연결시 useremail로 진행 중인 이벤트가 존재하는지 확인
+        System.out.println("connect: " + event.getUser());
+    }
 
     @MessageMapping("/send")
-    public void sendMessage(Principal principal, Message.OriginMessage originMessage) {
+    public void handleMessage(Principal principal, Message.OriginMessage originMessage) {
         Message message = messageService.createMessage(principal, originMessage);
 
-        eventPublisher.publish(SEARCH_EVENT_TOPIC.getTopic(), new SearchEvent(message.getEmail(), message.getContent(), "127.0.0.1"));
+        Optional<Message> optionalPeekMessage = messageQueueService.enqueueAndPeekNext(message);
+        if (optionalPeekMessage.isEmpty()) {
+            throw new EmptyQueueException("websocket message queue is empty");
+        }
+
+        boolean isUserTurn = eventProcessService.checkUserTurnAndNotify(message, optionalPeekMessage.get());
+        if (isUserTurn && !eventProcessService.removeTimeoutEvent(optionalPeekMessage.get())) {
+            eventProcessService.publishAndTraceEvent(optionalPeekMessage.get());
+        }
     }
 }
