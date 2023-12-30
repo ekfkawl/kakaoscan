@@ -9,8 +9,8 @@ import java.util.UUID;
 @Getter
 @Setter
 public class EventMetadata {
-    private String eventId;
-    private LocalDateTime createdAt;
+    protected String eventId;
+    protected LocalDateTime createdAt;
 
     public EventMetadata() {
         this.eventId = UUID.randomUUID().toString();
