@@ -11,7 +11,7 @@ uses
   GuardObjectUtil in '..\common\GuardObjectUtil.pas',
   EventMetadata in 'event\model\EventMetadata.pas',
   SearchEvent in 'event\model\SearchEvent.pas',
-  SetStatusEvent in 'event\model\SetStatusEvent.pas';
+  EventStatus in 'event\model\EventStatus.pas';
 
 {$R *.res}
 
