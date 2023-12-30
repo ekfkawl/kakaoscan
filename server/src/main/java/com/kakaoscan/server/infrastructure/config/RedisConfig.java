@@ -13,8 +13,7 @@ import org.springframework.data.redis.listener.adapter.MessageListenerAdapter;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
-import static com.kakaoscan.server.infrastructure.redis.enums.Topics.OTHER_EVENT_TOPIC;
-import static com.kakaoscan.server.infrastructure.redis.enums.Topics.SEARCH_EVENT_TOPIC;
+import static com.kakaoscan.server.infrastructure.redis.enums.Topics.*;
 
 @Configuration
 public class RedisConfig {
@@ -31,6 +30,7 @@ public class RedisConfig {
         container.setConnectionFactory(connectionFactory);
         container.addMessageListener(listenerAdapter, searchTopic());
         container.addMessageListener(listenerAdapter, otherTopic());
+        container.addMessageListener(listenerAdapter, eventTraceTopic());
         return container;
     }
 
@@ -47,6 +47,11 @@ public class RedisConfig {
     @Bean
     public PatternTopic otherTopic() {
         return new PatternTopic(OTHER_EVENT_TOPIC.getTopic());
+    }
+
+    @Bean
+    public PatternTopic eventTraceTopic() {
+        return new PatternTopic(EVENT_TRACE_TOPIC.getTopic());
     }
 
     @Bean
