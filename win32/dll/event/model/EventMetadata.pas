@@ -5,12 +5,6 @@ interface
 uses
   Winapi.Windows, System.Classes;
 
-CONST
-  EVENT_WAITING = 'WAITING';
-  EVENT_PROCESSING = 'PROCESSING';
-  EVENT_SUCCESS = 'SUCCESS';
-  EVENT_FAILURE = 'FAILURE';
-
 type
   TEventMetadata = class
   private
