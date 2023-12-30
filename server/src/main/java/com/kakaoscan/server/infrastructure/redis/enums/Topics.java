@@ -7,7 +7,8 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum Topics {
     SEARCH_EVENT_TOPIC("searchTopic"),
-    OTHER_EVENT_TOPIC("otherTopic");
+    OTHER_EVENT_TOPIC("otherTopic"),
+    EVENT_TRACE_TOPIC("eventTraceTopic");
 
     private final String topic;
 }
