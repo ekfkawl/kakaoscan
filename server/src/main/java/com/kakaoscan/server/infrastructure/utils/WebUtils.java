@@ -1,6 +1,7 @@
 package com.kakaoscan.server.infrastructure.utils;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.socket.WebSocketSession;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -25,5 +26,9 @@ public class WebUtils {
         } catch (UnknownHostException e) {
             return ra;
         }
+    }
+
+    public static String extractRemoteAddress(WebSocketSession session) {
+        return (String) session.getAttributes().get("remoteAddress");
     }
 }
