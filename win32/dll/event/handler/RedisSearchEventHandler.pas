@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, System.Classes, System.SysUtils, LogUtil, RedisConfig, System.Threading, RedisUtil,
-  EventMetadata, SearchEvent, SetStatusEvent, GuardObjectUtil;
+  EventMetadata, SearchEvent, EventStatus, GuardObjectUtil;
 
 implementation
 
@@ -13,21 +13,20 @@ var
 
 procedure OnSearchEventReceived(Topic, JsonMessage: string);
 var
-  SearchEvent: TSearchEvent;
-  SetStatusEvent: TSetStatusEvent;
   Redis: TRedis;
+  SearchEvent: TSearchEvent;
 begin
-  Guard(SearchEvent, TSearchEvent.Create(JsonMessage));
+  try
+    Redis:= TRedis.GetInstance;
 
-  Guard(SetStatusEvent, TSetStatusEvent.Create(SearchEvent.EventId));
-  SetStatusEvent.Status:= EVENT_FAILURE;
-  SetStatusEvent.Message:= 'test message';
+    Guard(SearchEvent, TSearchEvent.Create(JsonMessage));
+    Redis.SetEventStatus(SearchEvent.EventId, TEventStatus.CreateInstance(EVENT_SUCCESS, '¼º°ø' + Random(4124).ToString));
 
-  Redis:= TRedis.GetInstance;
-  Redis.Publish(TOPIC_OTHER_EVENT, SetStatusEvent.ToJSON);
-  WriteLn(SetStatusEvent.ToJSON);
-
-  WriteLn(Format('received message on topic %s: %s', [Topic, SearchEvent.EventId]));
+    WriteLn(Format('received message on topic %s: %s', [Topic, SearchEvent.EventId]));
+  except
+    on E: Exception do
+      Log('handle OnSearchEventReceived error', E);
+  end;
 end;
 
 initialization
@@ -37,7 +36,17 @@ initialization
       Redis: TRedis;
     begin
       Redis:= TRedis.GetInstance;
-      Redis.Subscribe(TOPIC_SEARCH_EVENT, OnSearchEventReceived);
+      while True do
+      begin
+        if Redis.IsConnected then
+        begin
+          Redis.Subscribe(TOPIC_SEARCH_EVENT, OnSearchEventReceived);
+        end else
+        begin
+          Sleep(1000);
+          Redis.Reconnect;
+        end;
+      end;
     end
   );
 

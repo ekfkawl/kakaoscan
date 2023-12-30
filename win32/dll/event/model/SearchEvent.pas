@@ -10,13 +10,11 @@ type
   private
     FEmail: string;
     FPhoneNumber: string;
-    FRemoteAddress: string;
   public
     constructor Create; overload;
     constructor Create(const JSONString: string); overload;
     property Email: string read FEmail write FEmail;
     property PhoneNumber: string read FPhoneNumber write FPhoneNumber;
-    property RemoteAddress: string read FRemoteAddress write FRemoteAddress;
   end;
 
 implementation
@@ -30,7 +28,7 @@ end;
 
 constructor TSearchEvent.Create(const JSONString: string);
 var
-  JSONValue, DataValue: TJSONValue;
+  JSONValue: TJSONValue;
   DataObject: TJSONObject;
 begin
   inherited Create;
