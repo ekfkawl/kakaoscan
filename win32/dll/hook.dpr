@@ -11,7 +11,8 @@ uses
   GuardObjectUtil in '..\common\GuardObjectUtil.pas',
   EventMetadata in 'event\model\EventMetadata.pas',
   SearchEvent in 'event\model\SearchEvent.pas',
-  EventStatus in 'event\model\EventStatus.pas';
+  EventStatus in 'event\model\EventStatus.pas',
+  AOBScanUtil in 'utils\AOBScanUtil.pas';
 
 {$R *.res}
 
