@@ -25,6 +25,7 @@ type
     function AOBSCAN: TStringList; overload;
     function AOBSCAN(dwStart, dwEnd: DWORD; Val: string; Index: Integer = 0): DWORD; overload;
     function AOBSCAN(Val: string; Index: Integer = 0): DWORD; overload;
+    function AOBSCAN(Val: string; Index: Integer; CallbackProc: TProc<DWORD>): DWORD; overload;
     procedure UpdateScanStructure(const AStartAddr, AEndAddr: DWORD);
   end;
 
@@ -130,6 +131,14 @@ function TAOBScanner.AOBSCAN(Val: string; Index: Integer = 0): DWORD;
 begin
   FScanStructure.Value:= Val;
   Result:= AOBSCAN(FScanStructure.StartAddr, FScanStructure.EndAddr, Val, Index);
+end;
+
+function TAOBScanner.AOBSCAN(Val: string; Index: Integer; CallbackProc: TProc<DWORD>): DWORD;
+begin
+  FScanStructure.Value:= Val;
+  Result:= AOBSCAN(FScanStructure.StartAddr, FScanStructure.EndAddr, Val, Index);
+  if (Result > 0) and (Assigned(CallbackProc)) then
+    CallbackProc(Result);
 end;
 
 procedure TAOBScanner.UpdateScanStructure(const AStartAddr, AEndAddr: DWORD);
