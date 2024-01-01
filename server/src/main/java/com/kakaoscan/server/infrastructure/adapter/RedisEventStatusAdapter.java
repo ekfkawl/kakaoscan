@@ -1,8 +1,8 @@
 package com.kakaoscan.server.infrastructure.adapter;
 
 import com.kakaoscan.server.application.port.EventStatusPort;
-import com.kakaoscan.server.domain.events.EventMetadata;
-import com.kakaoscan.server.domain.events.EventStatus;
+import com.kakaoscan.server.domain.events.model.EventMetadata;
+import com.kakaoscan.server.domain.events.model.EventStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;

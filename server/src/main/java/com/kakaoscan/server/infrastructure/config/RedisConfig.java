@@ -1,6 +1,6 @@
 package com.kakaoscan.server.infrastructure.config;
 
-import com.kakaoscan.server.domain.events.EventStatus;
+import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.infrastructure.redis.subscriber.DynamicEventReceiver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

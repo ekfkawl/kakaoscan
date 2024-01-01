@@ -3,7 +3,7 @@ package com.kakaoscan.server.infrastructure.serialization;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kakaoscan.server.common.utils.ObjectMapperSingleton;
-import com.kakaoscan.server.domain.events.EventMetadata;
+import com.kakaoscan.server.domain.events.model.EventMetadata;
 
 public class JsonEventSerializer {
     private static final ObjectMapper objectMapper = ObjectMapperSingleton.getInstance();
