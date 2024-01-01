@@ -2,9 +2,8 @@ package com.kakaoscan.server.application.events.handlers;
 
 import com.kakaoscan.server.application.port.EventStatusPort;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
-import com.kakaoscan.server.domain.events.EventStatus;
-import com.kakaoscan.server.domain.events.enums.EventStatusEnum;
-import com.kakaoscan.server.domain.events.types.external.SearchEvent;
+import com.kakaoscan.server.domain.events.model.EventStatus;
+import com.kakaoscan.server.domain.events.model.SearchEvent;
 import com.kakaoscan.server.domain.search.model.Message;
 import com.kakaoscan.server.domain.search.queue.QueueAggregate;
 import com.kakaoscan.server.infrastructure.events.processor.AbstractEventProcessor;

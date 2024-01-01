@@ -1,6 +1,5 @@
-package com.kakaoscan.server.domain.events.types.external;
+package com.kakaoscan.server.domain.events.model;
 
-import com.kakaoscan.server.domain.events.EventMetadata;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

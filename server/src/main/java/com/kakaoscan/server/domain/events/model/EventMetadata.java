@@ -1,4 +1,4 @@
-package com.kakaoscan.server.domain.events;
+package com.kakaoscan.server.domain.events.model;
 
 import lombok.Getter;
 import lombok.Setter;
