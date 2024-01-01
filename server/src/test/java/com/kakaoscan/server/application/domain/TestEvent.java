@@ -1,6 +1,6 @@
 package com.kakaoscan.server.application.domain;
 
-import com.kakaoscan.server.domain.events.EventMetadata;
+import com.kakaoscan.server.domain.events.model.EventMetadata;
 
 public class TestEvent extends EventMetadata {
     private String message;
