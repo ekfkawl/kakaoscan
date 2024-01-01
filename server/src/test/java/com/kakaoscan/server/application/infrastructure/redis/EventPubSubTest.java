@@ -2,7 +2,6 @@ package com.kakaoscan.server.application.infrastructure.redis;
 
 import com.kakaoscan.server.application.domain.TestEvent;
 import com.kakaoscan.server.application.infrastructure.events.processor.TestEventProcessor;
-import com.kakaoscan.server.application.port.EventStatusPort;
 import com.kakaoscan.server.infrastructure.events.processor.EventProcessor;
 import com.kakaoscan.server.infrastructure.events.processor.EventProcessorFactory;
 import com.kakaoscan.server.infrastructure.redis.publisher.EventPublisher;
@@ -35,9 +34,6 @@ public class EventPubSubTest {
     @MockBean
     private StringRedisTemplate stringRedisTemplate;
 
-    @MockBean
-    private EventStatusPort eventStatusPort;
-
     @Autowired
     private EventProcessor testEventProcessor;
 
@@ -60,13 +56,13 @@ public class EventPubSubTest {
         }
 
         @Bean
-        public EventPublisher eventPublisher(StringRedisTemplate stringRedisTemplate, EventStatusPort eventStatusPort) {
-            return new EventPublisher(stringRedisTemplate, eventStatusPort);
+        public EventPublisher eventPublisher(StringRedisTemplate stringRedisTemplate) {
+            return new EventPublisher(stringRedisTemplate);
         }
 
         @Bean
-        public EventProcessorFactory eventProcessorFactory(EventStatusPort eventStatusPort) {
-            return new EventProcessorFactory(eventStatusPort);
+        public EventProcessorFactory eventProcessorFactory() {
+            return new EventProcessorFactory();
         }
 
         @Bean
@@ -75,11 +71,8 @@ public class EventPubSubTest {
         }
 
         @Bean
-        public DynamicEventReceiver dynamicEventReceiver(
-                EventProcessorFactory eventProcessorFactory,
-                ExecutorService taskExecutorService,
-                EventStatusPort eventStatusPort) {
-            return new DynamicEventReceiver(eventProcessorFactory, taskExecutorService, eventStatusPort);
+        public DynamicEventReceiver dynamicEventReceiver(EventProcessorFactory eventProcessorFactory) {
+            return new DynamicEventReceiver(eventProcessorFactory, taskExecutorService());
         }
     }
 
@@ -93,8 +86,8 @@ public class EventPubSubTest {
     public void testEventPublishAndReceive() throws InterruptedException {
         // given
         TestEvent testEvent = new TestEvent();
-        String eventData1 = "1. test event data";
-        String eventData2 = "2. test event data";
+        String eventData1 = "{\"eventId\":\"1\",\"createdAt\":\"2024-01-01T01:00:00\"}";
+        String eventData2 = "{\"eventId\":\"2\",\"createdAt\":\"2024-01-01T02:00:00\"}";
 
         logger.info(() -> "Thread Pool Count: " + THREAD_POOL_COUNT);
 

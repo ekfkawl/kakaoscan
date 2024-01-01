@@ -15,8 +15,8 @@ public class DynamicEventReceiver extends AbstractEventReceiver {
 
     @Override
     public void processEvent(String eventType, String eventData) {
-        EventProcessor processor = eventProcessorFactory.getProcessor(eventType);
         taskExecutorService.submit(() -> {
+            EventProcessor processor = eventProcessorFactory.getProcessor(eventType);
             processor.process(eventData);
         });
     }
