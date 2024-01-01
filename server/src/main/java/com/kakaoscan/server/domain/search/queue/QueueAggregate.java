@@ -7,7 +7,7 @@ import java.util.Iterator;
 public interface QueueAggregate {
     void add(Message message);
     boolean contains(String id);
-    boolean remove(String id);
+    void remove(String id);
     void update(String id, Message newMessage);
     Iterator<Message> iterator();
     int size();
