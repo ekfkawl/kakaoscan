@@ -29,8 +29,8 @@ public class WebSocketInMemoryQueue implements QueueAggregate {
     }
 
     @Override
-    public boolean remove(String id) {
-        return set.removeIf(message -> id.equals(message.getEmail()));
+    public void remove(String id) {
+        set.removeIf(message -> id.equals(message.getEmail()));
     }
 
     @Override
