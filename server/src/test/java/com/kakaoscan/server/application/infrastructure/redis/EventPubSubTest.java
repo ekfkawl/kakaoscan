@@ -16,6 +16,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -61,18 +62,18 @@ public class EventPubSubTest {
         }
 
         @Bean
-        public EventProcessorFactory eventProcessorFactory() {
-            return new EventProcessorFactory();
-        }
-
-        @Bean
         public ExecutorService taskExecutorService() {
             return Executors.newFixedThreadPool(THREAD_POOL_COUNT);
         }
 
         @Bean
-        public DynamicEventReceiver dynamicEventReceiver(EventProcessorFactory eventProcessorFactory) {
-            return new DynamicEventReceiver(eventProcessorFactory, taskExecutorService());
+        public EventProcessorFactory eventProcessorFactory() {
+            return new EventProcessorFactory(null);
+        }
+
+        @Bean
+        public DynamicEventReceiver dynamicEventReceiver() {
+            return new DynamicEventReceiver(eventProcessorFactory(), taskExecutorService());
         }
     }
 
