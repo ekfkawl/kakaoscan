@@ -1,6 +1,7 @@
 package com.kakaoscan.server.application.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kakaoscan.server.application.controller.api.AuthController;
 import com.kakaoscan.server.application.dto.request.LoginRequest;
 import com.kakaoscan.server.application.dto.response.LoginResponse;
 import com.kakaoscan.server.application.port.AuthPort;

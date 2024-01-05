@@ -1,5 +1,6 @@
-package com.kakaoscan.server.application.controller;
+package com.kakaoscan.server.application.controller.api;
 
+import com.kakaoscan.server.application.controller.ApiPathPrefix;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.application.dto.request.LoginRequest;
 import com.kakaoscan.server.application.dto.response.LoginResponse;
