@@ -13,7 +13,12 @@ public class MessageService {
 
     public Message createMessage(Principal principal, Message.OriginMessage originMessage) {
         if (principal != null) {
-            return new Message(principal.getName(), originMessage.getContent());
+            final String phoneNumber = originMessage.getContent().trim().replace("-", "");
+            if (phoneNumber.length() == 11 && phoneNumber.matches("\\d+")) {
+                return new Message(principal.getName(), phoneNumber);
+            }else {
+                throw new IllegalArgumentException("message content is not a phone number format");
+            }
         }else {
             throw new UserNotVerifiedException("websocket principal is empty");
         }
