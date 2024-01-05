@@ -16,7 +16,7 @@ implementation
 
 function GetCallAddress(const Address: DWORD): DWORD;
 begin
-  Result:= Address + PDWORD(Address + 1)^ + 5;
+  Result:= Integer(Address) + PInteger(Address + 1)^ + 5;
 end;
 
 procedure CallHook(const HookAddress: DWORD; DestAddress: Pointer);
