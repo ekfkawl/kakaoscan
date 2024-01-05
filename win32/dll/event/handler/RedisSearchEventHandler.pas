@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, System.Classes, System.SysUtils, LogUtil, RedisConfig, System.Threading, RedisUtil,
-  EventMetadata, SearchEvent, EventStatus, GuardObjectUtil;
+  Main, EventMetadata, SearchEvent, EventStatus, GuardObjectUtil;
 
 implementation
 
@@ -13,16 +13,12 @@ var
 
 procedure OnSearchEventReceived(Topic, JsonMessage: string);
 var
-  Redis: TRedis;
   SearchEvent: TSearchEvent;
 begin
   try
-    Redis:= TRedis.GetInstance;
-
     Guard(SearchEvent, TSearchEvent.Create(JsonMessage));
-    Redis.SetEventStatus(SearchEvent.EventId, TEventStatus.CreateInstance(EVENT_SUCCESS, '¼º°ø' + Random(4124).ToString));
-
-    WriteLn(Format('received message on topic %s: %s', [Topic, SearchEvent.EventId]));
+    WriteLn(Format('searchEvent'#10#9'eventId: %s'#10#9'email: %s'#10#9'phoneNumber: %s', [SearchEvent.EventId, SearchEvent.Email, SearchEvent.PhoneNumber]));
+    Main.RunEvent(SearchEvent.EventId, SearchEvent.PhoneNumber);
   except
     on E: Exception do
       Log('handle OnSearchEventReceived error', E);
