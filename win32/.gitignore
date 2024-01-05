@@ -55,4 +55,6 @@ desktop.ini
 /Bin/
 /Output/
 
+# 
 RedisConfig.pas
+dll/kakao/private/
