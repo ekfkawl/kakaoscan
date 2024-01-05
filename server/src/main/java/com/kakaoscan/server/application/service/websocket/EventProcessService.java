@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 import java.util.Iterator;
 import java.util.Optional;
 
+import static com.kakaoscan.server.domain.events.enums.EventStatusEnum.PROCESSING;
 import static com.kakaoscan.server.domain.events.enums.EventStatusEnum.WAITING;
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEARCH_ERROR_PING_PONG;
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEARCH_QUEUE_WAITING;
@@ -66,7 +67,8 @@ public class EventProcessService {
     }
 
     private boolean isMessageTimedOut(Message message, LocalDateTime thresholdTime, EventStatus eventStatus) {
-        return message.getCreatedAt().isBefore(thresholdTime) && eventStatus.getStatus() == WAITING;
+        return eventStatus.getStatus() == WAITING && message.getCreatedAt().isBefore(thresholdTime) ||
+               eventStatus.getStatus() == PROCESSING && message.getCreatedAt().isBefore(LocalDateTime.now().minusSeconds(10));
     }
 
     private boolean shouldRemovePeek(boolean currentStatus, Message currentMessage, Message peekMessage) {
