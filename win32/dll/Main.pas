@@ -4,7 +4,7 @@ interface
 
 uses
   Winapi.Windows, System.Threading, System.Classes, System.SysUtils,
-  KakaoHandle, KakaoCtrl, KakaoResponse, KakaoStatus, KakaoHook, KakaoProfile, RedisUtil, EventStatus, Test, GuardObjectUtil;
+  KakaoHandle, KakaoCtrl, KakaoResponse, KakaoStatus, KakaoHook, KakaoProfile, RedisUtil, SearchEvent, EventStatus, Test, GuardObjectUtil;
 
 procedure Initialize;
 procedure RunEvent(const EventId, PhoneNumber: string);
@@ -16,13 +16,28 @@ var
   KakaoCtrl: TKakaoCtrl;
   Redis: TRedis;
 
+procedure MergeFeeds(HasFeeds: Boolean; ScanType: Integer; var KakaoProfile: TKakaoProfile);
+var
+  FeedsContainer: TFeedsContainer;
+begin
+  if HasFeeds then
+  begin
+    Guard(FeedsContainer, KakaoCtrl.Scan(ScanType).Value);
+    if Assigned(FeedsContainer) then
+    begin
+      KakaoProfile.Profile.ProfileFeeds.Merge(FeedsContainer);
+      CleanUpMemory;
+    end;
+  end;
+end;
+
 procedure RunEvent(const EventId, PhoneNumber: string);
 var
   KakaoResponse: TKakaoResponse;
   KakaoStatus: TKakaoStatus;
   KakaoProfile: TKakaoProfile;
   StatusResponse: TStatusResponse;
-  ViewFriendName: string;
+  ViewFriendInfo: TViewFriendInfo;
 begin
   Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EVENT_PROCESSING, ''));
 
@@ -64,14 +79,22 @@ begin
           end;
         end;
 
-        ViewFriendName:= KakaoCtrl.ViewFriend.Value;
+        ViewFriendInfo:= KakaoCtrl.ViewFriend.Value;
         KakaoResponse:= GetRecentKakaoResponse;
         if KakaoResponse.ResponseType = rtProfile then
         begin
-          Guard(KakaoProfile, TKakaoProfile.Create(KakaoResponse.Json));
-          KakaoProfile.Profile.NickName:= ViewFriendName;
-          Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EVENT_SUCCESS, KakaoProfile.ToJSON));
+          const HasProfile = KakaoResponse.HasProfile;
+          const HasBackground = KakaoResponse.HasBackground;
 
+          Guard(KakaoProfile, TKakaoProfile.Create(KakaoResponse.Json));
+          KakaoProfile.Profile.NickName:= ViewFriendInfo.Name;
+          KakaoProfile.Profile.ScreenBase64:= ViewFriendInfo.ScreenToBase64;
+          Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EVENT_PROCESSING, Format(FRIEND_PROFILE_SCANNING, [ViewFriendInfo.Name])));
+
+          MergeFeeds(HasProfile, 0, KakaoProfile);
+          MergeFeeds(HasBackground, 1, KakaoProfile);
+
+          Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EVENT_SUCCESS, KakaoProfile.ToJSON));
           WriteLn(#9'state: ', EVENT_SUCCESS);
         end;
 
@@ -86,6 +109,18 @@ procedure Initialize;
 begin
   KakaoCtrl:= TKakaoCtrl.GetInstance;
   Redis:= TRedis.GetInstance;
+
+  {$IFDEF DEBUG}
+  TThread.CreateAnonymousThread(
+    procedure
+    begin
+      Form1:= TForm1.Create(nil);
+      Form1.ShowModal;
+    end
+  ).Start;
+
+  ReportMemoryLeaksOnShutdown:= True;
+  {$ENDIF}
 end;
 
 end.
