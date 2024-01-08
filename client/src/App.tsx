@@ -3,10 +3,10 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import AuthPage from './pages/AuthPage';
 import LoginForm from './components/Auth/LoginForm';
 import RegisterForm from './components/Auth/RegisterForm';
-import AppLayout from './components/Layout/AppLayout';
+import AppLayout from './components/AppLayout';
 import { refreshToken } from './utils/jwt/refreshToken';
-import Main from './pages/Main';
-import ProtectedRoute from './components/Routes/ProtectedRoute';
+import SearchPage from './pages/SearchPage';
+import ProtectedRoute from './components/ProtectedRoute';
 import { useDispatch } from 'react-redux';
 import { setInitialized } from './redux/slices/authSlice';
 
@@ -27,7 +27,7 @@ const App = () => {
                         index
                         element={
                             <ProtectedRoute>
-                                <Main />
+                                <SearchPage />
                             </ProtectedRoute>
                         }
                     />
