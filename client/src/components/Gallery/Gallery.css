@@ -1,0 +1,27 @@
+@import 'lightgallery/css/lightgallery.css';
+@import 'lightgallery/css/lg-thumbnail.css';
+@import 'lightgallery/css/lg-zoom.css';
+@import 'lightgallery/css/lg-fullscreen.css';
+@import 'lightgallery/css/lg-video.css';
+@import 'lightgallery/css/lg-autoplay.css';
+@import 'lightgallery/css/lg-pager.css';
+@import 'lightgallery/css/lg-rotate.css';
+
+.gallery-item {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    background: black;
+    @apply sm:w-full lg:w-1/3 md:w-1/3
+}
+
+.gallery-item img {
+    object-fit: cover;
+    @apply lg:h-80 md:h-72
+}
+
+@media (max-width: 640px) {
+    .lg-pager-outer {
+        display: none;
+    }
+}
