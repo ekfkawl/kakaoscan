@@ -12,8 +12,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
-import static com.kakaoscan.server.domain.events.enums.EventStatusEnum.PROCESSING;
-import static com.kakaoscan.server.domain.events.enums.EventStatusEnum.WAITING;
+import static com.kakaoscan.server.domain.events.enums.EventStatusEnum.*;
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEARCH_STARTING;
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEARCH_WAITING;
 
@@ -41,6 +40,6 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
             }
         };
         boolean hasNext = status.getStatus() == WAITING || status.getStatus() == PROCESSING;
-        messageDispatcher.sendToUser(new Message(event.getEmail(), responseMessage, hasNext));
+        messageDispatcher.sendToUser(new Message(event.getEmail(), responseMessage, hasNext, status.getStatus() == SUCCESS));
     }
 }
