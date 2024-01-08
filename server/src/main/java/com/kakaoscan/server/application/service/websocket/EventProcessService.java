@@ -51,7 +51,7 @@ public class EventProcessService {
             if (eventStatus.isPresent() && isMessageTimedOut(next, thresholdTime, eventStatus.get())) {
                 isRemovedPeek = shouldRemovePeek(isRemovedPeek, next, peekMessage);
 
-                messageDispatcher.sendToUser(new Message(next.getEmail(), SEARCH_ERROR_PING_PONG, false));
+                messageDispatcher.sendToUser(new Message(next.getEmail(), SEARCH_ERROR_PING_PONG, false, false));
                 iterator.remove();
             }
         }
