@@ -18,6 +18,7 @@ type
   private
     FRedisClient: IRedisClient;
     FRedisSubscriber: IRedisClient;
+    FIsDestroyed: boolean;
     constructor Create;
   public
     destructor Destroy; override;
@@ -26,8 +27,8 @@ type
     procedure Subscribe(const Topic: string; Callback: TProc<string, string>);
     function SetEventStatus(const EventId: string; Status: TEventStatus): boolean;
     function GetEventStatus(const EventId: string): TEventStatus;
-
     function IsConnected: boolean;
+    function IsDestroyed: boolean;
 
     class function GetInstance: TRedis;
   end;
@@ -44,13 +45,25 @@ begin
   inherited Create;
   FRedisClient:= NewRedisClient(GetRedisHost, GetRedisPort);
   FRedisSubscriber:= NewRedisClient(GetRedisHost, GetRedisPort);
+  FIsDestroyed:= False;
   Reconnect;
 end;
 
 destructor TRedis.Destroy;
 begin
-  FRedisClient:= nil;
-  FRedisSubscriber:= nil;
+  if Assigned(FRedisClient) then
+  begin
+    FRedisClient.Disconnect;
+    FRedisClient:= nil;
+  end;
+
+  if Assigned(FRedisSubscriber) then
+  begin
+    FRedisSubscriber.Disconnect;
+    FRedisSubscriber:= nil;
+  end;
+
+  FIsDestroyed:= True;
   inherited;
 end;
 
@@ -92,7 +105,7 @@ begin
     end,
     function: Boolean
     begin
-      Result:= FRedisSubscriber <> nil;
+      Result:= (not FIsDestroyed) and (FRedisSubscriber <> nil);
     end,
     nil
   );
@@ -102,7 +115,8 @@ function TRedis.SetEventStatus(const EventId: string; Status: TEventStatus): boo
 begin
   Result:= False;
   try
-    Result:= FRedisClient.&SET(EVENT_KEY_PREFIX + EventId, Status.ToJSON, 3600);
+    Result:= FRedisClient.&SET(EVENT_KEY_PREFIX + EventId, Status.ToJSON, 600);
+    FreeAndNil(Status);
   except
     on E: Exception do
     begin
@@ -147,6 +161,11 @@ begin
       Log('redis connected fail', E);
     end;
   end;
+end;
+
+function TRedis.IsDestroyed: boolean;
+begin
+  Result:= FIsDestroyed;
 end;
 
 initialization
