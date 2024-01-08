@@ -3,10 +3,15 @@
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.Classes, System.SysUtils, System.Threading,
-  KakaoHandle, KakaoHook, KakaoEnumCallback, KakaoResponse;
+  Winapi.Windows, Winapi.Messages, System.Classes, System.SysUtils, System.Threading, Vcl.Graphics,
+  KakaoHandle, KakaoHook, KakaoEnumCallback, KakaoResponse, KakaoProfile, KakaoProfilePageUtil, BitmapUtil, GuardObjectUtil;
 
 type
+  TViewFriendInfo = record
+    Name: string;
+    ScreenToBase64: string;
+  end;
+
   TKakaoCtrl = class(TKakaoHandle)
   private
     constructor Create;
@@ -14,7 +19,8 @@ type
     class function GetInstance: TKakaoCtrl;
     function AddFriend(PhoneNumber: string): IFuture<TKakaoResponse>;
     function SearchFriend(FriendName: string): IFuture<boolean>;
-    function ViewFriend: IFuture<string>;
+    function ViewFriend: IFuture<TViewFriendInfo>;
+    function Scan(ScanType: Byte): IFuture<TFeedsContainer>;
     procedure SynchronizationFriend;
   end;
 
@@ -115,26 +121,80 @@ begin
   end);
 end;
 
-function TKakaoCtrl.ViewFriend: IFuture<string>;
+function TKakaoCtrl.ViewFriend: IFuture<TViewFriendInfo>;
 var
   EnumInfo: TEnumInfo;
   Tick: UInt64;
+  Bitmap: TBitmap;
+  Res: TViewFriendInfo;
 begin
-  Result:= TTask.Future<string>(function: string
+  Result:= TTask.Future<TViewFriendInfo>(function: TViewFriendInfo
   begin
-    EnumInfo:= TEnumInfo.Create(FKakao);
-    Tick:= GetTickCount64 + 2000;
-    while EnumInfo.FoundHandle = 0 do
-    begin
-      if Tick < GetTickCount64 then
-        Exit('');
+    Res.Name:= '';
+    Res.ScreenToBase64:= '';
+    try
+      EnumInfo:= TEnumInfo.Create(FKakao);
+      Tick:= GetTickCount64 + 3000;
+      while (EnumInfo.FoundHandle = 0) and (Tick > GetTickCount64) do
+      begin
+        Click(FSearchListCtrl, 40, 50);
+        Sleep(500);
+        EnumWindows(@ViewFriendWindow, LPARAM(@EnumInfo));
+      end;
 
-      Click(FSearchListCtrl, 40, 50);
-      Sleep(500);
-      EnumWindows(@ViewFriendWindow, LPARAM(@EnumInfo));
+      if EnumInfo.FoundHandle = 0 then
+        Exit;
+
+      Sleep(1000);
+      Guard(Bitmap, GetProfileScreen(EnumInfo.FoundHandle));
+      Res.ScreenToBase64:= BitmapToBase64String(Bitmap);
+      Res.Name:= GetRecentFriendViewName;
+    finally
+      Result:= Res;
     end;
-    SendMessage(EnumInfo.FoundHandle, WM_CLOSE, 0, 0);
-    Result:= GetRecentFriendViewName;
+  end);
+end;
+
+function TKakaoCtrl.Scan(ScanType: Byte): IFuture<TFeedsContainer>;
+const
+  BTN_XY: Array [0..1, 0..1] of Integer = ((150, 390), (20, 20));
+var
+  EnumInfo: TEnumInfo;
+  ProfileStructure: Pointer;
+  Tick: UInt64;
+begin
+  Result:= TTask.Future<TFeedsContainer>(function: TFeedsContainer
+  begin
+    Result:= nil;
+
+    CleanUpMemory;
+
+    EnumInfo:= TEnumInfo.Create(FKakao);
+    EnumWindows(@ViewFriendWindow, LPARAM(@EnumInfo));
+    if EnumInfo.FoundHandle = 0 then
+      Exit;
+
+    Tick:= GetTickCount64 + 3000;
+    while GetRecentProfileStructure = 0 do
+    begin
+      if GetTickCount64 > Tick then
+        Exit;
+
+      Click(EnumInfo.FoundHandle, BTN_XY[ScanType][0], BTN_XY[ScanType][1]);
+      Sleep(500);
+    end;
+
+    Tick:= GetTickCount64 + 3000;
+    while (GetTickCount64 < Tick) and (GetProfilePage.Loaded) and (GetProfilePage.Current < GetProfilePage.Last) do
+    begin
+      NextProfile;
+      Sleep(1);
+    end;
+
+    if ScanType = 1 then
+      SendMessage(EnumInfo.FoundHandle, WM_CLOSE, 0, 0);
+
+    Result:= GetMoreProfile;
   end);
 end;
 

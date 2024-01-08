@@ -2,14 +2,15 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Test'
-  ClientHeight = 441
-  ClientWidth = 624
+  ClientHeight = 202
+  ClientWidth = 418
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -12
   Font.Name = 'Segoe UI'
   Font.Style = []
+  OnClose = FormClose
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 15
@@ -55,5 +56,29 @@ object Form1: TForm1
     Caption = 'ViewFriend'
     TabOrder = 4
     OnClick = Button4Click
+  end
+  object CheckBox1: TCheckBox
+    Left = 8
+    Top = 144
+    Width = 97
+    Height = 17
+    Caption = 'ProfilePage'
+    TabOrder = 5
+    OnClick = CheckBox1Click
+  end
+  object Button5: TButton
+    Left = 200
+    Top = 119
+    Width = 129
+    Height = 34
+    Caption = 'ScanProfile'
+    TabOrder = 6
+    OnClick = Button5Click
+  end
+  object Timer1: TTimer
+    Enabled = False
+    OnTimer = Timer1Timer
+    Left = 120
+    Top = 136
   end
 end

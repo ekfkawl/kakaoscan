@@ -24,23 +24,13 @@ uses
   KakaoProfile in 'kakao\private\model\KakaoProfile.pas',
   KakaoStatus in 'kakao\private\model\KakaoStatus.pas',
   KakaoResponse in 'model\KakaoResponse.pas',
-  KakaoEnumCallback in 'kakao\private\KakaoEnumCallback.pas';
+  KakaoEnumCallback in 'kakao\private\KakaoEnumCallback.pas',
+  BitmapUtil in 'utils\BitmapUtil.pas',
+  KakaoProfilePageUtil in 'kakao\private\KakaoProfilePageUtil.pas';
 
 {$R *.res}
 
 begin
   AllocConsole;
   Main.Initialize;
-
-  {$IFDEF DEBUG}
-  TTask.Run(
-    procedure
-    begin
-      Form1:= TForm1.Create(nil);
-      Form1.ShowModal;
-    end
-  );
-
-  ReportMemoryLeaksOnShutdown:= True;
-  {$ENDIF}
 end.

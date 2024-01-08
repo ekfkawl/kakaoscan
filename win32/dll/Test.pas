@@ -4,8 +4,8 @@ interface
 
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, KakaoCtrl, System.Threading,
-  KakaoResponse;
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, KakaoCtrl, System.Threading, KakaoHook,
+  KakaoResponse, Vcl.ExtCtrls, KakaoProfilePageUtil, KakaoProfile, GuardObjectUtil;
 
 type
   TForm1 = class(TForm)
@@ -14,11 +14,18 @@ type
     Button2: TButton;
     Button3: TButton;
     Button4: TButton;
+    Timer1: TTimer;
+    CheckBox1: TCheckBox;
+    Button5: TButton;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure Button3Click(Sender: TObject);
     procedure Button4Click(Sender: TObject);
+    procedure CheckBox1Click(Sender: TObject);
+    procedure Timer1Timer(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure FormClose(Sender: TObject; var Action: TCloseAction);
   private
     { Private declarations }
   public
@@ -55,15 +62,52 @@ end;
 
 procedure TForm1.Button4Click(Sender: TObject);
 var
-  Future: IFuture<string>;
+  Future: IFuture<TViewFriendInfo>;
 begin
   Future:= KakaoCtrl.ViewFriend;
-  Writeln(Future.Value);
+  Writeln(Future.Value.Name);
+//  Writeln(Future.Value.ScreenToBase64);
+end;
+
+procedure TForm1.Button5Click(Sender: TObject);
+var
+  FeedsContainer: TFeedsContainer;
+begin
+  Guard(FeedsContainer, KakaoCtrl.Scan(0).Value);
+  if Assigned(FeedsContainer) then
+  begin
+    Writeln(FeedsContainer.ToJSON);
+  end else
+  begin
+    Writeln('ScanProfile failed');
+  end;
+end;
+
+procedure TForm1.CheckBox1Click(Sender: TObject);
+begin
+  Timer1.Enabled:= CheckBox1.Checked;
+end;
+
+procedure TForm1.FormClose(Sender: TObject; var Action: TCloseAction);
+begin
+  Action:= caFree;
+  Self.Free;
 end;
 
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   KakaoCtrl:= TKakaoCtrl.GetInstance;
+end;
+
+procedure TForm1.Timer1Timer(Sender: TObject);
+var
+  ProfilePage: TProfilePage;
+begin
+  ProfilePage:= GetProfilePage;
+  if not ProfilePage.Loaded then
+    Exit;
+
+  Writeln(ProfilePage.Current, '/', ProfilePage.Last);
 end;
 
 end.

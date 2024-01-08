@@ -3,21 +3,27 @@
 interface
 
 uses
-  Winapi.Windows, System.StrUtils, System.SysUtils, Clipbrd,
+  Winapi.Windows, System.StrUtils, System.SysUtils, Clipbrd, System.Hash,
   KakaoSignature, AOBScanUtil, MemoryUtil, LogUtil, KakaoProfile, KakaoStatus, KakaoResponse, GuardObjectUtil;
 
 function GetSearchCount: DWORD;
 function GetRecentKakaoResponse: TKakaoResponse;
 function GetRecentFriendViewName: string;
+function GetProfileStructure: DWORD;
+function GetMoreProfile: TFeedsContainer;
+procedure CleanUpMemory;
 
 implementation
 
 var
   Scanner: TAOBScanner;
-  SearchCount, SearchCountRetn: DWORD;
+  SearchCount, SearchCountRetn,
+  ProfileStructure, LoadProfileRetn: DWORD;
 
   KakaoResponse: TKakaoResponse;
   ViewFriendName: string;
+
+  DynamicFeedsContainer: TDynamicFeedsContainer;
 
   pOriginHttpResponse: function(pResponse: Pointer): Pointer; stdcall;
   pOriginFriendName: function(pName: Pointer): Pointer; stdcall;
@@ -58,6 +64,38 @@ begin
   Result:= ViewFriendName;
 end;
 
+function GetProfileStructure: DWORD;
+begin
+  Result:= ProfileStructure;
+end;
+
+function GetMoreProfile: TFeedsContainer;
+var
+  Res: TFeedsContainer;
+begin
+  Result:= nil;
+  if DynamicFeedsContainer.HashIndex.Count > 1 then
+  begin
+    Res:= TFeedsContainer.Create(DynamicFeedsContainer.Get(0).ToJSON);
+    try
+      for var i:= 0 to DynamicFeedsContainer.HashIndex.Count - 1 do
+      begin
+        Res.Merge(DynamicFeedsContainer.Get(i));
+      end;
+      Result:= Res;
+    except
+      Res.Free;
+      raise;
+    end;
+  end;
+end;
+
+procedure CleanUpMemory;
+begin
+  ProfileStructure:= 0;
+  DynamicFeedsContainer.Clear;
+end;
+
 function HttpResponseHook(pResponse: Pointer): Pointer; stdcall;
   procedure _HttpResponseHook(pResponse: Pointer); stdcall;
   var
@@ -65,6 +103,7 @@ function HttpResponseHook(pResponse: Pointer): Pointer; stdcall;
     Json: string;
     KakaoProfile: TKakaoProfile;
     KakaoStatus: TKakaoStatus;
+    FeedsContainer: TFeedsContainer;
   begin
     try
       if not Assigned(PPointer(pResponse)^) then
@@ -76,35 +115,43 @@ function HttpResponseHook(pResponse: Pointer): Pointer; stdcall;
 
       const IsProfile = PDWORD64(pJson)^ = $6C69666F7270227B;
       const IsStatus = PDWORD64(pJson)^ = $737574617473227B;
+      const IsFeeds = PDWORD64(pJson)^ = $227364656566227B;
       const JsonSize = PDWORD(PDWORD(pResponse)^ + $38)^;
       if JsonSize = 0 then
         Exit;
 
       Json:= UTF8ArrayToString(pJson, JsonSize);
 
-      KakaoResponse.ResponseType:= rtUnknown;
-
+      KakaoResponse:= TKakaoResponse.Initialize;
       if IsProfile then
       begin
         Guard(KakaoProfile, TKakaoProfile.Create(Json));
         if not Assigned(KakaoProfile.Profile) then
           Exit;
 
-        KakaoResponse.ResponseType:= rtProfile;
-      end;
+        KakaoResponse.HasProfile:= KakaoProfile.Profile.IsHasProfile;
+        KakaoResponse.HasBackground:= KakaoProfile.Profile.IsHasBackground;
+        CleanUpMemory;
 
-      if IsStatus then
+        KakaoResponse.ResponseType:= rtProfile;
+      end
+      else if IsStatus then
       begin
         Guard(KakaoStatus, TKakaoStatus.Create(Json));
         if not Assigned(KakaoStatus) then
           Exit;
 
         KakaoResponse.ResponseType:= rtStatus;
+      end
+      else if IsFeeds then
+      begin
+        FeedsContainer:= TFeedsContainer.Create(Json);
+        DynamicFeedsContainer.Add(FeedsContainer.Feeds[0].Id, FeedsContainer);
+
+        KakaoResponse.ResponseType:= rtFeeds;
       end;
 
       KakaoResponse.Json:= Json;
-
-
     except
       on E: Exception do
       begin
@@ -143,7 +190,16 @@ asm
   call dword ptr [pOriginFriendName]
 end;
 
+procedure LoadProfileHook;
+asm
+  mov [ebp-4], 0
+  mov [ProfileStructure], ecx
+  jmp dword ptr [LoadProfileRetn]
+end;
+
 initialization
+  DynamicFeedsContainer:= TDynamicFeedsContainer.Create;
+
   Scanner:= TAOBScanner.GetInstance;
   Scanner.UpdateScanStructure(GetModuleHandle(nil), GetModuleHandle(nil) * 2);
 
@@ -163,8 +219,8 @@ initialization
 
     AOBSCAN(SIG_GET_SEARCH_COUNT, 0, procedure(Address: DWORD)
     begin
-      JumpHook(Address + 2, @SearchCountHook);
       SearchCountRetn:= Address + $C;
+      JumpHook(Address + 2, @SearchCountHook);
     end);
 
     AOBSCAN(SIG_GET_HTTP_RESPONSE, 1, procedure(Address: DWORD)
@@ -172,7 +228,15 @@ initialization
       pOriginHttpResponse:= Ptr(GetCallAddress(Address + $A));
       CallHook(Address + $A, @HttpResponseHook);
     end);
+
+    AOBSCAN(SIG_LOAD_PROFILE, 0, procedure(Address: DWORD)
+    begin
+      LoadProfileRetn:= Address + 7;
+      JumpHook(Address, @LoadProfileHook);
+    end);
   end;
 
+finalization
+  DynamicFeedsContainer.Free;
 
 end.
