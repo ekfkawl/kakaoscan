@@ -1,8 +1,8 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import HeaderWithUser from '../Header/HeaderWithUser';
-import Header from '../Header/Header';
-import useAuth from '../../hooks/auth/useAuth';
+import HeaderWithUser from './Header/HeaderWithUser';
+import Header from './Header/Header';
+import useAuth from '../hooks/auth/useAuth';
 
 const AppLayout = () => {
     const { isAuthenticated } = useAuth();
