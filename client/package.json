@@ -4,6 +4,7 @@
     "private": true,
     "dependencies": {
         "@reduxjs/toolkit": "^1.9.7",
+        "@stomp/stompjs": "^7.0.0",
         "@testing-library/jest-dom": "^5.17.0",
         "@testing-library/react": "^13.4.0",
         "@testing-library/user-event": "^14.5.1",
@@ -16,16 +17,22 @@
         "env-cmd": "^10.1.0",
         "flowbite": "^2.2.0",
         "flowbite-react": "^0.7.0",
+        "lightgallery": "^2.7.2",
         "postcss": "^8.4.32",
         "react": "^18.2.0",
         "react-dom": "^18.2.0",
         "react-redux": "^8.1.3",
         "react-router-dom": "^6.20.1",
         "react-scripts": "^5.0.1",
+        "sass": "^1.69.7",
+        "sockjs-client": "^1.6.1",
+        "stompjs": "^2.3.3",
         "styled-components": "^6.1.1",
         "tailwindcss": "^3.3.5",
         "typescript": "^4.9.5",
-        "web-vitals": "^2.1.4"
+        "uuid": "^9.0.1",
+        "web-vitals": "^2.1.4",
+        "ws": "^8.15.1"
     },
     "scripts": {
         "start": "react-scripts start",
@@ -54,6 +61,10 @@
         ]
     },
     "devDependencies": {
+        "@types/react-image-gallery": "^1.2.4",
+        "@types/sockjs-client": "^1.5.4",
+        "@types/stompjs": "^2.3.9",
+        "@types/uuid": "^9.0.7",
         "prettier": "3.1.0"
     }
 }
