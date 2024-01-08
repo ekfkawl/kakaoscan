@@ -3,5 +3,6 @@ export interface StompResponse {
     email: string;
     content: string | null;
     hasNext: boolean;
+    jsonContent: boolean;
     createdAt: string;
 }

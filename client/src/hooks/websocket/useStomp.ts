@@ -25,7 +25,6 @@ function useStomp(url: string, onMessageReceived: (message: StompResponse) => vo
                 subscriptionRef.current = client.subscribe('/user/queue/message', (message: IMessage) => {
                     const messageData: StompResponse = JSON.parse(message.body);
                     onMessageReceived(messageData);
-                    console.log(messageData.content);
                 });
                 console.log('connected');
             },
