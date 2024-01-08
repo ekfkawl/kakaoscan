@@ -22,7 +22,7 @@ public class RedisEventStatusAdapter implements EventStatusPort {
     public void setEventStatus(String eventId, EventStatus status) {
         ValueOperations<String, EventStatus> ops = eventStatusRedisTemplate.opsForValue();
 
-        ops.set(EVENT_KEY_PREFIX + eventId, status, 1, TimeUnit.HOURS);
+        ops.set(EVENT_KEY_PREFIX + eventId, status, 10, TimeUnit.MINUTES);
     }
 
     @Override
