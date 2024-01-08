@@ -3,8 +3,8 @@ unit RedisSearchEventHandler;
 interface
 
 uses
-  Winapi.Windows, System.Classes, System.SysUtils, LogUtil, RedisConfig, System.Threading, RedisUtil,
-  Main, EventMetadata, SearchEvent, EventStatus, GuardObjectUtil;
+  Winapi.Windows, System.Classes, System.SysUtils, LogUtil, System.Threading,
+  Main, EventMetadata, SearchEvent, EventStatus, GuardObjectUtil, RedisConfig, RedisUtil;
 
 implementation
 
@@ -32,7 +32,7 @@ initialization
       Redis: TRedis;
     begin
       Redis:= TRedis.GetInstance;
-      while True do
+      while not Redis.IsDestroyed do
       begin
         if Redis.IsConnected then
         begin
