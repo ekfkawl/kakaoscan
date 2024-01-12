@@ -113,14 +113,15 @@ function HttpResponseHook(pResponse: Pointer): Pointer; stdcall;
       if not Assigned(pJson) then
         Exit;
 
-      const IsProfile = PDWORD64(pJson)^ = $6C69666F7270227B;
-      const IsStatus = PDWORD64(pJson)^ = $737574617473227B;
-      const IsFeeds = PDWORD64(pJson)^ = $227364656566227B;
       const JsonSize = PDWORD(PDWORD(pResponse)^ + $38)^;
       if JsonSize = 0 then
         Exit;
 
       Json:= UTF8ArrayToString(pJson, JsonSize);
+      const IsProfile = PDWORD64(pJson)^ = $6C69666F7270227B;
+      const IsStatus = PDWORD64(pJson)^ = $737574617473227B;
+      const IsFeeds = PDWORD64(pJson)^ = $227364656566227B;
+      const IsFriend = PDWORD64(pJson)^ = $646E65697266227B;
 
       KakaoResponse:= TKakaoResponse.Initialize;
       if IsProfile then
@@ -149,6 +150,10 @@ function HttpResponseHook(pResponse: Pointer): Pointer; stdcall;
         DynamicFeedsContainer.Add(FeedsContainer.Feeds[0].Id, FeedsContainer);
 
         KakaoResponse.ResponseType:= rtFeeds;
+      end
+      else if IsFriend then
+      begin
+        KakaoResponse.ResponseType:= rtFriend;
       end;
 
       KakaoResponse.Json:= Json;

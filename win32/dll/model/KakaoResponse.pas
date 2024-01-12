@@ -6,7 +6,7 @@ uses
   KakaoProfile, KakaoStatus;
 
 type
-  TResponseType = (rtProfile, rtStatus, rtFeeds, rtUnknown);
+  TResponseType = (rtProfile, rtStatus, rtFeeds, rtFriend, rtUnknown);
 
   TKakaoResponse = record
     ResponseType: TResponseType;
