@@ -48,6 +48,7 @@ begin
   TTask.Run(
     procedure
     begin
+      const StartTick = GetTickCount64;
       try
         const Tick = GetTickCount64 + 1000;
         while (Tick > GetTickCount64) and (not Assigned(Redis.GetEventStatus(EventId))) do
@@ -58,7 +59,7 @@ begin
           KakaoResponse:= KakaoCtrl.AddFriend(PhoneNumber).Value;
           KakaoCtrl.SynchronizationFriend;
 
-          if KakaoResponse.ResponseType <> rtStatus then
+          if KakaoResponse.ResponseType <> rtFriend then
           begin
             Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EVENT_FAILURE, FAILURE_ADD_FRIEND));
             Exit;
@@ -95,11 +96,12 @@ begin
           MergeFeeds(HasBackground, 1, KakaoProfile);
 
           Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EVENT_SUCCESS, KakaoProfile.ToJSON));
-          WriteLn(#9'state: ', EVENT_SUCCESS);
+          Writeln(#9'state: ', EVENT_SUCCESS);
         end;
 
       finally
         IsRunning:= False;
+        Writeln(#9'sec: ', FloatToStr((GetTickCount64 - StartTick) / 1000));
       end;
     end
   )
