@@ -14,20 +14,20 @@ import java.util.concurrent.TimeUnit;
 @Service
 @RequiredArgsConstructor
 public class RedisEventStatusAdapter implements EventStatusPort {
-    private final RedisTemplate<String, EventStatus> eventStatusRedisTemplate;
+    private final RedisTemplate<String, EventStatus> redisTemplate;
 
     private static final String EVENT_KEY_PREFIX = "eventStatus:";
 
     @Override
     public void setEventStatus(String eventId, EventStatus status) {
-        ValueOperations<String, EventStatus> ops = eventStatusRedisTemplate.opsForValue();
+        ValueOperations<String, EventStatus> ops = redisTemplate.opsForValue();
 
         ops.set(EVENT_KEY_PREFIX + eventId, status, 10, TimeUnit.MINUTES);
     }
 
     @Override
     public Optional<EventStatus> getEventStatus(String eventId) {
-        ValueOperations<String, EventStatus> ops = eventStatusRedisTemplate.opsForValue();
+        ValueOperations<String, EventStatus> ops = redisTemplate.opsForValue();
         EventStatus eventStatus = ops.get(EVENT_KEY_PREFIX + eventId);
 
         return (eventStatus == null) ? Optional.empty() : Optional.of(eventStatus);
