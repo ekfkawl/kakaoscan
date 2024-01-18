@@ -23,10 +23,11 @@ uses
   KakaoCtrl in 'kakao\KakaoCtrl.pas',
   KakaoProfile in 'kakao\private\model\KakaoProfile.pas',
   KakaoStatus in 'kakao\private\model\KakaoStatus.pas',
-  KakaoResponse in 'model\KakaoResponse.pas',
   KakaoEnumCallback in 'kakao\private\KakaoEnumCallback.pas',
   BitmapUtil in 'utils\BitmapUtil.pas',
-  KakaoProfilePageUtil in 'kakao\private\KakaoProfilePageUtil.pas';
+  KakaoProfilePageUtil in 'kakao\private\KakaoProfilePageUtil.pas',
+  KakaoResponse in 'kakao\model\KakaoResponse.pas',
+  InvalidPhoneNumber in 'search\model\InvalidPhoneNumber.pas';
 
 {$R *.res}
 

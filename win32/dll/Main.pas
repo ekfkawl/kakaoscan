@@ -4,10 +4,11 @@ interface
 
 uses
   Winapi.Windows, System.Threading, System.Classes, System.SysUtils,
-  KakaoHandle, KakaoCtrl, KakaoResponse, KakaoStatus, KakaoHook, KakaoProfile, RedisUtil, SearchEvent, EventStatus, Test, GuardObjectUtil;
+  KakaoHandle, KakaoCtrl, KakaoResponse, KakaoStatus, KakaoHook, KakaoProfile, RedisUtil, SearchEvent, EventStatus, Test, GuardObjectUtil,
+  InvalidPhoneNumber;
 
 procedure Initialize;
-procedure RunEvent(const EventId, PhoneNumber: string);
+procedure RunEvent(const EventId, Email, PhoneNumber: string);
 
 implementation
 
@@ -31,13 +32,14 @@ begin
   end;
 end;
 
-procedure RunEvent(const EventId, PhoneNumber: string);
+procedure RunEvent(const EventId, Email, PhoneNumber: string);
 var
   KakaoResponse: TKakaoResponse;
   KakaoStatus: TKakaoStatus;
   KakaoProfile: TKakaoProfile;
   StatusResponse: TStatusResponse;
   ViewFriendInfo: TViewFriendInfo;
+  EventStatus: TEventStatus;
 begin
   Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EVENT_PROCESSING, ''));
 
@@ -51,19 +53,18 @@ begin
       const StartTick = GetTickCount64;
       try
         const Tick = GetTickCount64 + 1000;
-        while (Tick > GetTickCount64) and (not Assigned(Redis.GetEventStatus(EventId))) do
+        while Tick > GetTickCount64 do
+        begin
+          Guard(EventStatus, Redis.GetEventStatus(EventId));
+          if Assigned(Redis.GetEventStatus(EventId)) then
+            break;
           Sleep(1);
+        end;
 
         if not KakaoCtrl.SearchFriend(PhoneNumber).Value then
         begin
           KakaoResponse:= KakaoCtrl.AddFriend(PhoneNumber).Value;
           KakaoCtrl.SynchronizationFriend;
-
-          if KakaoResponse.ResponseType <> rtFriend then
-          begin
-            Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EVENT_FAILURE, FAILURE_ADD_FRIEND));
-            Exit;
-          end;
 
           Guard(KakaoStatus, TKakaoStatus.Create(KakaoResponse.Json));
           StatusResponse:= KakaoStatus.GetStatusResponse;
@@ -71,11 +72,22 @@ begin
           if KakaoStatus.Status = STATUS_FAILURE then
           begin
             Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EVENT_FAILURE, StatusResponse.Message));
+            if StatusResponse.Message = INVALID_PHONE_NUMBER then
+            begin
+              Redis.CacheInvalidPhoneNumber(PhoneNumber, TInvalidPhoneNumber.CreateInstance(Email));
+              Writeln(#9'isInvalid: TRUE');
+            end;
+
             Exit;
           end else
           if (KakaoStatus.Status = STATUS_OK) and (not KakaoCtrl.SearchFriend(PhoneNumber).Value) then
           begin
             Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EVENT_FAILURE, DELAYED_FRIEND_SYNC));
+            Exit;
+          end else
+          if KakaoResponse.ResponseType <> rtFriend then
+          begin
+            Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EVENT_FAILURE, FAILURE_ADD_FRIEND));
             Exit;
           end;
         end;
@@ -96,12 +108,11 @@ begin
           MergeFeeds(HasBackground, 1, KakaoProfile);
 
           Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EVENT_SUCCESS, KakaoProfile.ToJSON));
-          Writeln(#9'state: ', EVENT_SUCCESS);
         end;
-
       finally
+        Guard(EventStatus, Redis.GetEventStatus(EventId));
+        Writeln(Format(#9'sec: %s'#10#9'result: %s', [FloatToStr((GetTickCount64 - StartTick) / 1000), EventStatus.Status]));
         IsRunning:= False;
-        Writeln(#9'sec: ', FloatToStr((GetTickCount64 - StartTick) / 1000));
       end;
     end
   )
