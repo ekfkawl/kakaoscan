@@ -8,7 +8,7 @@ import com.kakaoscan.server.application.port.UserPort;
 import com.kakaoscan.server.application.service.UserService;
 import com.kakaoscan.server.domain.user.model.EmailVerificationToken;
 import com.kakaoscan.server.domain.user.model.User;
-import com.kakaoscan.server.domain.user.repository.EmailVerificationTokenRepository;
+import com.kakaoscan.server.domain.user.repository.EmailTokenRepository;
 import com.kakaoscan.server.infrastructure.email.types.VerificationEmail;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,7 +22,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class UserAdapter implements UserPort {
     private final UserService userService;
-    private final EmailVerificationTokenRepository emailVerificationTokenRepository;
+    private final EmailTokenRepository emailTokenRepository;
     private final EmailPort emailPort;
 
     private static final String USER_REGISTRATION_SUCCESS = "이메일로 보내드린 인증 링크를 클릭하시면 가입이 완료됩니다.";
@@ -53,7 +53,7 @@ public class UserAdapter implements UserPort {
     public EmailVerificationToken createVerificationToken(User user) {
         String token = UUID.randomUUID().toString();
         EmailVerificationToken verificationToken = new EmailVerificationToken(user, token);
-        emailVerificationTokenRepository.save(verificationToken);
+        emailTokenRepository.save(verificationToken);
 
         return verificationToken;
     }
@@ -61,7 +61,7 @@ public class UserAdapter implements UserPort {
     @Transactional
     @Override
     public ApiResponse consumeVerificationToken(String verificationToken) {
-        Optional<EmailVerificationToken> tokenOptional = emailVerificationTokenRepository.findByToken(verificationToken);
+        Optional<EmailVerificationToken> tokenOptional = emailTokenRepository.findByToken(verificationToken);
         if (tokenOptional.isPresent()) {
             EmailVerificationToken token = tokenOptional.get();
 
