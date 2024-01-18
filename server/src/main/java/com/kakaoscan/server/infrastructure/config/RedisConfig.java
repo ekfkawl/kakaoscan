@@ -1,6 +1,7 @@
 package com.kakaoscan.server.infrastructure.config;
 
 import com.kakaoscan.server.domain.events.model.EventStatus;
+import com.kakaoscan.server.domain.search.model.InvalidPhoneNumber;
 import com.kakaoscan.server.infrastructure.redis.subscriber.DynamicEventReceiver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -66,4 +67,15 @@ public class RedisConfig {
         return template;
     }
 
+    @Bean
+    public RedisTemplate<String, InvalidPhoneNumber> invalidPhoneNumberRedisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, InvalidPhoneNumber> template = new RedisTemplate<>();
+        template.setConnectionFactory(connectionFactory);
+
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(InvalidPhoneNumber.class));
+        template.setKeySerializer(new StringRedisSerializer());
+
+        template.afterPropertiesSet();
+        return template;
+    }
 }

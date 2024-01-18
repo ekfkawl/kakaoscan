@@ -3,10 +3,11 @@ unit RedisUtil;
 interface
 
 uses
-  Redis.Client, Redis.Commons, Redis.NetLib.INDY, System.SysUtils, LogUtil, RedisConfig, EventStatus;
+  Redis.Client, Redis.Commons, Redis.NetLib.INDY, System.SysUtils, LogUtil, RedisConfig, EventStatus, InvalidPhoneNumber;
 
 const
   EVENT_KEY_PREFIX = 'eventStatus:';
+  INVALID_PHONE_NUMBER_KEY_PREFIX = 'invalidPhoneNumber:';
 
   EVENT_WAITING = 'WAITING';
   EVENT_PROCESSING = 'PROCESSING';
@@ -27,6 +28,7 @@ type
     procedure Subscribe(const Topic: string; Callback: TProc<string, string>);
     function SetEventStatus(const EventId: string; Status: TEventStatus): boolean;
     function GetEventStatus(const EventId: string): TEventStatus;
+    function CacheInvalidPhoneNumber(const PhoneNumber: string; InvalidPhoneNumber: TInvalidPhoneNumber): boolean;
     function IsConnected: boolean;
     function IsDestroyed: boolean;
 
@@ -138,6 +140,20 @@ begin
     on E: Exception do
     begin
       Log(Format('redis get fail (eventId: %s)', [EventId]), E);
+    end;
+  end;
+end;
+
+function TRedis.CacheInvalidPhoneNumber(const PhoneNumber: string; InvalidPhoneNumber: TInvalidPhoneNumber): boolean;
+begin
+  Result:= False;
+  try
+    Result:= FRedisClient.&SET(INVALID_PHONE_NUMBER_KEY_PREFIX + PhoneNumber, InvalidPhoneNumber.ToJSON, 3600 * 12);
+    FreeAndNil(InvalidPhoneNumber);
+  except
+    on E: Exception do
+    begin
+      Log('redis cache invalid phonenumber error', E);
     end;
   end;
 end;
