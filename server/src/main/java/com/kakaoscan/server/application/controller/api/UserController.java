@@ -27,12 +27,13 @@ public class UserController extends ApiPathPrefix {
     private String verifyReplace;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody @Valid RegisterRequest registerRequest, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse> register(@RequestBody @Valid RegisterRequest registerRequest, HttpServletRequest request) {
         Bucket bucket = rateLimitService.resolveBucket(WebUtils.getRemoteAddress(request));
         if (bucket.tryConsume(1)) {
             return ResponseEntity.ok(userPort.register(registerRequest));
         }else {
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS).body("too many requests");
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body(new ApiResponse(false, "too many requests"));
         }
     }
 
