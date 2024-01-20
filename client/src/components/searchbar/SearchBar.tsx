@@ -1,21 +1,20 @@
 import React from 'react';
 import './SearchBar.css';
-import usePhoneNumberFormat from '../../hooks/formats/usePhoneNumberFormat';
 
 interface SearchBarProps {
     onKeyPress?: React.KeyboardEventHandler<HTMLInputElement>;
+    value?: string;
+    onChange?: React.ChangeEventHandler<HTMLInputElement>;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ onKeyPress }) => {
-    const [phoneNumber, handlePhoneNumberChange] = usePhoneNumberFormat();
-
+const SearchBar: React.FC<SearchBarProps> = React.memo(({ onKeyPress, value, onChange }) => {
     return (
         <div className="search_area dark:bg-gray-900">
             <div className="search_group_inner flex justify-between">
                 <div className="search_logo">
                     <span className="ico_svg">
                         <svg
-                            className="w-[20px] h-[20px] text-gray-800 dark:text-white"
+                            className="w-[22px] h-[22px] text-gray-800 dark:text-white"
                             aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
@@ -37,15 +36,15 @@ const SearchBar: React.FC<SearchBarProps> = ({ onKeyPress }) => {
                     placeholder="전화번호 입력"
                     maxLength={13}
                     className="search_input_box flex-1 mx-3 py-2 px-3 border-none bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-0 focus:border-none text-xl font-semibold"
-                    value={phoneNumber}
-                    onChange={handlePhoneNumberChange}
+                    value={value}
+                    onChange={onChange}
                     onKeyPress={onKeyPress}
                 />
 
                 <div className="search_logo">
                     <span className="ico_svg">
                         <svg
-                            className="w-[20px] h-[20px] text-gray-800 dark:text-white"
+                            className="w-[22px] h-[22px] text-gray-800 dark:text-white"
                             aria-hidden="true"
                             xmlns="http://www.w3.org/2000/svg"
                             fill="none"
@@ -64,6 +63,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ onKeyPress }) => {
             </div>
         </div>
     );
-};
+});
 
 export default SearchBar;
