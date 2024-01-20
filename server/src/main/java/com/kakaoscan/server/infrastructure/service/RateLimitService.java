@@ -15,9 +15,8 @@ public class RateLimitService {
     private final Object lock = new Object();
     private final Map<String, Bucket> buckets = new ConcurrentHashMap<>();
 
-    public Bucket createBucket() {
-        long capacity = 10;
-        Refill refill = Refill.greedy(capacity, Duration.ofHours(1));
+    private Bucket createBucket(long capacity, Duration refillDuration) {
+        Refill refill = Refill.greedy(capacity, refillDuration);
         Bandwidth limit = Bandwidth.classic(capacity, refill);
 
         return Bucket.builder()
@@ -25,12 +24,20 @@ public class RateLimitService {
                 .build();
     }
 
-    public Bucket resolveBucket(String remoteAddress) {
-        return buckets.computeIfAbsent(remoteAddress, v -> createBucket());
+    public Bucket resolveBucket(String key, long capacity, Duration refillDuration) {
+        return buckets.computeIfAbsent(key, v -> createBucket(capacity, refillDuration));
+    }
+
+    public boolean isBucketFull(String key) {
+        Bucket bucket = buckets.get(key);
+        if (bucket == null) {
+            return false;
+        }
+        return bucket.getAvailableTokens() == 0;
     }
 
     @Scheduled(cron = "0 0 0 * * *") // 매일 자정에 실행
-    public void resetBuckets() {
+    private void resetBuckets() {
         synchronized (lock) {
             buckets.clear();
         }
