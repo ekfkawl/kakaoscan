@@ -16,6 +16,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Duration;
+
 @RequiredArgsConstructor
 @RestController
 @Tag(name = "User", description = "User API")
@@ -28,7 +30,7 @@ public class UserController extends ApiPathPrefix {
 
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> register(@RequestBody @Valid RegisterRequest registerRequest, HttpServletRequest request) {
-        Bucket bucket = rateLimitService.resolveBucket(WebUtils.getRemoteAddress(request));
+        Bucket bucket = rateLimitService.resolveBucket(WebUtils.getRemoteAddress(request), 10, Duration.ofHours(1));
         if (bucket.tryConsume(1)) {
             return ResponseEntity.ok(userPort.register(registerRequest));
         }else {
