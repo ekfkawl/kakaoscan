@@ -40,7 +40,7 @@ public class EventProcessService {
     }
 
     public boolean removeTimeoutEvent(Message peekMessage) {
-        boolean isRemovedPeek  = false;
+        boolean isRemovedPeek = false;
         LocalDateTime thresholdTime = LocalDateTime.now().minusSeconds(1);
 
         Iterator<Message> iterator = queue.iterator();
@@ -49,7 +49,7 @@ public class EventProcessService {
             Optional<EventStatus> eventStatus = eventStatusPort.getEventStatus(next.getMessageId());
 
             if (eventStatus.isPresent() && isMessageTimedOut(next, thresholdTime, eventStatus.get())) {
-                isRemovedPeek = shouldRemovePeek(isRemovedPeek, next, peekMessage);
+                isRemovedPeek = shouldRemovePeek(next, peekMessage);
 
                 messageDispatcher.sendToUser(new Message(next.getEmail(), SEARCH_ERROR_PING_PONG, false, false));
                 iterator.remove();
@@ -67,11 +67,11 @@ public class EventProcessService {
     }
 
     private boolean isMessageTimedOut(Message message, LocalDateTime thresholdTime, EventStatus eventStatus) {
-        return eventStatus.getStatus() == WAITING && message.getCreatedAt().isBefore(thresholdTime) ||
-               eventStatus.getStatus() == PROCESSING && message.getCreatedAt().isBefore(LocalDateTime.now().minusSeconds(10));
+        return eventStatus.getStatus() == WAITING && message.getEventStartedAt().isBefore(thresholdTime) ||
+               eventStatus.getStatus() == PROCESSING && message.getEventStartedAt().isBefore(LocalDateTime.now().minusSeconds(15));
     }
 
-    private boolean shouldRemovePeek(boolean currentStatus, Message currentMessage, Message peekMessage) {
-        return !currentStatus && currentMessage.getEmail().equals(peekMessage.getEmail());
+    private boolean shouldRemovePeek(Message currentMessage, Message peekMessage) {
+        return currentMessage.getEmail().equals(peekMessage.getEmail());
     }
 }

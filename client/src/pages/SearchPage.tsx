@@ -10,14 +10,19 @@ import Gallery from '../components/Gallery/Gallery';
 import { useGalleryItems } from '../hooks/ui/useGalleryItems';
 import ProfileCard from '../components/ProfileCard';
 import timestampToDate from '../utils/datetime/convert';
+import useScrollToComponent from '../hooks/ui/useScrollToComponent';
+import ScrollToTopButton from '../components/ScrollToTopButton';
+import usePhoneNumberFormat from '../hooks/formats/usePhoneNumberFormat';
 
-const PHONE_NUMBER_LENGTH: number = 13;
+const HYPHEN_PHONE_NUMBER_LENGTH: number = 13;
+const PHONE_NUMBER_LENGTH: number = 11;
 const TOAST_DEFAULT_MESSAGE: string = '전화번호 입력 후 엔터 키를 누르면 프로필 조회를 시작합니다.';
 const TOAST_SUCCESS_MESSAGE: string = '프로필 조회가 완료되었습니다!';
 
 const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     const [receivedMessage, setReceivedMessage] = useState<StompResponse | null>(null);
     const [searchBarText, setSearchBarText] = useState<string>('');
+    const [phoneNumber, setFormattedPhoneNumber, handlePhoneNumberChange] = usePhoneNumberFormat();
     const { sendMessage } = useStomp('/ws', setReceivedMessage);
     const tabsRef = useRef<TabsRef>(null);
     const [, setActiveTab] = useState(0);
@@ -38,6 +43,8 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
         url: '',
         statusMessage: '',
     });
+    const scrollTopRef = useRef<HTMLDivElement>(null);
+    const { isVisible: isVisibleScrollToTop } = useScrollToComponent(scrollTopRef);
 
     const handleSendMessage = useCallback(
         (content: string) => {
@@ -49,7 +56,7 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     const handleSearchBarKeyPress = useCallback(
         (e: React.KeyboardEvent<HTMLInputElement>) => {
             const trimmedValue = e.currentTarget.value.trim();
-            if (e.key === 'Enter' && trimmedValue.length === PHONE_NUMBER_LENGTH) {
+            if (e.key === 'Enter' && trimmedValue.length === HYPHEN_PHONE_NUMBER_LENGTH) {
                 handleSendMessage(trimmedValue);
                 setSearchBarText(trimmedValue);
             }
@@ -60,6 +67,10 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     useEffect(() => {
         let timeoutId: NodeJS.Timeout | null = null;
         if (receivedMessage?.hasNext) {
+            if (receivedMessage.content && receivedMessage.content.length === PHONE_NUMBER_LENGTH) {
+                setSearchBarText(receivedMessage.content);
+                setFormattedPhoneNumber(receivedMessage.content);
+            }
             timeoutId = setTimeout(() => handleSendMessage(searchBarText), 100);
         }
 
@@ -68,7 +79,7 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                 clearTimeout(timeoutId);
             }
         };
-    }, [receivedMessage, searchBarText, handleSendMessage]);
+    }, [receivedMessage, searchBarText, handleSendMessage, setFormattedPhoneNumber]);
 
     useEffect(() => {
         if (receivedMessage && receivedMessage.jsonContent && receivedMessage.content) {
@@ -111,7 +122,11 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     return (
         <section className="bg-white dark:bg-gray-900">
             <div className="relative">
-                <SearchBar onKeyPress={handleSearchBarKeyPress} />
+                <SearchBar
+                    value={phoneNumber}
+                    onChange={handlePhoneNumberChange}
+                    onKeyPress={handleSearchBarKeyPress}
+                />
                 <MessageToast
                     message={
                         (!receivedMessage?.jsonContent && receivedMessage?.content) ||
@@ -127,6 +142,7 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                         statusMessage={profileData.statusMessage}
                     />
                 )}
+                <div ref={scrollTopRef}>{!isVisibleScrollToTop && <ScrollToTopButton />}</div>
                 <Tabs
                     aria-label="Tabs with underline"
                     style="underline"

@@ -15,6 +15,7 @@ public class Message {
     private final boolean isJsonContent;
     private final boolean hasNext;
     private final LocalDateTime createdAt;
+    private LocalDateTime eventStartedAt;
 
     public Message(String email, String content, boolean hasNext, boolean isJsonContent) {
         this.messageId = UUID.randomUUID().toString();
@@ -23,6 +24,7 @@ public class Message {
         this.isJsonContent = isJsonContent;
         this.hasNext = hasNext;
         this.createdAt = LocalDateTime.now();
+        this.eventStartedAt = null;
     }
 
     public Message(String email, String content) {
@@ -31,6 +33,10 @@ public class Message {
 
     public Message(String email, String content, boolean isJsonContent) {
         this(email, content, true, isJsonContent);
+    }
+
+    public void createEventStartedAt() {
+        this.eventStartedAt = LocalDateTime.now();
     }
 
     @Getter
