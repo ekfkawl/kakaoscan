@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.socket.messaging.SessionConnectedEvent;
+import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
 import java.security.Principal;
 import java.util.Optional;
@@ -31,9 +31,11 @@ public class WebSocketController {
     private final RateLimitService rateLimitService;
 
     @EventListener
-    public void handleWebSocketConnectListener(SessionConnectedEvent event) {
-        // @TODO 연결시 useremail로 진행 중인 이벤트가 존재하는지 확인
-        System.out.println("connect: " + event.getUser());
+    public void handleWebSocketConnectListener(SessionSubscribeEvent event) {
+        if (event.getUser() != null) {
+            Optional<Message> optionalMessage = messageQueueService.findMessage(event.getUser().getName());
+            optionalMessage.ifPresent(messageDispatcher::sendToUser);
+        }
     }
 
     @MessageMapping("/send")

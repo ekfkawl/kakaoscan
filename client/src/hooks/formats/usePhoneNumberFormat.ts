@@ -1,7 +1,11 @@
 import { useState } from 'react';
 
-const usePhoneNumberFormat = (): [string, (event: React.ChangeEvent<HTMLInputElement>) => void] => {
+const usePhoneNumberFormat = (): [string, (value: string) => void, (event: React.ChangeEvent<HTMLInputElement>) => void] => {
     const [phoneNumber, setPhoneNumber] = useState<string>('');
+    const setFormattedPhoneNumber = (value: string) => {
+        const formatted = formatPhoneNumber(value);
+        setPhoneNumber(formatted);
+    };
 
     const formatPhoneNumber = (inputValue: string): string => {
         if (!inputValue) return inputValue;
@@ -25,7 +29,7 @@ const usePhoneNumberFormat = (): [string, (event: React.ChangeEvent<HTMLInputEle
         setPhoneNumber(formattedPhoneNumber);
     };
 
-    return [phoneNumber, handleChange];
+    return [phoneNumber, setFormattedPhoneNumber, handleChange];
 };
 
 export default usePhoneNumberFormat;
