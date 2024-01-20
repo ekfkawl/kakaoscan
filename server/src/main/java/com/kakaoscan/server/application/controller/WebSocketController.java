@@ -1,11 +1,13 @@
 package com.kakaoscan.server.application.controller;
 
 import com.kakaoscan.server.application.exception.EmptyQueueException;
+import com.kakaoscan.server.application.port.EventStatusPort;
 import com.kakaoscan.server.application.port.PhoneNumberCachePort;
 import com.kakaoscan.server.application.service.MessageService;
 import com.kakaoscan.server.application.service.websocket.EventProcessService;
 import com.kakaoscan.server.application.service.websocket.MessageQueueService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
+import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.search.model.Message;
 import com.kakaoscan.server.infrastructure.service.RateLimitService;
 import lombok.RequiredArgsConstructor;
@@ -29,12 +31,18 @@ public class WebSocketController {
     private final PhoneNumberCachePort phoneNumberCachePort;
     private final StompMessageDispatcher messageDispatcher;
     private final RateLimitService rateLimitService;
+    private final EventStatusPort eventStatusPort;
 
     @EventListener
     public void handleWebSocketConnectListener(SessionSubscribeEvent event) {
         if (event.getUser() != null) {
             Optional<Message> optionalMessage = messageQueueService.findMessage(event.getUser().getName());
-            optionalMessage.ifPresent(messageDispatcher::sendToUser);
+            optionalMessage.ifPresent(message -> {
+                Optional<EventStatus> eventStatus = eventStatusPort.getEventStatus(message.getMessageId());
+                if (eventStatus.isPresent()) {
+                    messageDispatcher.sendToUser(message);
+                }
+            });
         }
     }
 
