@@ -12,7 +12,7 @@ import lgRotate from 'lightgallery/plugins/rotate';
 import { GalleryProps } from '../../types/galleryItem';
 import { v4 as uuidv4 } from 'uuid';
 
-const Gallery: React.FC<GalleryProps> = ({ items }) => {
+const Gallery: React.FC<GalleryProps> = React.memo(({ items }) => {
     const lightGallery = useRef<any>(null);
     const [key, setKey] = useState<string>('');
 
@@ -64,6 +64,6 @@ const Gallery: React.FC<GalleryProps> = ({ items }) => {
             {getItem()}
         </LightGallery>
     );
-};
+});
 
 export default Gallery;
