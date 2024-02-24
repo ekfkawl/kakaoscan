@@ -3,7 +3,9 @@ package com.kakaoscan.server.infrastructure.serialization;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaoscan.server.common.utils.ObjectMapperSingleton;
+import lombok.extern.log4j.Log4j2;
 
+@Log4j2
 public class JsonDeserialize {
     private static final ObjectMapper objectMapper = ObjectMapperSingleton.getInstance();
 
@@ -11,6 +13,7 @@ public class JsonDeserialize {
         try {
             return objectMapper.readValue(json, clazz);
         } catch (JsonProcessingException e) {
+            log.error(e);
             throw new RuntimeException("error deserializing Json: ", e);
         }
     }
