@@ -94,6 +94,7 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
 
             clearProfileItems();
             clearBackgroundItems();
+
             renderFeeds(profileJson.profile.profileFeeds.feeds, addProfileItem);
             renderFeeds(profileJson.profile.backgroundFeeds.feeds, addBackgroundItem);
 
@@ -103,17 +104,22 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     }, [receivedMessage, addProfileItem, addBackgroundItem, clearProfileItems, clearBackgroundItems]);
 
     function renderFeeds(feeds: any[], addItem: (item: any) => void) {
-        feeds.forEach((feed: { id: string; contents: any[]; extra?: any; updatedAt: number }) => {
+        feeds.forEach((feed: { id: string; contents: any[]; extra?: any; updatedAt: number; isCurrent: boolean }) => {
             feed.contents.forEach((content) => {
                 let srcUrl = content.value;
+                if (srcUrl.length === 0) {
+                    return;
+                }
+
                 if (feed.extra && feed.extra.originalAnimatedBackgroundImageUrl) {
                     srcUrl = feed.extra.originalAnimatedBackgroundImageUrl;
                 }
+
                 addItem({
                     id: feed.id,
                     src: srcUrl,
                     thumb: content.value,
-                    subHtml: `<p>${timestampToDate(feed.updatedAt)}</p>`,
+                    subHtml: `<p>${feed.isCurrent ? '현재 프로필' : timestampToDate(feed.updatedAt)}</p>`,
                 });
             });
         });
