@@ -5,16 +5,10 @@ import com.kakaoscan.server.domain.user.model.CustomUserDetails;
 import com.kakaoscan.server.domain.user.model.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 @RequiredArgsConstructor
 @Service
@@ -30,13 +24,6 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new EmailNotVerifiedException("email is not verified for: " + username);
         }
 
-        return new CustomUserDetails(user.getEmail(), user.getPassword(), getAuthorities(user));
-    }
-
-    public Collection<? extends GrantedAuthority> getAuthorities(User user) {
-        Set<GrantedAuthority> authorities = new HashSet<>();
-        authorities.add(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()));
-
-        return authorities;
+        return new CustomUserDetails(user.getEmail(), user.getPassword(), user.getAuthorities(), null);
     }
 }

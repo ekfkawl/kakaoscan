@@ -11,8 +11,13 @@ import lombok.Builder;
 import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Builder
 @AllArgsConstructor
@@ -31,9 +36,9 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @NotBlank
-    @Size(min = 8)
-    @Column(nullable = false)
+//    @NotBlank
+//    @Size(min = 8)
+//    @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
@@ -46,6 +51,10 @@ public class User {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private AuthenticationType authenticationType;
+
+    @Column(nullable = true)
+    @Email
+    private String authenticationEmail;
 
     @UpdateTimestamp
     @Column(columnDefinition = "DATETIME(6)")
@@ -60,5 +69,12 @@ public class User {
 
     public void verifyEmail() {
         this.isEmailVerified = true;
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        Set<GrantedAuthority> authorities = new HashSet<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + this.getRole().name()));
+
+        return authorities;
     }
 }

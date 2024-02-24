@@ -7,7 +7,7 @@ import { ApiResponse } from '../../types/apiResponse';
 const useLogout = () => {
     const logout = async (): Promise<ApiResponse | null> => {
         try {
-            const res: AxiosResponse<ApiResponse> = await axiosInstance.post('api/logout');
+            const res: AxiosResponse<ApiResponse> = await axiosInstance.post('/api/logout');
 
             store.dispatch(clearToken());
 

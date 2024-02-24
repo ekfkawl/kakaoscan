@@ -18,8 +18,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.kakaoscan.server.common.utils.ExceptionUtils.throwException;
-
 @Service
 @RequiredArgsConstructor
 public class EmailAdapter implements EmailPort {
@@ -48,7 +46,7 @@ public class EmailAdapter implements EmailPort {
             mimeMessageHelper.setFrom(new InternetAddress(ADDRESS, PERSONAL));
             javaMailSender.send(mimeMessage);
         } catch (MessagingException | UnsupportedEncodingException e) {
-            throwException("error sending email", e, EmailSendingException.class);
+            throw new EmailSendingException("error sending email", e);
         }
     }
 

@@ -17,6 +17,7 @@
 
 # 환경 설정 파일
 .env
+.env.prod
 .env.local
 .env.development.local
 .env.test.local
@@ -43,3 +44,8 @@ yarn-error.log*
 # 다른 버전 관리 시스템
 .svn
 .hg
+
+#
+/public/*.png
+/public/*.jpg
+/public/*.txt

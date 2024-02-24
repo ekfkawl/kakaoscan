@@ -1,5 +1,6 @@
 package com.kakaoscan.server.infrastructure.security;
 
+import com.kakaoscan.server.domain.user.model.CustomUserDetails;
 import com.kakaoscan.server.infrastructure.config.JwtProperties;
 import io.jsonwebtoken.*;
 import jakarta.annotation.PostConstruct;
@@ -7,19 +8,20 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Component
 public class JwtTokenProvider {
     private Key key;
     private final JwtProperties jwtProperties;
+    private final UserDetailsService userDetailsService;
 
     @PostConstruct
     protected void init() {
@@ -29,18 +31,19 @@ public class JwtTokenProvider {
 
     public String createAccessToken(Authentication authentication) {
         String username = authentication.getName();
-        return createToken(username, jwtProperties.getAccessTokenValidity(), authentication.getAuthorities(), "access");
+        return createToken(username, jwtProperties.getAccessTokenValidity(), authentication.getAuthorities(), "access", ((CustomUserDetails) authentication.getPrincipal()).getAttributes());
     }
 
     public String createRefreshToken(Authentication authentication) {
         String username = authentication.getName();
-        return createToken(username, jwtProperties.getRefreshTokenValidity(), Collections.emptyList(), "refresh");
+        return createToken(username, jwtProperties.getRefreshTokenValidity(), Collections.emptyList(), "refresh", ((CustomUserDetails) authentication.getPrincipal()).getAttributes());
     }
 
-    private String createToken(String subject, long validityDuration, Collection<? extends GrantedAuthority> authorities, String tokenType) {
+    private String createToken(String subject, long validityDuration, Collection<? extends GrantedAuthority> authorities, String tokenType, Map<String, Object> attributes) {
         Claims claims = Jwts.claims().setSubject(subject);
         claims.put("roles", authorities);
         claims.put("token_type", tokenType);
+        claims.put("attributes", attributes);
 
         Date now = new Date();
         Date validity = new Date(now.getTime() + validityDuration);
@@ -71,12 +74,15 @@ public class JwtTokenProvider {
         return validateToken(token, "refresh");
     }
 
+    @SuppressWarnings("unchecked")
     public Authentication getAuthentication(String token) {
         Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody();
-        List<SimpleGrantedAuthority> authorities = ((List<?>) claims.get("roles")).stream()
-                .map(authority -> new SimpleGrantedAuthority(authority.toString()))
-                .collect(Collectors.toList());
+        String username = claims.getSubject();
+        Map<String, Object> attributes = claims.get("attributes", HashMap.class);
 
-        return new UsernamePasswordAuthenticationToken(claims.getSubject(), "", authorities);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        CustomUserDetails customUserDetails = new CustomUserDetails(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities(), attributes);
+
+        return new UsernamePasswordAuthenticationToken(customUserDetails, null, userDetails.getAuthorities());
     }
 }

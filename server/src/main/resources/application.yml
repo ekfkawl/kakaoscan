@@ -6,6 +6,7 @@ spring:
       - smtp
       - swagger
       - redis
+      - oauth
   mvc:
     hidden-method:
       filter:
@@ -20,7 +21,7 @@ cors:
   permit-all-endpoints:
     - /
     - /api/verify/**
-    - /api/login
+    - /api/login/**
     - /api/register
     - /api/logout
     - /api/refresh-token
