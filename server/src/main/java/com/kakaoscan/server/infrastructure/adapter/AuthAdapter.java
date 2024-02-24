@@ -4,29 +4,32 @@ import com.kakaoscan.server.application.dto.request.LoginRequest;
 import com.kakaoscan.server.application.dto.response.LoginResponse;
 import com.kakaoscan.server.application.exception.EmailNotVerifiedException;
 import com.kakaoscan.server.application.port.AuthPort;
-import com.kakaoscan.server.domain.user.model.CustomUserDetails;
-import com.kakaoscan.server.infrastructure.security.JwtTokenProvider;
+import com.kakaoscan.server.application.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
 public class AuthAdapter implements AuthPort {
-    private final JwtTokenProvider jwtTokenProvider;
     private final AuthenticationManager authenticationManager;
+    private final AuthService authService;
 
     @Override
     public LoginResponse authenticate(LoginRequest request) throws BadCredentialsException, EmailNotVerifiedException {
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
 
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        String accessToken = jwtTokenProvider.createAccessToken(authentication);
-        String refreshToken = jwtTokenProvider.createRefreshToken(authentication);
+        return authService.createJwtToken(authentication);
+    }
 
-        return new LoginResponse(accessToken, refreshToken, userDetails.convertToUserData());
+    @Override
+    public LoginResponse authenticate(UserDetails userDetails) {
+        UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        return authService.createJwtToken(authentication);
     }
 }

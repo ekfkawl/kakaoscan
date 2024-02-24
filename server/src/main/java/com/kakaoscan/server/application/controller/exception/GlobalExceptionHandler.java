@@ -1,7 +1,7 @@
 package com.kakaoscan.server.application.controller.exception;
 
-import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.application.dto.request.RegisterRequest;
+import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.application.exception.EmailNotVerifiedException;
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
@@ -27,8 +27,8 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        List<FieldError> fieldErrors = ex.getBindingResult().getFieldErrors();
+    public ResponseEntity<ApiResponse> handleValidationExceptions(MethodArgumentNotValidException e) {
+        List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
 
         List<String> messages = fieldErrors.stream()
                 .sorted(Comparator.comparingInt(RegisterRequest::getFieldPriority))
@@ -42,12 +42,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResponse> handleUsernameNotFoundException(BadCredentialsException ex) {
+    public ResponseEntity<ApiResponse> handleUsernameNotFoundException() {
         return ResponseEntity.ok(new ApiResponse(false, "아이디 또는 비밀번호 오류입니다."));
     }
 
     @ExceptionHandler(EmailNotVerifiedException.class)
-    public ResponseEntity<ApiResponse> handleEmailNotVerifiedException(EmailNotVerifiedException ex) {
+    public ResponseEntity<ApiResponse> handleEmailNotVerifiedException() {
         return ResponseEntity.ok(new ApiResponse(false, "이메일 인증을 완료해 주세요."));
     }
 }

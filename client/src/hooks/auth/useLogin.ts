@@ -2,7 +2,7 @@ import { AxiosResponse } from 'axios';
 import { useState } from 'react';
 import axiosInstance from '../../utils/api/axiosInstance';
 import store from '../../redux/store';
-import { setToken } from '../../redux/slices/authSlice';
+import { setToken, setUser } from '../../redux/slices/authSlice';
 import { ApiResponse } from '../../types/apiResponse';
 
 interface LoginRequest {
@@ -19,15 +19,13 @@ const useLogin = () => {
         setError('');
 
         try {
-            const res: AxiosResponse<ApiResponse> = await axiosInstance.post(
-                'api/login',
-                loginData,
-            );
+            const res: AxiosResponse<ApiResponse> = await axiosInstance.post('/api/login', loginData);
 
             setIsLoading(false);
             setError(res.data.message || '');
 
-            store.dispatch(setToken(res.data.data?.accessToken));
+            store.dispatch(setToken(res.data.data.accessToken));
+            store.dispatch(setUser(res.data.data.userData));
 
             return res.data;
         } catch (error) {

@@ -18,7 +18,7 @@ const useRegister = () => {
 
         try {
             const res: AxiosResponse<ApiResponse> = await axiosInstance.post(
-                'api/register',
+                '/api/register',
                 registerData,
             );
 

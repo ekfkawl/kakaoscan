@@ -6,7 +6,8 @@ spring:
         format_sql: true
         highlight_sql: true
         hbm2ddl:
-          auto: update
+          auto: none
+#          auto: update
 
 logging:
   level:
@@ -19,4 +20,4 @@ logging:
 
 verify:
   prefix: http://localhost:8080/api/verify/
-  replace: http://localhost:8080
+  replace: http://localhost:3000
