@@ -56,6 +56,8 @@ var
 begin
   Res.ResponseType:= KakaoResponse.ResponseType;
   Res.Json:= KakaoResponse.Json;
+  Res.HasProfile:= KakaoResponse.HasProfile;
+  Res.HasBackground:= KakaoResponse.HasBackground;
   Result:= Res;
 end;
 
