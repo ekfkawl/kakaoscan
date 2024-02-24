@@ -50,7 +50,7 @@ begin
   begin
     Sleep(1000);
 
-    hWindow:= FindWindow('EVA_Window', '카카오톡');
+    hWindow:= FindWindow('EVA_Window_Dblclk', '카카오톡');
     if hWindow = 0 then
       Continue;
 
@@ -63,7 +63,7 @@ begin
     Writeln(FormatDateTime('[yy-mm-dd hh:nn:ss] ', Now), 'inject ', ProcessId.ToHexString);
     CloseHandle(hProcess);
 
-    while FindWindow('EVA_Window', '카카오톡') > 0 do
+    while FindWindow('EVA_Window_Dblclk', '카카오톡') > 0 do
       Sleep(1000);
   end;
 end;
