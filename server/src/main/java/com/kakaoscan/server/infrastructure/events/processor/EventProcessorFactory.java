@@ -1,6 +1,7 @@
 package com.kakaoscan.server.infrastructure.events.processor;
 
 import com.kakaoscan.server.application.events.handlers.SearchEventHandler;
+import com.kakaoscan.server.application.events.handlers.VerificationEmailEventHandler;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -12,9 +13,12 @@ public class EventProcessorFactory {
     private final Map<String, EventProcessor> processorMap = new HashMap<>();
 
     public EventProcessorFactory(ApplicationContext applicationContext) {
-        if (applicationContext != null) {
-            registerProcessor("SearchEvent", applicationContext.getBean(SearchEventHandler.class));
+        if (applicationContext == null) {
+            return;
         }
+
+        registerProcessor("SearchEvent", applicationContext.getBean(SearchEventHandler.class));
+        registerProcessor("VerificationEmailEvent", applicationContext.getBean(VerificationEmailEventHandler.class));
     }
 
     public void registerProcessor(String eventType, EventProcessor eventProcessor) {

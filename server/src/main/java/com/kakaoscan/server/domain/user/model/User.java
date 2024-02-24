@@ -5,7 +5,6 @@ import com.kakaoscan.server.domain.user.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -51,10 +50,6 @@ public class User {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private AuthenticationType authenticationType;
-
-    @Column(nullable = true)
-    @Email
-    private String authenticationEmail;
 
     @UpdateTimestamp
     @Column(columnDefinition = "DATETIME(6)")

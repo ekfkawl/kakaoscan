@@ -42,6 +42,7 @@ public class UserService {
                         .password(null)
                         .role(Role.USER)
                         .authenticationType(authenticationType)
+                        .isEmailVerified(true)
                         .build()));
     }
 }

@@ -3,13 +3,14 @@ package com.kakaoscan.server.infrastructure.adapter;
 import com.kakaoscan.server.application.dto.request.RegisterRequest;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.application.exception.AlreadyRegisteredException;
-import com.kakaoscan.server.application.port.EmailPort;
 import com.kakaoscan.server.application.port.UserPort;
 import com.kakaoscan.server.application.service.UserService;
+import com.kakaoscan.server.domain.events.model.VerificationEmailEvent;
 import com.kakaoscan.server.domain.user.model.EmailVerificationToken;
 import com.kakaoscan.server.domain.user.model.User;
 import com.kakaoscan.server.domain.user.repository.EmailTokenRepository;
 import com.kakaoscan.server.infrastructure.email.types.VerificationEmail;
+import com.kakaoscan.server.infrastructure.redis.publisher.EventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,12 +19,14 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.kakaoscan.server.infrastructure.redis.enums.Topics.OTHER_EVENT_TOPIC;
+
 @Service
 @RequiredArgsConstructor
 public class UserAdapter implements UserPort {
     private final UserService userService;
     private final EmailTokenRepository emailTokenRepository;
-    private final EmailPort emailPort;
+    private final EventPublisher eventPublisher;
 
     private static final String USER_REGISTRATION_SUCCESS = "이메일로 보내드린 인증 링크를 클릭하시면 가입이 완료됩니다.";
     private static final String ALREADY_VERIFIED_EMAIL = "이미 인증된 이메일입니다.";
@@ -44,7 +47,10 @@ public class UserAdapter implements UserPort {
         }
 
         EmailVerificationToken verificationToken = createVerificationToken(newUser);
-        emailPort.send(new VerificationEmail(registerRequest.getEmail(), verifyPrefix + verificationToken.getToken()));
+
+        VerificationEmail verificationEmail = new VerificationEmail(registerRequest.getEmail(), verifyPrefix + verificationToken.getToken());
+        VerificationEmailEvent event = new VerificationEmailEvent(verificationEmail);
+        eventPublisher.publish(OTHER_EVENT_TOPIC.getTopic(), event);
 
         return new ApiResponse(true, USER_REGISTRATION_SUCCESS, true);
     }
