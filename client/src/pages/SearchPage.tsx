@@ -8,7 +8,7 @@ import { StompResponse } from '../types/stompResponse';
 import { HiClipboardList, HiPhotograph, HiUserCircle } from 'react-icons/hi';
 import Gallery from '../components/Gallery/Gallery';
 import { useGalleryItems } from '../hooks/ui/useGalleryItems';
-import ProfileCard from '../components/ProfileCard';
+import ProfileCard from '../components/ProfileCard/ProfileCard';
 import timestampToDate from '../utils/datetime/convert';
 import useScrollToComponent from '../hooks/ui/useScrollToComponent';
 import ScrollToTopButton from '../components/ScrollToTopButton';
