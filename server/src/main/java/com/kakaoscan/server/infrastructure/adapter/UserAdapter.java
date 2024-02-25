@@ -38,12 +38,12 @@ public class UserAdapter implements UserPort {
 
     @Transactional
     @Override
-    public ApiResponse register(RegisterRequest registerRequest) {
+    public ApiResponse<Void> register(RegisterRequest registerRequest) {
         User newUser;
         try {
             newUser = userService.registerUser(registerRequest.getEmail(), registerRequest.getPassword());
         } catch (AlreadyRegisteredException e) {
-            return new ApiResponse(false, e.getMessage());
+            return ApiResponse.failure(e.getMessage());
         }
 
         EmailVerificationToken verificationToken = createVerificationToken(newUser);
@@ -52,7 +52,7 @@ public class UserAdapter implements UserPort {
         VerificationEmailEvent event = new VerificationEmailEvent(verificationEmail);
         eventPublisher.publish(OTHER_EVENT_TOPIC.getTopic(), event);
 
-        return new ApiResponse(true, USER_REGISTRATION_SUCCESS, true);
+        return ApiResponse.success();
     }
 
     @Override
@@ -66,19 +66,19 @@ public class UserAdapter implements UserPort {
 
     @Transactional
     @Override
-    public ApiResponse consumeVerificationToken(String verificationToken) {
+    public ApiResponse<Void> consumeVerificationToken(String verificationToken) {
         Optional<EmailVerificationToken> tokenOptional = emailTokenRepository.findByToken(verificationToken);
         if (tokenOptional.isPresent()) {
             EmailVerificationToken token = tokenOptional.get();
 
             if (token.getUser().isEmailVerified()) {
-                return new ApiResponse(false, ALREADY_VERIFIED_EMAIL);
+                return ApiResponse.failure(ALREADY_VERIFIED_EMAIL);
             }
 
             token.getUser().verifyEmail();
-            return new ApiResponse(true, SUCCESS_VERIFIED_EMAIL);
+            return ApiResponse.success();
         }else {
-            return new ApiResponse(false, TOKEN_DOES_NOT_EXIST);
+            return ApiResponse.failure(TOKEN_DOES_NOT_EXIST);
         }
     }
 }

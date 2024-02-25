@@ -12,7 +12,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
@@ -20,14 +19,12 @@ import java.util.List;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(JwtException.class)
-    public ResponseEntity<?> handleJwtException(JwtException e) {
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(Collections.singletonMap("message", e.getMessage()));
+    public ResponseEntity<ApiResponse<Void>> handleJwtException(JwtException e) {
+        return new ResponseEntity<>(ApiResponse.failure(e.getMessage()), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ApiResponse> handleValidationExceptions(MethodArgumentNotValidException e) {
+    public ResponseEntity<ApiResponse<Void>> handleValidationExceptions(MethodArgumentNotValidException e) {
         List<FieldError> fieldErrors = e.getBindingResult().getFieldErrors();
 
         List<String> messages = fieldErrors.stream()
@@ -36,18 +33,16 @@ public class GlobalExceptionHandler {
                 .toList();
 
         String message = messages.isEmpty() ? "validation error" : messages.get(0);
-        return ResponseEntity
-                .badRequest()
-                .body(new ApiResponse(false, message));
+        return new ResponseEntity<>(ApiResponse.failure(message), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResponse> handleUsernameNotFoundException() {
-        return ResponseEntity.ok(new ApiResponse(false, "아이디 또는 비밀번호 오류입니다."));
+    public ResponseEntity<ApiResponse<Void>> handleUsernameNotFoundException() {
+        return new ResponseEntity<>(ApiResponse.failure("아이디 또는 비밀번호 오류입니다."), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(EmailNotVerifiedException.class)
-    public ResponseEntity<ApiResponse> handleEmailNotVerifiedException() {
-        return ResponseEntity.ok(new ApiResponse(false, "이메일 인증을 완료해 주세요."));
+    public ResponseEntity<ApiResponse<Void>> handleEmailNotVerifiedException() {
+        return new ResponseEntity<>(ApiResponse.failure("이메일 인증을 완료해 주세요."), HttpStatus.FORBIDDEN);
     }
 }
