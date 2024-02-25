@@ -1,8 +1,8 @@
 package com.kakaoscan.server.application.controller.api;
 
 import com.kakaoscan.server.application.controller.ApiPathPrefix;
-import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.application.dto.request.RegisterRequest;
+import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.application.port.UserPort;
 import com.kakaoscan.server.infrastructure.service.RateLimitService;
 import com.kakaoscan.server.infrastructure.utils.WebUtils;
@@ -29,19 +29,18 @@ public class UserController extends ApiPathPrefix {
     private String verifyReplace;
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse> register(@RequestBody @Valid RegisterRequest registerRequest, HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<Void>> register(@RequestBody @Valid RegisterRequest registerRequest, HttpServletRequest request) {
         Bucket bucket = rateLimitService.resolveBucket(WebUtils.getRemoteAddress(request), 10, Duration.ofHours(1));
         if (bucket.tryConsume(1)) {
-            return ResponseEntity.ok(userPort.register(registerRequest));
+            return new ResponseEntity<>(userPort.register(registerRequest), HttpStatus.OK);
         }else {
-            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-                    .body(new ApiResponse(false, "too many requests"));
+            return new ResponseEntity<>(ApiResponse.failure("too many requests"), HttpStatus.TOO_MANY_REQUESTS);
         }
     }
 
     @GetMapping("/verify/{token}")
     public String consumeVerificationToken(@PathVariable("token") String token) {
-        ApiResponse apiResponse = userPort.consumeVerificationToken(token);
+        ApiResponse<Void> apiResponse = userPort.consumeVerificationToken(token);
         if (apiResponse.isSuccess()) {
             return String.format("<script>location.replace('%s')</script>", verifyReplace);
         }else {

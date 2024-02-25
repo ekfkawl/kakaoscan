@@ -1,4 +1,4 @@
-import { AxiosResponse } from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { useState } from 'react';
 import axiosInstance from '../../utils/api/axiosInstance';
 import store from '../../redux/store';
@@ -30,7 +30,12 @@ const useLogin = () => {
             return res.data;
         } catch (error) {
             setIsLoading(false);
-            setError('로그인 중 오류가 발생했습니다.');
+            if (axios.isAxiosError(error) && error.response) {
+                const res = error.response.data as ApiResponse;
+                setError(res.message || '로그인 중 오류가 발생했습니다.');
+            } else {
+                setError('로그인 중 오류가 발생했습니다.');
+            }
 
             return null;
         }

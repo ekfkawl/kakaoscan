@@ -1,50 +1,34 @@
 package com.kakaoscan.server.application.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
-@AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ApiResponse {
-    private boolean success;
-    private String message;
-    private boolean hiddenMessage;
-    private Object data;
+public class ApiResponse<T> {
+    private final boolean success;
+    private final String message;
+    private final T data;
 
-    public ApiResponse(boolean success) {
-        this.success = success;
-        this.message = null;
-        this.hiddenMessage = true;
-        this.data = null;
-    }
-
-    public ApiResponse(boolean success, String message) {
+    public ApiResponse(boolean success, String message, T data) {
         this.success = success;
         this.message = message;
-        this.hiddenMessage = false;
-        this.data = null;
-    }
-
-    public ApiResponse(boolean success, String message, boolean hiddenMessage) {
-        this.success = success;
-        this.message = message;
-        this.hiddenMessage = hiddenMessage;
-        this.data = null;
-    }
-
-    public ApiResponse(boolean success, String message, Object data) {
-        this.success = success;
-        this.message = message;
-        this.hiddenMessage = false;
         this.data = data;
     }
 
-    public ApiResponse(boolean success, Object data) {
-        this.success = success;
-        this.message = null;
-        this.hiddenMessage = true;
-        this.data = data;
+    public static <T> ApiResponse<T> success() {
+        return new ApiResponse<>(true, null, null);
+    }
+
+    public static <T> ApiResponse<T> success(T data) {
+        return new ApiResponse<>(true, null, data);
+    }
+
+    public static <T> ApiResponse<T> success(T data, String  message) {
+        return new ApiResponse<>(true, message, data);
+    }
+
+    public static <T> ApiResponse<T> failure(String message) {
+        return new ApiResponse<>(false, message, null);
     }
 }

@@ -17,13 +17,10 @@ const useRegister = () => {
         setError('');
 
         try {
-            const res: AxiosResponse<ApiResponse> = await axiosInstance.post(
-                '/api/register',
-                registerData,
-            );
+            const res: AxiosResponse<ApiResponse> = await axiosInstance.post('/api/register', registerData);
 
             setIsLoading(false);
-            setError((!res.data.hiddenMessage && res.data.message) || '');
+            setError(res.data.message || '');
 
             return res.data;
         } catch (error) {

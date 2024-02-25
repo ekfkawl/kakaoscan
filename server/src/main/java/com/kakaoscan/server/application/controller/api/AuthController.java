@@ -17,6 +17,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -46,16 +47,16 @@ public class AuthController extends ApiPathPrefix {
 
     @PostMapping("/login")
     @Operation(summary = "Returns AccessToken and RefreshToken", description = "AccessToken validity is 1 hour")
-    public ResponseEntity<ApiResponse> authenticateUser(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<LoginResponse>> authenticateUser(@RequestBody LoginRequest loginRequest, HttpServletResponse response) {
         LoginResponse loginResponse = authPort.authenticate(loginRequest);
         jwtTokenUtils.saveRefreshTokenInCookie(loginResponse.getRefreshToken(), response);
 
-        return ResponseEntity.ok(new ApiResponse(true, loginResponse));
+        return new ResponseEntity<>(ApiResponse.success(loginResponse), HttpStatus.OK);
     }
 
     @PostMapping("/login/oauth2/google")
     @Operation(summary = "Returns AccessToken and RefreshToken with Google AccessToken", description = "AccessToken validity is 1 hour")
-    public ResponseEntity<ApiResponse> authenticateGoogleUser(@RequestBody Map<String, String> googleToken, HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<LoginResponse>> authenticateGoogleUser(@RequestBody Map<String, String> googleToken, HttpServletResponse response) {
         String accessToken = googleToken.get("code");
 
         GoogleOAuth2User googleOAuth2User = googleUserDetailsService.loadUserByAccessToken(accessToken);
@@ -64,23 +65,23 @@ public class AuthController extends ApiPathPrefix {
         LoginResponse loginResponse = authPort.authenticate(customUserDetails);
         jwtTokenUtils.saveRefreshTokenInCookie(loginResponse.getRefreshToken(), response);
 
-        return ResponseEntity.ok(new ApiResponse(true, loginResponse));
+        return new ResponseEntity<>(ApiResponse.success(loginResponse), HttpStatus.OK);
     }
 
     @PostMapping("/logout")
     @Operation(summary = "Delete RefreshToken from cookie", description = "(AccessToken not blacklisted)")
-    public ResponseEntity<ApiResponse> logout(HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
         jwtTokenUtils.deleteRefreshTokenFromCookie(response);
 
-        return ResponseEntity.ok(new ApiResponse(true));
+        return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
     }
 
     @PostMapping("/refresh-token")
     @Operation(summary = "AccessToken reissue by RefreshToken")
-    public ResponseEntity<ApiResponse> refreshToken(HttpServletRequest request) {
+    public ResponseEntity<ApiResponse<LoginResponse>> refreshToken(HttpServletRequest request) {
         String refreshToken = jwtTokenUtils.extractRefreshTokenFromCookie(request);
         if (refreshToken == null) {
-            return ResponseEntity.ok(new ApiResponse(false, new LoginResponse(null, null)));
+            return new ResponseEntity<>(ApiResponse.failure("empty refresh token"), HttpStatus.UNAUTHORIZED);
         }
 
         if (!jwtTokenProvider.validateRefreshToken(refreshToken)) {
@@ -97,7 +98,7 @@ public class AuthController extends ApiPathPrefix {
         String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
 
         UserData userData = ((CustomUserDetails) authentication.getPrincipal()).convertToUserData();
-        return ResponseEntity.ok(new ApiResponse(true, new LoginResponse(newAccessToken, refreshToken, userData)));
+        return new ResponseEntity<>(ApiResponse.success(new LoginResponse(newAccessToken, refreshToken, userData)), HttpStatus.OK);
     }
 
 }
