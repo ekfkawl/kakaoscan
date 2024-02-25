@@ -1,0 +1,9 @@
+.profile-img {
+    cursor: pointer;
+    transition: border 0.1s ease-in-out;
+}
+
+.profile-img:hover {
+    border: 2px solid #03C75C;
+    @apply dark:border-blue-500;
+}
