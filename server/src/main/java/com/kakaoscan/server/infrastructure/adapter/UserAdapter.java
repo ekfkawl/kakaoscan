@@ -28,9 +28,7 @@ public class UserAdapter implements UserPort {
     private final EmailTokenRepository emailTokenRepository;
     private final EventPublisher eventPublisher;
 
-    private static final String USER_REGISTRATION_SUCCESS = "이메일로 보내드린 인증 링크를 클릭하시면 가입이 완료됩니다.";
     private static final String ALREADY_VERIFIED_EMAIL = "이미 인증된 이메일입니다.";
-    private static final String SUCCESS_VERIFIED_EMAIL = "이메일 인증이 완료되었습니다.";
     private static final String TOKEN_DOES_NOT_EXIST = "존재하지 않는 토큰입니다.";
 
     @Value("${verify.prefix}")
