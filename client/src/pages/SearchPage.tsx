@@ -9,10 +9,11 @@ import { HiClipboardList, HiPhotograph, HiUserCircle } from 'react-icons/hi';
 import Gallery from '../components/Gallery/Gallery';
 import { useGalleryItems } from '../hooks/ui/useGalleryItems';
 import ProfileCard from '../components/ProfileCard/ProfileCard';
-import timestampToDate from '../utils/datetime/convert';
 import useScrollToComponent from '../hooks/ui/useScrollToComponent';
 import ScrollToTopButton from '../components/ScrollToTopButton';
 import usePhoneNumberFormat from '../hooks/formats/usePhoneNumberFormat';
+import ProfileThumbPopup from '../components/Popup/ProfileThumbPopup';
+import { useProfileData } from '../hooks/profile/useProfileData';
 
 const HYPHEN_PHONE_NUMBER_LENGTH: number = 13;
 const PHONE_NUMBER_LENGTH: number = 11;
@@ -37,12 +38,17 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
         clearGalleryItems: clearBackgroundItems,
     } = useGalleryItems();
     const [isProfileCardVisible, setIsProfileCardVisible] = useState<boolean>(false);
-    const [profileData, setProfileData] = useState({
-        profileImageUrl: '',
-        name: '',
-        url: '',
-        statusMessage: '',
+
+    const { profileData } = useProfileData({
+        json: (receivedMessage && receivedMessage.jsonContent && receivedMessage.content) || '',
+        clearProfileItems: clearProfileItems,
+        clearBackgroundItems: clearBackgroundItems,
+        addProfileItem: addProfileItem,
+        addBackgroundItem: addBackgroundItem,
+        tabsRef,
+        setIsProfileCardVisible,
     });
+
     const scrollTopRef = useRef<HTMLDivElement>(null);
     const { isVisible: isVisibleScrollToTop } = useScrollToComponent(scrollTopRef);
 
@@ -64,6 +70,8 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
         [handleSendMessage],
     );
 
+    const [showProfileThumbPopup, setProfileThumbPopup] = useState(false);
+
     useEffect(() => {
         let timeoutId: NodeJS.Timeout | null = null;
         if (receivedMessage?.hasNext) {
@@ -83,47 +91,10 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
 
     useEffect(() => {
         if (receivedMessage && receivedMessage.jsonContent && receivedMessage.content) {
-            const profileJson = JSON.parse(receivedMessage.content);
-            setProfileData({
-                // profileImageUrl: `data:image/bmp;base64,${profileJson.profile.screenBase64}`,
-                profileImageUrl: profileJson.profile.profileImageUrl,
-                name: profileJson.profile.nickName || '이름 없음',
-                url: profileJson.profile.storyWebUrl || '',
-                statusMessage: profileJson.profile.statusMessage || '상태메세지 없음',
-            });
-
-            clearProfileItems();
-            clearBackgroundItems();
-
-            renderFeeds(profileJson.profile.profileFeeds.feeds, addProfileItem);
-            renderFeeds(profileJson.profile.backgroundFeeds.feeds, addBackgroundItem);
-
             tabsRef.current?.setActiveTab(0);
             setIsProfileCardVisible(true);
         }
-    }, [receivedMessage, addProfileItem, addBackgroundItem, clearProfileItems, clearBackgroundItems]);
-
-    function renderFeeds(feeds: any[], addItem: (item: any) => void) {
-        feeds.forEach((feed: { id: string; contents: any[]; extra?: any; updatedAt: number; isCurrent: boolean }) => {
-            feed.contents.forEach((content) => {
-                let srcUrl = content.value;
-                if (srcUrl.length === 0) {
-                    return;
-                }
-
-                if (feed.extra && feed.extra.originalAnimatedBackgroundImageUrl) {
-                    srcUrl = feed.extra.originalAnimatedBackgroundImageUrl;
-                }
-
-                addItem({
-                    id: feed.id,
-                    src: srcUrl,
-                    thumb: content.value,
-                    subHtml: `<p>${feed.isCurrent ? '현재 프로필' : timestampToDate(feed.updatedAt)}</p>`,
-                });
-            });
-        });
-    }
+    }, [receivedMessage]);
 
     return (
         <section className="bg-white dark:bg-gray-900">
@@ -141,12 +112,22 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                     }
                 />
                 {isProfileCardVisible && profileData && (
-                    <ProfileCard
-                        profileImageUrl={profileData.profileImageUrl}
-                        name={profileData.name}
-                        url={profileData.url}
-                        statusMessage={profileData.statusMessage}
-                    />
+                    <>
+                        <ProfileCard
+                            profileImageUrl={profileData.profileImageUrl}
+                            name={profileData.name}
+                            statusMessage={profileData.statusMessage}
+                            onImageClick={() => setProfileThumbPopup(true)}
+                        />
+                        <ProfileThumbPopup
+                            show={showProfileThumbPopup}
+                            onClose={() => setProfileThumbPopup(false)}
+                            storyUrl={profileData.url}
+                            profileCaptureUrl={profileData.profileCaptureUrl}
+                            phoneNumber={phoneNumber}
+                            musicInfo={profileData.musicInfo}
+                        />
+                    </>
                 )}
                 <div ref={scrollTopRef}>{!isVisibleScrollToTop && <ScrollToTopButton />}</div>
                 <Tabs
@@ -157,9 +138,25 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                 >
                     <Tabs.Item title="프로필" icon={HiUserCircle}>
                         <Gallery items={profileItems} />
+                        {receivedMessage &&
+                            receivedMessage.jsonContent &&
+                            receivedMessage.content &&
+                            profileItems.length === 0 && (
+                                <p className="mt-3 mb-4 max-w-sm text-gray-500 dark:text-gray-400">
+                                    등록 된 프로필 사진이 없습니다.
+                                </p>
+                            )}
                     </Tabs.Item>
                     <Tabs.Item title="백그라운드" icon={HiPhotograph}>
                         <Gallery items={backgroundItems} />
+                        {receivedMessage &&
+                            receivedMessage.jsonContent &&
+                            receivedMessage.content &&
+                            backgroundItems.length === 0 && (
+                                <p className="mt-3 mb-4 max-w-sm text-gray-500 dark:text-gray-400">
+                                    등록 된 배경 사진이 없습니다.
+                                </p>
+                            )}
                     </Tabs.Item>
                     <Tabs.Item active title="FAQ" icon={HiClipboardList}>
                         <Faq />
