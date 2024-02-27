@@ -8,6 +8,7 @@
 @import 'lightgallery/css/lg-rotate.css';
 
 .gallery-item {
+    position: relative;
     display: inline-flex;
     justify-content: center;
     align-items: center;
@@ -16,8 +17,14 @@
 }
 
 .gallery-item img {
+    cursor: pointer;
     object-fit: cover;
     @apply lg:h-80 md:h-72
+}
+
+.gallery-item img:hover {
+    border: 1px solid #03C75C;
+    @apply dark:border-blue-500;
 }
 
 @media (max-width: 640px) {
