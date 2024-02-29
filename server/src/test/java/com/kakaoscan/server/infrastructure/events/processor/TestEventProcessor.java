@@ -1,6 +1,4 @@
-package com.kakaoscan.server.application.infrastructure.events.processor;
-
-import com.kakaoscan.server.infrastructure.events.processor.EventProcessor;
+package com.kakaoscan.server.infrastructure.events.processor;
 
 public class TestEventProcessor implements EventProcessor {
     private boolean processCalled = false;
