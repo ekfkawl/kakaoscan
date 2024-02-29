@@ -1,0 +1,51 @@
+package com.kakaoscan.server.domain.point.model;
+
+import com.kakaoscan.server.domain.user.model.User;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.LocalDateTime;
+
+@Builder
+@AllArgsConstructor
+@Getter
+@Entity
+@Table(name = "points")
+public class Point {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    private User user;
+
+    @Column(nullable = false)
+    private int balance;
+
+    @CreationTimestamp
+    @Column(nullable = false, columnDefinition = "DATETIME(6)")
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(columnDefinition = "DATETIME(6)")
+    private LocalDateTime updatedAt;
+
+    protected Point() {
+    }
+
+    public void deductBalance(int balance) {
+        this.balance -= balance;
+        if (this.balance < 0) {
+            this.balance = 0;
+        }
+    }
+
+    public void addBalance(int balance) {
+        this.balance += balance;
+    }
+}

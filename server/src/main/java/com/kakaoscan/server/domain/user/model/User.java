@@ -1,5 +1,6 @@
 package com.kakaoscan.server.domain.user.model;
 
+import com.kakaoscan.server.domain.point.model.Point;
 import com.kakaoscan.server.domain.user.enums.AuthenticationType;
 import com.kakaoscan.server.domain.user.enums.Role;
 import jakarta.persistence.*;
@@ -59,6 +60,9 @@ public class User {
     @Column(nullable = false, columnDefinition = "DATETIME(6)")
     private LocalDateTime createdAt;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    private Point point;
+
     protected User() {
     }
 
@@ -71,5 +75,12 @@ public class User {
         authorities.add(new SimpleGrantedAuthority("ROLE_" + this.getRole().name()));
 
         return authorities;
+    }
+
+    public void initializePoint() {
+        this.point = Point.builder()
+                .user(this)
+                .balance(0)
+                .build();
     }
 }
