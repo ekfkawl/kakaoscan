@@ -1,12 +1,11 @@
 spring:
-  profiles:
-    include:
-      - db
-      - jwt
-      - smtp
-      - swagger
-      - redis
-      - oauth
+  config:
+    import:
+      - classpath:application-redis.yml
+      - classpath:application-jwt.yml
+      - classpath:application-smtp.yml
+      - classpath:application-swagger.yml
+
   mvc:
     hidden-method:
       filter:
@@ -31,3 +30,25 @@ cors:
     - /static/**
     - /favicon.png
     - /ws/**
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev, test
+
+verify:
+  prefix: http://localhost:8080/api/verify/
+  replace: http://localhost:3000
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+verify:
+  prefix: https://kakaoscan.com/api/verify/
+  replace: https://kakaoscan.com

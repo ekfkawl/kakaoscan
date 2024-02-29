@@ -1,4 +1,8 @@
 spring:
+  config:
+    import:
+      - classpath:application-db.yml
+
   jpa:
     show-sql: true
     properties:
@@ -17,7 +21,3 @@ logging:
         type:
           descriptor:
             sql: TRACE
-
-verify:
-  prefix: http://localhost:8080/api/verify/
-  replace: http://localhost:3000
