@@ -1,4 +1,4 @@
-export interface StompResponse {
+export interface StompProfile {
     messageId: string;
     email: string;
     content: string | null;

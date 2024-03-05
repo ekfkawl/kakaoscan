@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import HeaderWithUser from './Header/HeaderWithUser';
 import Header from './Header/Header';
 import useAuth from '../hooks/auth/useAuth';
+import { WebSocketProvider } from './WebSocketContext';
 
 const AppLayout = () => {
     const { isAuthenticated } = useAuth();
@@ -17,13 +18,14 @@ const AppLayout = () => {
             )}
             {isAuthenticated && (
                 <div className="mx-auto max-w-8xl w-full px-3 py-3">
-                    <HeaderWithUser />
-                    <div className="px-2 py-14 sm:py-14 md:py-14 lg:py-24 xl:py-40">
-                        <Outlet />
-                    </div>
+                    <WebSocketProvider>
+                        <HeaderWithUser />
+                        <div className="px-2 py-14 sm:py-14 md:py-14 lg:py-24 xl:py-40">
+                            <Outlet />
+                        </div>
+                    </WebSocketProvider>
                 </div>
             )}
-
         </div>
     );
 };

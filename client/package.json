@@ -3,6 +3,10 @@
     "version": "0.1.0",
     "private": true,
     "dependencies": {
+        "@fortawesome/fontawesome-svg-core": "^6.5.1",
+        "@fortawesome/free-regular-svg-icons": "^6.5.1",
+        "@fortawesome/free-solid-svg-icons": "^6.5.1",
+        "@fortawesome/react-fontawesome": "^0.2.0",
         "@react-oauth/google": "^0.12.1",
         "@reduxjs/toolkit": "^1.9.7",
         "@stomp/stompjs": "^7.0.0",
@@ -16,6 +20,7 @@
         "autoprefixer": "^10.4.16",
         "axios": "^1.6.2",
         "env-cmd": "^10.1.0",
+        "event-source-polyfill": "^1.0.31",
         "flowbite": "^2.2.0",
         "flowbite-react": "^0.7.0",
         "lightgallery": "^2.7.2",
@@ -63,6 +68,7 @@
         ]
     },
     "devDependencies": {
+        "@types/event-source-polyfill": "^1.0.5",
         "@types/react-image-gallery": "^1.2.4",
         "@types/sockjs-client": "^1.5.4",
         "@types/stompjs": "^2.3.9",
