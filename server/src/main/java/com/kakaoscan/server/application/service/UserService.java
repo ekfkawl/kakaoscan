@@ -4,7 +4,7 @@ import com.kakaoscan.server.application.exception.AlreadyRegisteredException;
 import com.kakaoscan.server.common.utils.PasswordEncoderSingleton;
 import com.kakaoscan.server.domain.user.enums.AuthenticationType;
 import com.kakaoscan.server.domain.user.enums.Role;
-import com.kakaoscan.server.domain.user.model.User;
+import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

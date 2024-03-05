@@ -3,7 +3,7 @@ package com.kakaoscan.server.infrastructure.adapter;
 import com.kakaoscan.server.application.port.PointPort;
 import com.kakaoscan.server.domain.user.enums.AuthenticationType;
 import com.kakaoscan.server.domain.user.enums.Role;
-import com.kakaoscan.server.domain.user.model.User;
+import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

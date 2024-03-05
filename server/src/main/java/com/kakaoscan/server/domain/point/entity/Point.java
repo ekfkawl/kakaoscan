@@ -1,6 +1,6 @@
-package com.kakaoscan.server.domain.point.model;
+package com.kakaoscan.server.domain.point.entity;
 
-import com.kakaoscan.server.domain.user.model.User;
+import com.kakaoscan.server.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

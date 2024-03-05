@@ -1,8 +1,8 @@
 package com.kakaoscan.server.infrastructure.adapter;
 
 import com.kakaoscan.server.application.port.PointPort;
-import com.kakaoscan.server.domain.point.model.Point;
-import com.kakaoscan.server.domain.user.model.User;
+import com.kakaoscan.server.domain.point.entity.Point;
+import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
