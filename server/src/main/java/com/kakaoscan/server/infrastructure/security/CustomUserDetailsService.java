@@ -2,7 +2,7 @@ package com.kakaoscan.server.infrastructure.security;
 
 import com.kakaoscan.server.application.exception.EmailNotVerifiedException;
 import com.kakaoscan.server.domain.user.model.CustomUserDetails;
-import com.kakaoscan.server.domain.user.model.User;
+import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

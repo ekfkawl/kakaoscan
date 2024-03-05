@@ -2,7 +2,7 @@ package com.kakaoscan.server.application.events.handlers;
 
 import com.kakaoscan.server.application.port.PointPort;
 import com.kakaoscan.server.domain.events.model.LoginSuccessEvent;
-import com.kakaoscan.server.domain.user.model.User;
+import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
 import com.kakaoscan.server.infrastructure.events.processor.AbstractEventProcessor;
 import lombok.RequiredArgsConstructor;

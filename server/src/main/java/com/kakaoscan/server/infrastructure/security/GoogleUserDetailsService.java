@@ -2,7 +2,7 @@ package com.kakaoscan.server.infrastructure.security;
 
 import com.kakaoscan.server.application.service.UserService;
 import com.kakaoscan.server.domain.user.enums.AuthenticationType;
-import com.kakaoscan.server.domain.user.model.User;
+import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.model.oauth2.GoogleOAuth2User;
 import com.kakaoscan.server.domain.user.model.oauth2.OAuth2UserGoogleClient;
 import feign.FeignException;

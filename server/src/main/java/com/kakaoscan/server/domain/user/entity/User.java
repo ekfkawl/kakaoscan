@@ -1,6 +1,6 @@
-package com.kakaoscan.server.domain.user.model;
+package com.kakaoscan.server.domain.user.entity;
 
-import com.kakaoscan.server.domain.point.model.Point;
+import com.kakaoscan.server.domain.point.entity.Point;
 import com.kakaoscan.server.domain.user.enums.AuthenticationType;
 import com.kakaoscan.server.domain.user.enums.Role;
 import jakarta.persistence.*;
