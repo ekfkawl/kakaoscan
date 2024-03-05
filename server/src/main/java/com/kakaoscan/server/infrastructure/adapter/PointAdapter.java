@@ -7,6 +7,8 @@ import com.kakaoscan.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -19,10 +21,34 @@ import java.util.concurrent.TimeUnit;
 public class PointAdapter implements PointPort {
     private final UserRepository userRepository;
     private final RedissonClient redissonClient;
+    private final RedisTemplate<String, Integer> redisTemplate;
 
     private static final String LOCK_KEY_PREFIX = "userPointsLock:";
+    private static final String POINT_CACHE_KEY_PREFIX = "pointCache:";
     private static final int LOCK_WAIT_TIME = 10;
     private static final int LOCK_LEASE_TIME = 30;
+
+    @Override
+    @Transactional(readOnly = true)
+    public void cachePoints(String userId) {
+        User user = userRepository.findByEmail(userId)
+                .orElseThrow(() -> new IllegalArgumentException("user not found"));
+
+        ValueOperations<String, Integer> ops = redisTemplate.opsForValue();
+        ops.set(POINT_CACHE_KEY_PREFIX + userId, user.getPoint().getBalance(), 1, TimeUnit.DAYS);
+    }
+
+    @Override
+    public int getPointsFromCache(String userId) {
+        ValueOperations<String, Integer> ops = redisTemplate.opsForValue();
+
+        Integer points = ops.get(POINT_CACHE_KEY_PREFIX + userId);
+        if (points == null) {
+            throw new NullPointerException("points not found from cache");
+        }
+
+        return points;
+    }
 
     @Override
     @Transactional

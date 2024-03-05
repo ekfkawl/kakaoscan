@@ -6,8 +6,10 @@ import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.application.dto.response.LoginResponse;
 import com.kakaoscan.server.application.dto.response.UserData;
 import com.kakaoscan.server.application.port.AuthPort;
+import com.kakaoscan.server.domain.events.model.LoginSuccessEvent;
 import com.kakaoscan.server.domain.user.model.CustomUserDetails;
 import com.kakaoscan.server.domain.user.model.oauth2.GoogleOAuth2User;
+import com.kakaoscan.server.infrastructure.redis.publisher.EventPublisher;
 import com.kakaoscan.server.infrastructure.security.GoogleUserDetailsService;
 import com.kakaoscan.server.infrastructure.security.JwtTokenProvider;
 import com.kakaoscan.server.infrastructure.security.JwtTokenUtils;
@@ -29,6 +31,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 
+import static com.kakaoscan.server.infrastructure.redis.enums.Topics.OTHER_EVENT_TOPIC;
+
 @RequiredArgsConstructor
 @RestController
 @Tag(name = "Authenticate", description = "Authenticate API")
@@ -37,6 +41,7 @@ public class AuthController extends ApiPathPrefix {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthPort authPort;
     private final GoogleUserDetailsService googleUserDetailsService;
+    private final EventPublisher eventPublisher;
 
     @PreAuthorize("hasAnyRole('ROLE_USER')")
     @GetMapping("/login/test")
@@ -51,6 +56,8 @@ public class AuthController extends ApiPathPrefix {
         LoginResponse loginResponse = authPort.authenticate(loginRequest);
         jwtTokenUtils.saveRefreshTokenInCookie(loginResponse.getRefreshToken(), response);
 
+        eventPublisher.publish(OTHER_EVENT_TOPIC.getTopic(), new LoginSuccessEvent(loginResponse.getUserData().getEmail()));
+
         return new ResponseEntity<>(ApiResponse.success(loginResponse), HttpStatus.OK);
     }
 
@@ -64,6 +71,8 @@ public class AuthController extends ApiPathPrefix {
 
         LoginResponse loginResponse = authPort.authenticate(customUserDetails);
         jwtTokenUtils.saveRefreshTokenInCookie(loginResponse.getRefreshToken(), response);
+
+        eventPublisher.publish(OTHER_EVENT_TOPIC.getTopic(), new LoginSuccessEvent(loginResponse.getUserData().getEmail()));
 
         return new ResponseEntity<>(ApiResponse.success(loginResponse), HttpStatus.OK);
     }
@@ -96,8 +105,10 @@ public class AuthController extends ApiPathPrefix {
         }
 
         String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
-
         UserData userData = ((CustomUserDetails) authentication.getPrincipal()).convertToUserData();
+
+        eventPublisher.publish(OTHER_EVENT_TOPIC.getTopic(), new LoginSuccessEvent(userData.getEmail()));
+
         return new ResponseEntity<>(ApiResponse.success(new LoginResponse(newAccessToken, refreshToken, userData)), HttpStatus.OK);
     }
 

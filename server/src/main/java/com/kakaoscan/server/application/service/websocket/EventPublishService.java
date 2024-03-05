@@ -4,7 +4,7 @@ import com.kakaoscan.server.application.port.EventStatusPort;
 import com.kakaoscan.server.domain.events.enums.EventStatusEnum;
 import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.events.model.SearchEvent;
-import com.kakaoscan.server.domain.search.model.Message;
+import com.kakaoscan.server.domain.search.model.ProfileMessage;
 import com.kakaoscan.server.infrastructure.redis.enums.Topics;
 import com.kakaoscan.server.infrastructure.redis.publisher.EventPublisher;
 import lombok.RequiredArgsConstructor;
@@ -19,11 +19,11 @@ public class EventPublishService {
     private final EventPublisher eventPublisher;
     private final EventStatusPort eventStatusPort;
 
-    public void publishSearchEvent(Topics topic, Message message) {
+    public void publishSearchEvent(Topics topic, ProfileMessage profileMessage) {
         SearchEvent event = SearchEvent.builder()
-                .eventId(message.getMessageId())
-                .email(message.getEmail())
-                .phoneNumber(message.getContent())
+                .eventId(profileMessage.getMessageId())
+                .email(profileMessage.getEmail())
+                .phoneNumber(profileMessage.getContent())
                 .build();
 
         if (topic == SEARCH_EVENT_TOPIC) {

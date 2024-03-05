@@ -1,6 +1,7 @@
 package com.kakaoscan.server.application.service.websocket;
 
-import com.kakaoscan.server.domain.search.model.Message;
+import com.kakaoscan.server.domain.point.model.PointMessage;
+import com.kakaoscan.server.domain.websocket.model.MessageMetadata;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
@@ -12,9 +13,15 @@ public class StompMessageDispatcher {
     private final SimpUserRegistry simpUserRegistry;
     private final SimpMessagingTemplate messagingTemplate;
 
-    public void sendToUser(Message message) {
+    public <T extends MessageMetadata> void sendToUser(T message) {
         if (simpUserRegistry.getUser(message.getEmail()) != null) {
-            messagingTemplate.convertAndSendToUser(message.getEmail(), "/queue/message", message);
+
+            String dest = "/queue/message/profile";
+            if (message instanceof PointMessage) {
+                dest = "/queue/message/point";
+            }
+
+            messagingTemplate.convertAndSendToUser(message.getEmail(), dest, message);
         }
     }
 }

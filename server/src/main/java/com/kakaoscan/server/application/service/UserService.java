@@ -26,23 +26,31 @@ public class UserService {
             }
             return existingUser.get();
         }else {
-            return userRepository.save(User.builder()
+            User user = User.builder()
                     .email(email)
                     .password(PasswordEncoderSingleton.getInstance().encode(password))
                     .role(Role.USER)
                     .authenticationType(AuthenticationType.LOCAL)
-                    .build());
+                    .build();
+
+            user.initializePoint();
+            return userRepository.save(user);
         }
     }
 
     public User findOrRegisterOAuthUser(String email, AuthenticationType authenticationType) {
         return userRepository.findByEmail(email)
-                .orElseGet(() -> userRepository.save(User.builder()
-                        .email(email)
-                        .password(null)
-                        .role(Role.USER)
-                        .authenticationType(authenticationType)
-                        .isEmailVerified(true)
-                        .build()));
+                .orElseGet(() -> {
+                    User user = User.builder()
+                            .email(email)
+                            .password(null)
+                            .role(Role.USER)
+                            .authenticationType(authenticationType)
+                            .isEmailVerified(true)
+                            .build();
+
+                    user.initializePoint();
+                    return userRepository.save(user);
+                });
     }
 }
