@@ -16,7 +16,7 @@ public class StompMessageDispatcher {
     public <T extends MessageMetadata> void sendToUser(T message) {
         if (simpUserRegistry.getUser(message.getEmail()) != null) {
 
-            String dest = "/queue/message/profile";
+            String dest = "/queue/message/search";
             if (message instanceof PointMessage) {
                 dest = "/queue/message/point";
             }

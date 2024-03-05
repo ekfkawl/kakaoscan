@@ -1,16 +1,18 @@
 package com.kakaoscan.server.application.events.handlers;
 
 import com.kakaoscan.server.application.port.EventStatusPort;
+import com.kakaoscan.server.application.port.PointPort;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
 import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.events.model.SearchEvent;
-import com.kakaoscan.server.domain.search.model.ProfileMessage;
+import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.infrastructure.events.processor.AbstractEventProcessor;
 import com.kakaoscan.server.infrastructure.service.RateLimitService;
-import com.kakaoscan.server.infrastructure.websocket.queue.ProfileInMemoryQueue;
+import com.kakaoscan.server.infrastructure.websocket.queue.SearchInMemoryQueue;
 import io.github.bucket4j.Bucket;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -24,9 +26,13 @@ import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.*;
 @Log4j2
 public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
     private final EventStatusPort eventStatusPort;
-    private final ProfileInMemoryQueue queue;
+    private final SearchInMemoryQueue queue;
     private final StompMessageDispatcher messageDispatcher;
     private final RateLimitService rateLimitService;
+    private final PointPort pointPort;
+
+    @Value("${search.cost}")
+    private int searchCost;
 
     @Override
     protected void handleEvent(SearchEvent event) {
@@ -51,6 +57,14 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
             }
         };
         boolean hasNext = status.getStatus() == WAITING || status.getStatus() == PROCESSING;
-        messageDispatcher.sendToUser(new ProfileMessage(event.getEmail(), responseMessage, hasNext, status.getStatus() == SUCCESS));
+        messageDispatcher.sendToUser(new SearchMessage(event.getEmail(), responseMessage, hasNext, status.getStatus() == SUCCESS));
+
+        if (status.getStatus() == SUCCESS && !hasNext) {
+            int cachePoints = pointPort.getPointsFromCache(event.getEmail());
+            pointPort.cachePoints(event.getEmail(), cachePoints - searchCost);
+            pointPort.deductPoints(event.getEmail(), searchCost);
+
+            log.info("deduct points: {}", event.getEmail());
+        }
     }
 }

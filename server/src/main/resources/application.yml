@@ -52,3 +52,6 @@ spring:
 verify:
   prefix: https://kakaoscan.com/api/verify/
   replace: https://kakaoscan.com
+
+search:
+  cost: 500
