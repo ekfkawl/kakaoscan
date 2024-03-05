@@ -1,14 +1,14 @@
 package com.kakaoscan.server.domain.search.queue;
 
-import com.kakaoscan.server.domain.search.model.ProfileMessage;
+import com.kakaoscan.server.domain.search.model.SearchMessage;
 
 import java.util.Iterator;
 
 public interface QueueAggregate {
-    void add(ProfileMessage profileMessage);
+    void add(SearchMessage searchMessage);
     boolean contains(String id);
     void remove(String id);
-    void update(String id, ProfileMessage newProfileMessage);
-    Iterator<ProfileMessage> iterator();
+    void update(String id, SearchMessage newSearchMessage);
+    Iterator<SearchMessage> iterator();
     int size();
 }

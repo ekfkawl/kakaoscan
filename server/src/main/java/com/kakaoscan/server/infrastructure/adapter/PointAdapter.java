@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.util.ConcurrentModificationException;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -30,16 +31,18 @@ public class PointAdapter implements PointPort {
 
     @Override
     @Transactional(readOnly = true)
-    public void cachePoints(String userId) {
-        User user = userRepository.findByEmail(userId)
-                .orElseThrow(() -> new IllegalArgumentException("user not found"));
-
+    public void cachePoints(String userId, int value) {
         ValueOperations<String, Integer> ops = redisTemplate.opsForValue();
-        ops.set(POINT_CACHE_KEY_PREFIX + userId, user.getPoint().getBalance(), 1, TimeUnit.DAYS);
+        ops.set(POINT_CACHE_KEY_PREFIX + userId, value, 1, TimeUnit.DAYS);
     }
 
     @Override
     public int getPointsFromCache(String userId) {
+        RLock lock = redissonClient.getLock(LOCK_KEY_PREFIX + userId);
+        if (lock.isLocked()) {
+            throw new ConcurrentModificationException("points data is currently being modified");
+        }
+
         ValueOperations<String, Integer> ops = redisTemplate.opsForValue();
 
         Integer points = ops.get(POINT_CACHE_KEY_PREFIX + userId);

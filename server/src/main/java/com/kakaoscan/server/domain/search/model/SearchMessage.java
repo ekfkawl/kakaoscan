@@ -8,14 +8,14 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Getter
-public class ProfileMessage extends MessageMetadata {
+public class SearchMessage extends MessageMetadata {
     private final String content;
     private final boolean isJsonContent;
     private final boolean hasNext;
     private final LocalDateTime createdAt;
     private LocalDateTime eventStartedAt;
 
-    public ProfileMessage(String email, String content, boolean hasNext, boolean isJsonContent) {
+    public SearchMessage(String email, String content, boolean hasNext, boolean isJsonContent) {
         super(email);
         this.content = content;
         this.isJsonContent = isJsonContent;
@@ -24,11 +24,11 @@ public class ProfileMessage extends MessageMetadata {
         this.eventStartedAt = null;
     }
 
-    public ProfileMessage(String email, String content) {
+    public SearchMessage(String email, String content) {
         this(email, content, true, false);
     }
 
-    public ProfileMessage(String email, String content, boolean isJsonContent) {
+    public SearchMessage(String email, String content, boolean isJsonContent) {
         this(email, content, true, isJsonContent);
     }
 

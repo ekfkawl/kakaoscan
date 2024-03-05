@@ -1,6 +1,6 @@
 package com.kakaoscan.server.infrastructure.websocket.queue;
 
-import com.kakaoscan.server.domain.search.model.ProfileMessage;
+import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.domain.search.queue.QueueAggregate;
 import org.springframework.stereotype.Component;
 
@@ -9,18 +9,18 @@ import java.util.Iterator;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 @Component
-public class ProfileInMemoryQueue implements QueueAggregate {
+public class SearchInMemoryQueue implements QueueAggregate {
 
-    private final ConcurrentSkipListSet<ProfileMessage> set;
+    private final ConcurrentSkipListSet<SearchMessage> set;
 
-    public ProfileInMemoryQueue() {
-        this.set = new ConcurrentSkipListSet<>(Comparator.comparing(ProfileMessage::getCreatedAt)
-                .thenComparing(ProfileMessage::getEmail));
+    public SearchInMemoryQueue() {
+        this.set = new ConcurrentSkipListSet<>(Comparator.comparing(SearchMessage::getCreatedAt)
+                .thenComparing(SearchMessage::getEmail));
     }
 
     @Override
-    public void add(ProfileMessage profileMessage) {
-        set.add(profileMessage);
+    public void add(SearchMessage searchMessage) {
+        set.add(searchMessage);
     }
 
     @Override
@@ -34,13 +34,13 @@ public class ProfileInMemoryQueue implements QueueAggregate {
     }
 
     @Override
-    public void update(String id, ProfileMessage newProfileMessage) {
+    public void update(String id, SearchMessage newSearchMessage) {
         set.removeIf(message -> id.equals(message.getMessageId()));
-        set.add(newProfileMessage);
+        set.add(newSearchMessage);
     }
 
     @Override
-    public Iterator<ProfileMessage> iterator() {
+    public Iterator<SearchMessage> iterator() {
         return set.iterator();
     }
 
