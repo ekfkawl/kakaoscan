@@ -42,6 +42,10 @@ verify:
   prefix: http://localhost:8080/api/verify/
   replace: http://localhost:3000
 
+search:
+  profile:
+    cost: 100
+
 ---
 
 spring:
@@ -54,4 +58,5 @@ verify:
   replace: https://kakaoscan.com
 
 search:
-  cost: 500
+  profile:
+    cost: 500
