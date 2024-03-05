@@ -54,17 +54,17 @@ public class WebSocketController {
         SearchMessage message = searchMessageService.createSearchMessage(principal, originMessage);
 
         if (!searchMessageService.validatePoints(message)) {
-            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), NOT_ENOUGH_POINTS, false, false));
+            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), NOT_ENOUGH_POINTS, false));
             return;
         }
 
         if (phoneNumberCachePort.isInvalidPhoneNumberCached(message.getContent())) {
-            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), SEARCH_INVALID_PHONE_NUMBER, false, false));
+            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), SEARCH_INVALID_PHONE_NUMBER, false));
             return;
         }
 
         if (rateLimitService.isBucketFull(message.getEmail())) {
-            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), SEARCH_TOO_MANY_INVALID_PHONE_NUMBER, false, false));
+            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), SEARCH_TOO_MANY_INVALID_PHONE_NUMBER, false));
             return;
         }
 
