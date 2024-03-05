@@ -2,9 +2,9 @@ package com.kakaoscan.server.application.service.websocket;
 
 import com.kakaoscan.server.application.port.EventStatusPort;
 import com.kakaoscan.server.domain.events.model.EventStatus;
-import com.kakaoscan.server.domain.search.model.Message;
-import com.kakaoscan.server.domain.search.queue.QueueAggregate;
+import com.kakaoscan.server.domain.search.model.ProfileMessage;
 import com.kakaoscan.server.infrastructure.redis.enums.Topics;
+import com.kakaoscan.server.infrastructure.websocket.queue.ProfileInMemoryQueue;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,32 +26,32 @@ public class EventProcessService {
 
     private final EventStatusPort eventStatusPort;
     private final EventPublishService eventPublishService;
-    private final QueueAggregate queue;
+    private final ProfileInMemoryQueue queue;
     private final StompMessageDispatcher messageDispatcher;
 
-    public boolean checkUserTurnAndNotify(Message message, Message peekMessage) {
-        boolean isUserTurn = message.getEmail().equals(peekMessage.getEmail());
+    public boolean checkUserTurnAndNotify(ProfileMessage profileMessage, ProfileMessage peekProfileMessage) {
+        boolean isUserTurn = profileMessage.getEmail().equals(peekProfileMessage.getEmail());
         if (!isUserTurn) {
             int waitingCount = queue.size() - 1;
-            messageDispatcher.sendToUser(new Message(message.getEmail(), format(SEARCH_QUEUE_WAITING, waitingCount)));
+            messageDispatcher.sendToUser(new ProfileMessage(profileMessage.getEmail(), format(SEARCH_QUEUE_WAITING, waitingCount)));
             return false;
         }
         return true;
     }
 
-    public boolean removeTimeoutEvent(Message peekMessage) {
+    public boolean removeTimeoutEvent(ProfileMessage peekProfileMessage) {
         boolean isRemovedPeek = false;
         LocalDateTime thresholdTime = LocalDateTime.now().minusSeconds(1);
 
-        Iterator<Message> iterator = queue.iterator();
+        Iterator<ProfileMessage> iterator = queue.iterator();
         while (iterator.hasNext()) {
-            Message next = iterator.next();
+            ProfileMessage next = iterator.next();
             Optional<EventStatus> eventStatus = eventStatusPort.getEventStatus(next.getMessageId());
 
             if (eventStatus.isPresent() && isMessageTimedOut(next, thresholdTime, eventStatus.get())) {
-                isRemovedPeek = shouldRemovePeek(next, peekMessage);
+                isRemovedPeek = shouldRemovePeek(next, peekProfileMessage);
 
-                messageDispatcher.sendToUser(new Message(next.getEmail(), SEARCH_ERROR_PING_PONG, false, false));
+                messageDispatcher.sendToUser(new ProfileMessage(next.getEmail(), SEARCH_ERROR_PING_PONG, false, false));
                 iterator.remove();
             }
         }
@@ -59,19 +59,19 @@ public class EventProcessService {
         return isRemovedPeek;
     }
 
-    public void publishAndTraceEvent(Message peekMessage) {
-        Optional<EventStatus> optionalEventStatus = eventStatusPort.getEventStatus(peekMessage.getMessageId());
+    public void publishAndTraceEvent(ProfileMessage peekProfileMessage) {
+        Optional<EventStatus> optionalEventStatus = eventStatusPort.getEventStatus(peekProfileMessage.getMessageId());
 
         Topics topic = optionalEventStatus.isEmpty() ? SEARCH_EVENT_TOPIC : EVENT_TRACE_TOPIC;
-        eventPublishService.publishSearchEvent(topic, peekMessage);
+        eventPublishService.publishSearchEvent(topic, peekProfileMessage);
     }
 
-    private boolean isMessageTimedOut(Message message, LocalDateTime thresholdTime, EventStatus eventStatus) {
-        return eventStatus.getStatus() == WAITING && message.getEventStartedAt().isBefore(thresholdTime) ||
-               eventStatus.getStatus() == PROCESSING && message.getEventStartedAt().isBefore(LocalDateTime.now().minusSeconds(15));
+    private boolean isMessageTimedOut(ProfileMessage profileMessage, LocalDateTime thresholdTime, EventStatus eventStatus) {
+        return eventStatus.getStatus() == WAITING && profileMessage.getEventStartedAt().isBefore(thresholdTime) ||
+               eventStatus.getStatus() == PROCESSING && profileMessage.getEventStartedAt().isBefore(LocalDateTime.now().minusSeconds(15));
     }
 
-    private boolean shouldRemovePeek(Message currentMessage, Message peekMessage) {
-        return currentMessage.getEmail().equals(peekMessage.getEmail());
+    private boolean shouldRemovePeek(ProfileMessage currentProfileMessage, ProfileMessage peekProfileMessage) {
+        return currentProfileMessage.getEmail().equals(peekProfileMessage.getEmail());
     }
 }

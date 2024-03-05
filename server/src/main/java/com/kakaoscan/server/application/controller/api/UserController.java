@@ -3,6 +3,7 @@ package com.kakaoscan.server.application.controller.api;
 import com.kakaoscan.server.application.controller.ApiPathPrefix;
 import com.kakaoscan.server.application.dto.request.RegisterRequest;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
+import com.kakaoscan.server.application.port.PointPort;
 import com.kakaoscan.server.application.port.UserPort;
 import com.kakaoscan.server.infrastructure.service.RateLimitService;
 import com.kakaoscan.server.infrastructure.utils.WebUtils;
@@ -24,6 +25,7 @@ import java.time.Duration;
 public class UserController extends ApiPathPrefix {
     private final UserPort userPort;
     private final RateLimitService rateLimitService;
+    private final PointPort pointPort;
 
     @Value("${verify.replace}")
     private String verifyReplace;
@@ -47,5 +49,4 @@ public class UserController extends ApiPathPrefix {
             return apiResponse.getMessage();
         }
     }
-    
 }

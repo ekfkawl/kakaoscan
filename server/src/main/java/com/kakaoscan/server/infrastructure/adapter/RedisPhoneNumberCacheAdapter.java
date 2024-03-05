@@ -1,7 +1,6 @@
 package com.kakaoscan.server.infrastructure.adapter;
 
 import com.kakaoscan.server.application.port.PhoneNumberCachePort;
-import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.search.model.InvalidPhoneNumber;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;

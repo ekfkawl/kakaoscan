@@ -1,5 +1,6 @@
 package com.kakaoscan.server.infrastructure.events.processor;
 
+import com.kakaoscan.server.application.events.handlers.LoginSuccessEventHandler;
 import com.kakaoscan.server.application.events.handlers.SearchEventHandler;
 import com.kakaoscan.server.application.events.handlers.VerificationEmailEventHandler;
 import org.springframework.context.ApplicationContext;
@@ -19,6 +20,7 @@ public class EventProcessorFactory {
 
         registerProcessor("SearchEvent", applicationContext.getBean(SearchEventHandler.class));
         registerProcessor("VerificationEmailEvent", applicationContext.getBean(VerificationEmailEventHandler.class));
+        registerProcessor("LoginSuccessEvent", applicationContext.getBean(LoginSuccessEventHandler.class));
     }
 
     public void registerProcessor(String eventType, EventProcessor eventProcessor) {

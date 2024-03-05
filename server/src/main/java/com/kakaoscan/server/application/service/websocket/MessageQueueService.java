@@ -1,7 +1,7 @@
 package com.kakaoscan.server.application.service.websocket;
 
-import com.kakaoscan.server.domain.search.model.Message;
-import com.kakaoscan.server.domain.search.queue.QueueAggregate;
+import com.kakaoscan.server.domain.search.model.ProfileMessage;
+import com.kakaoscan.server.infrastructure.websocket.queue.ProfileInMemoryQueue;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,13 +11,13 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class MessageQueueService {
-    private final QueueAggregate queue;
+    private final ProfileInMemoryQueue queue;
 
-    public Optional<Message> enqueueAndPeekNext(Message message) {
-        if (!queue.contains(message.getEmail())) {
-            queue.add(message);
+    public Optional<ProfileMessage> enqueueAndPeekNext(ProfileMessage profileMessage) {
+        if (!queue.contains(profileMessage.getEmail())) {
+            queue.add(profileMessage);
         }
-        Optional<Message> optionalMessage = queue.size() == 0 ? Optional.empty() : Optional.of(queue.iterator().next());
+        Optional<ProfileMessage> optionalMessage = queue.size() == 0 ? Optional.empty() : Optional.of(queue.iterator().next());
         optionalMessage.ifPresent(m -> {
             if (m.getEventStartedAt() == null) {
                 m.createEventStartedAt();
@@ -27,10 +27,10 @@ public class MessageQueueService {
         return optionalMessage;
     }
 
-    public Optional<Message> findMessage(String email) {
-        Iterator<Message> iterator = queue.iterator();
+    public Optional<ProfileMessage> findMessage(String email) {
+        Iterator<ProfileMessage> iterator = queue.iterator();
         while (iterator.hasNext()) {
-            Message next = iterator.next();
+            ProfileMessage next = iterator.next();
             if (next.getEmail().equals(email)) {
                 return Optional.of(next);
             }

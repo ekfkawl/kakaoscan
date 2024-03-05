@@ -4,10 +4,10 @@ import com.kakaoscan.server.application.port.EventStatusPort;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
 import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.events.model.SearchEvent;
-import com.kakaoscan.server.domain.search.model.Message;
-import com.kakaoscan.server.domain.search.queue.QueueAggregate;
+import com.kakaoscan.server.domain.search.model.ProfileMessage;
 import com.kakaoscan.server.infrastructure.events.processor.AbstractEventProcessor;
 import com.kakaoscan.server.infrastructure.service.RateLimitService;
+import com.kakaoscan.server.infrastructure.websocket.queue.ProfileInMemoryQueue;
 import io.github.bucket4j.Bucket;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -24,7 +24,7 @@ import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.*;
 @Log4j2
 public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
     private final EventStatusPort eventStatusPort;
-    private final QueueAggregate queue;
+    private final ProfileInMemoryQueue queue;
     private final StompMessageDispatcher messageDispatcher;
     private final RateLimitService rateLimitService;
 
@@ -51,6 +51,6 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
             }
         };
         boolean hasNext = status.getStatus() == WAITING || status.getStatus() == PROCESSING;
-        messageDispatcher.sendToUser(new Message(event.getEmail(), responseMessage, hasNext, status.getStatus() == SUCCESS));
+        messageDispatcher.sendToUser(new ProfileMessage(event.getEmail(), responseMessage, hasNext, status.getStatus() == SUCCESS));
     }
 }
