@@ -24,12 +24,8 @@ public class SearchMessage extends MessageMetadata {
         this.eventStartedAt = null;
     }
 
-    public SearchMessage(String email, String content) {
-        this(email, content, true, false);
-    }
-
-    public SearchMessage(String email, String content, boolean isJsonContent) {
-        this(email, content, true, isJsonContent);
+    public SearchMessage(String email, String content, boolean hasNext) {
+        this(email, content, hasNext, false);
     }
 
     public void createEventStartedAt() {

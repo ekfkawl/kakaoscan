@@ -26,7 +26,7 @@ public class SearchMessageService {
         if (principal != null) {
             final String phoneNumber = originMessage.getContent().trim().replace("-", "");
             if (phoneNumber.length() == 11 && phoneNumber.matches("\\d+")) {
-                return new SearchMessage(principal.getName(), phoneNumber);
+                return new SearchMessage(principal.getName(), phoneNumber, true);
             }else {
                 throw new IllegalArgumentException("message content is not a phone number format");
             }
@@ -41,7 +41,7 @@ public class SearchMessageService {
             return points >= searchCost;
 
         } catch (ConcurrentModificationException e) {
-            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), CONCURRENT_MODIFICATION_POINTS, false, false));
+            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), CONCURRENT_MODIFICATION_POINTS, false));
             return false;
         }
     }

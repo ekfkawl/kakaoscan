@@ -35,7 +35,7 @@ public class SearchEventManagerService {
         boolean isUserTurn = searchMessage.getEmail().equals(peekSearchMessage.getEmail());
         if (!isUserTurn) {
             int waitingCount = queue.size() - 1;
-            messageDispatcher.sendToUser(new SearchMessage(searchMessage.getEmail(), format(SEARCH_QUEUE_WAITING, waitingCount)));
+            messageDispatcher.sendToUser(new SearchMessage(searchMessage.getEmail(), format(SEARCH_QUEUE_WAITING, waitingCount), true));
             return false;
         }
         return true;
@@ -53,7 +53,7 @@ public class SearchEventManagerService {
             if (eventStatus.isPresent() && isMessageTimedOut(next, thresholdTime, eventStatus.get())) {
                 isRemovedPeek = shouldRemovePeek(next, peekSearchMessage);
 
-                messageDispatcher.sendToUser(new SearchMessage(next.getEmail(), SEARCH_ERROR_PING_PONG, false, false));
+                messageDispatcher.sendToUser(new SearchMessage(next.getEmail(), SEARCH_ERROR_PING_PONG, false));
                 iterator.remove();
             }
         }
