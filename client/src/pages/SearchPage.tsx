@@ -1,10 +1,9 @@
 import React, { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 import SearchBar from '../components/SearchBar/SearchBar';
 import Faq from '../components/Faq';
-import useStomp from '../hooks/websocket/useStomp';
 import { Tabs, TabsRef, Toast } from 'flowbite-react';
 import { MdInfo } from 'react-icons/md';
-import { StompResponse } from '../types/stompResponse';
+import { StompProfile } from '../types/stomp/stompProfile';
 import { HiClipboardList, HiPhotograph, HiUserCircle } from 'react-icons/hi';
 import Gallery from '../components/Gallery/Gallery';
 import { useGalleryItems } from '../hooks/ui/useGalleryItems';
@@ -14,17 +13,20 @@ import ScrollToTopButton from '../components/ScrollToTopButton';
 import usePhoneNumberFormat from '../hooks/formats/usePhoneNumberFormat';
 import ProfileThumbPopup from '../components/Popup/ProfileThumbPopup';
 import { useProfileData } from '../hooks/profile/useProfileData';
+import ConfirmPopup from '../components/Popup/ConfirmPopup';
+import { useSubscription } from '../hooks/websocket/useSubscription';
+import useSendMessage from '../hooks/websocket/useSendMessage';
 
 const HYPHEN_PHONE_NUMBER_LENGTH: number = 13;
-const PHONE_NUMBER_LENGTH: number = 11;
 const TOAST_DEFAULT_MESSAGE: string = '전화번호 입력 후 엔터 키를 누르면 프로필 조회를 시작합니다.';
 const TOAST_SUCCESS_MESSAGE: string = '프로필 조회가 완료되었습니다!';
 
 const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
-    const [receivedMessage, setReceivedMessage] = useState<StompResponse | null>(null);
-    const [searchBarText, setSearchBarText] = useState<string>('');
-    const [phoneNumber, setFormattedPhoneNumber, handlePhoneNumberChange] = usePhoneNumberFormat();
-    const { sendMessage } = useStomp('/ws', setReceivedMessage);
+    const sendMessage = useSendMessage();
+    const [stompProfileResponse, setStompProfileResponse] = useState<StompProfile | null>(null);
+
+    const [showSearchConfirmPopup, setShowSearchConfirmPopup] = useState(false);
+    const [phoneNumber, , handlePhoneNumberChange] = usePhoneNumberFormat();
     const tabsRef = useRef<TabsRef>(null);
     const [, setActiveTab] = useState(0);
     const {
@@ -40,7 +42,7 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     const [isProfileCardVisible, setIsProfileCardVisible] = useState<boolean>(false);
 
     const { profileData } = useProfileData({
-        json: (receivedMessage && receivedMessage.jsonContent && receivedMessage.content) || '',
+        json: (stompProfileResponse && stompProfileResponse.jsonContent && stompProfileResponse.content) || '',
         clearProfileItems: clearProfileItems,
         clearBackgroundItems: clearBackgroundItems,
         addProfileItem: addProfileItem,
@@ -52,34 +54,18 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     const scrollTopRef = useRef<HTMLDivElement>(null);
     const { isVisible: isVisibleScrollToTop } = useScrollToComponent(scrollTopRef);
 
-    const handleSendMessage = useCallback(
+    useSubscription<StompProfile>('/user/queue/message/profile', setStompProfileResponse);
+    const handleSendProfile = useCallback(
         (content: string) => {
-            sendMessage('/pub/send', { content });
+            sendMessage('/pub/profile', { content: content });
         },
         [sendMessage],
     );
 
-    const handleSearchBarKeyPress = useCallback(
-        (e: React.KeyboardEvent<HTMLInputElement>) => {
-            const trimmedValue = e.currentTarget.value.trim();
-            if (e.key === 'Enter' && trimmedValue.length === HYPHEN_PHONE_NUMBER_LENGTH) {
-                handleSendMessage(trimmedValue);
-                setSearchBarText(trimmedValue);
-            }
-        },
-        [handleSendMessage],
-    );
-
-    const [showProfileThumbPopup, setProfileThumbPopup] = useState(false);
-
     useEffect(() => {
         let timeoutId: NodeJS.Timeout | null = null;
-        if (receivedMessage?.hasNext) {
-            if (receivedMessage.content && receivedMessage.content.length === PHONE_NUMBER_LENGTH) {
-                setSearchBarText(receivedMessage.content);
-                setFormattedPhoneNumber(receivedMessage.content);
-            }
-            timeoutId = setTimeout(() => handleSendMessage(searchBarText), 100);
+        if (stompProfileResponse?.hasNext) {
+            timeoutId = setTimeout(() => handleSendProfile(phoneNumber), 100);
         }
 
         return () => {
@@ -87,14 +73,28 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                 clearTimeout(timeoutId);
             }
         };
-    }, [receivedMessage, searchBarText, handleSendMessage, setFormattedPhoneNumber]);
+    }, [stompProfileResponse, phoneNumber, handleSendProfile]);
 
     useEffect(() => {
-        if (receivedMessage && receivedMessage.jsonContent && receivedMessage.content) {
+        if (stompProfileResponse && stompProfileResponse.jsonContent && stompProfileResponse.content) {
             tabsRef.current?.setActiveTab(0);
             setIsProfileCardVisible(true);
         }
-    }, [receivedMessage]);
+    }, [stompProfileResponse]);
+
+    const handleConfirmSendMessage = useCallback(() => {
+        handleSendProfile(phoneNumber);
+        setShowSearchConfirmPopup(false);
+    }, [handleSendProfile, phoneNumber]);
+
+    const handleSearchBarKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+        const trimmedValue = e.currentTarget.value.trim();
+        if (e.key === 'Enter' && trimmedValue.length === HYPHEN_PHONE_NUMBER_LENGTH) {
+            setShowSearchConfirmPopup(true);
+        }
+    }, []);
+
+    const [showProfileThumbPopup, setProfileThumbPopup] = useState(false);
 
     return (
         <section className="bg-white dark:bg-gray-900">
@@ -103,11 +103,26 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                     value={phoneNumber}
                     onChange={handlePhoneNumberChange}
                     onKeyPress={handleSearchBarKeyPress}
+                    onSearchClick={() => {
+                        if (phoneNumber.length === HYPHEN_PHONE_NUMBER_LENGTH) {
+                            setShowSearchConfirmPopup(true);
+                        }
+                    }}
                 />
+                {showSearchConfirmPopup && (
+                    <ConfirmPopup
+                        show={showSearchConfirmPopup}
+                        onClose={() => setShowSearchConfirmPopup(false)}
+                        title="포인트 차감 안내"
+                        description="프로필 조회에 성공하면 500 포인트가 차감됩니다. 계속 진행하시겠어요?"
+                        onConfirm={handleConfirmSendMessage}
+                        learnMoreLink="/"
+                    />
+                )}
                 <MessageToast
                     message={
-                        (!receivedMessage?.jsonContent && receivedMessage?.content) ||
-                        (receivedMessage?.jsonContent && TOAST_SUCCESS_MESSAGE) ||
+                        (!stompProfileResponse?.jsonContent && stompProfileResponse?.content) ||
+                        (stompProfileResponse?.jsonContent && TOAST_SUCCESS_MESSAGE) ||
                         TOAST_DEFAULT_MESSAGE
                     }
                 />
@@ -138,9 +153,9 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                 >
                     <Tabs.Item title="프로필" icon={HiUserCircle}>
                         <Gallery items={profileItems} />
-                        {receivedMessage &&
-                            receivedMessage.jsonContent &&
-                            receivedMessage.content &&
+                        {stompProfileResponse &&
+                            stompProfileResponse.jsonContent &&
+                            stompProfileResponse.content &&
                             profileItems.length === 0 && (
                                 <p className="mt-3 mb-4 max-w-sm text-gray-500 dark:text-gray-400">
                                     등록 된 프로필 사진이 없습니다.
@@ -149,9 +164,9 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                     </Tabs.Item>
                     <Tabs.Item title="백그라운드" icon={HiPhotograph}>
                         <Gallery items={backgroundItems} />
-                        {receivedMessage &&
-                            receivedMessage.jsonContent &&
-                            receivedMessage.content &&
+                        {stompProfileResponse &&
+                            stompProfileResponse.jsonContent &&
+                            stompProfileResponse.content &&
                             backgroundItems.length === 0 && (
                                 <p className="mt-3 mb-4 max-w-sm text-gray-500 dark:text-gray-400">
                                     등록 된 배경 사진이 없습니다.
