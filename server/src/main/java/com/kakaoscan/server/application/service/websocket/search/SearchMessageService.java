@@ -12,7 +12,6 @@ import java.security.Principal;
 import java.util.ConcurrentModificationException;
 
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.CONCURRENT_MODIFICATION_POINTS;
-import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.NOT_ENOUGH_POINTS;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +19,7 @@ public class SearchMessageService {
     private final StompMessageDispatcher messageDispatcher;
     private final PointPort pointPort;
 
-    @Value("${search.cost}")
+    @Value("${search.profile.cost}")
     private int searchCost;
 
     public SearchMessage createSearchMessage(Principal principal, SearchMessage.OriginMessage originMessage) {

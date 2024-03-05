@@ -31,7 +31,7 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
     private final RateLimitService rateLimitService;
     private final PointPort pointPort;
 
-    @Value("${search.cost}")
+    @Value("${search.profile.cost}")
     private int searchCost;
 
     @Override
@@ -62,9 +62,14 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
         if (status.getStatus() == SUCCESS && !hasNext) {
             int cachePoints = pointPort.getPointsFromCache(event.getEmail());
             pointPort.cachePoints(event.getEmail(), cachePoints - searchCost);
-            pointPort.deductPoints(event.getEmail(), searchCost);
 
-            log.info("deduct points: {}", event.getEmail());
+            try {
+                if (pointPort.deductPoints(event.getEmail(), searchCost)) {
+                    log.info("deduct points: {} ({}-{}={})", event.getEmail(), cachePoints, searchCost, cachePoints - searchCost);
+                }
+            } catch (Exception e) {
+                log.error("error deducting points user: {}, {}", event.getEmail(), e.getMessage(), e);
+            }
         }
     }
 }
