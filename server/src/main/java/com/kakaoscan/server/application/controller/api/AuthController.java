@@ -1,6 +1,6 @@
 package com.kakaoscan.server.application.controller.api;
 
-import com.kakaoscan.server.application.controller.ApiPathPrefix;
+import com.kakaoscan.server.application.controller.ApiEndpointPrefix;
 import com.kakaoscan.server.application.dto.request.LoginRequest;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.application.dto.response.LoginResponse;
@@ -36,7 +36,7 @@ import static com.kakaoscan.server.infrastructure.redis.enums.Topics.OTHER_EVENT
 @RequiredArgsConstructor
 @RestController
 @Tag(name = "Authenticate", description = "Authenticate API")
-public class AuthController extends ApiPathPrefix {
+public class AuthController extends ApiEndpointPrefix {
     private final JwtTokenUtils jwtTokenUtils;
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthPort authPort;
