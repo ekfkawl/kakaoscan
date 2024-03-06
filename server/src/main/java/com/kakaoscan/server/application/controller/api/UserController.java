@@ -1,6 +1,6 @@
 package com.kakaoscan.server.application.controller.api;
 
-import com.kakaoscan.server.application.controller.ApiPathPrefix;
+import com.kakaoscan.server.application.controller.ApiEndpointPrefix;
 import com.kakaoscan.server.application.dto.request.RegisterRequest;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.application.port.PointPort;
@@ -22,7 +22,7 @@ import java.time.Duration;
 @RequiredArgsConstructor
 @RestController
 @Tag(name = "User", description = "User API")
-public class UserController extends ApiPathPrefix {
+public class UserController extends ApiEndpointPrefix {
     private final UserPort userPort;
     private final RateLimitService rateLimitService;
     private final PointPort pointPort;
