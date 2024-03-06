@@ -1,6 +1,7 @@
 package com.kakaoscan.server.domain.user.entity;
 
 import com.kakaoscan.server.domain.point.entity.Point;
+import com.kakaoscan.server.domain.search.entity.SearchHistory;
 import com.kakaoscan.server.domain.user.enums.AuthenticationType;
 import com.kakaoscan.server.domain.user.enums.Role;
 import jakarta.persistence.*;
@@ -62,6 +63,9 @@ public class User {
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
     private Point point;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<SearchHistory> searchHistories = new HashSet<>();
 
     protected User() {
     }

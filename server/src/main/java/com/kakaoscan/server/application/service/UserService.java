@@ -8,6 +8,7 @@ import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -18,6 +19,7 @@ public class UserService {
 
     private static final String ALREADY_REGISTERED_EMAIL = "이미 가입된 이메일입니다.";
 
+    @Transactional
     public User registerUser(String email, String password) {
         Optional<User> existingUser = userRepository.findByEmail(email);
         if (existingUser.isPresent()) {
@@ -38,6 +40,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public User findOrRegisterOAuthUser(String email, AuthenticationType authenticationType) {
         return userRepository.findByEmail(email)
                 .orElseGet(() -> {

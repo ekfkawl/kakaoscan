@@ -5,7 +5,11 @@ import com.kakaoscan.server.application.port.PointPort;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
 import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.events.model.SearchEvent;
+import com.kakaoscan.server.domain.search.entity.SearchHistory;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
+import com.kakaoscan.server.domain.search.model.SearchResult;
+import com.kakaoscan.server.domain.user.repository.SearchRepository;
+import com.kakaoscan.server.domain.user.repository.UserRepository;
 import com.kakaoscan.server.infrastructure.events.processor.AbstractEventProcessor;
 import com.kakaoscan.server.infrastructure.service.RateLimitService;
 import com.kakaoscan.server.infrastructure.websocket.queue.SearchInMemoryQueue;
@@ -20,6 +24,8 @@ import java.util.Optional;
 
 import static com.kakaoscan.server.domain.events.enums.EventStatusEnum.*;
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.*;
+import static com.kakaoscan.server.infrastructure.serialization.JsonDeserialize.deserialize;
+import static com.kakaoscan.server.infrastructure.serialization.JsonSerialize.serialize;
 
 @Component
 @RequiredArgsConstructor
@@ -30,6 +36,8 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
     private final StompMessageDispatcher messageDispatcher;
     private final RateLimitService rateLimitService;
     private final PointPort pointPort;
+    private final UserRepository userRepository;
+    private final SearchRepository searchRepository;
 
     @Value("${search.profile.cost}")
     private int searchCost;
@@ -59,17 +67,39 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
         boolean hasNext = status.getStatus() == WAITING || status.getStatus() == PROCESSING;
         messageDispatcher.sendToUser(new SearchMessage(event.getEmail(), responseMessage, hasNext, status.getStatus() == SUCCESS));
 
-        if (status.getStatus() == SUCCESS && !hasNext) {
-            int cachePoints = pointPort.getPointsFromCache(event.getEmail());
-            pointPort.cachePoints(event.getEmail(), cachePoints - searchCost);
-
-            try {
-                if (pointPort.deductPoints(event.getEmail(), searchCost)) {
-                    log.info("deduct points: {} ({}-{}={})", event.getEmail(), cachePoints, searchCost, cachePoints - searchCost);
-                }
-            } catch (Exception e) {
-                log.error("error deducting points user: {}, {}", event.getEmail(), e.getMessage(), e);
-            }
+        if (deductPoints(event.getEmail(), status)) {
+            SearchResult searchResult = deserialize(responseMessage, SearchResult.class);
+            saveSearchData(event.getEmail(), event.getPhoneNumber(), serialize(searchResult));
         }
+    }
+
+    private boolean deductPoints(String userId, EventStatus status) {
+        if (status.getStatus() != SUCCESS) {
+            return false;
+        }
+
+        int cachePoints = pointPort.getPointsFromCache(userId);
+        pointPort.cachePoints(userId, cachePoints - searchCost);
+
+        try {
+            if (pointPort.deductPoints(userId, searchCost)) {
+                log.info("deduct points: {} ({}-{}={})", userId, cachePoints, searchCost, cachePoints - searchCost);
+                return true;
+            }
+        } catch (Exception e) {
+            log.error("error deducting points user: {}, {}", userId, e.getMessage(), e);
+        }
+
+        return false;
+    }
+
+    private void saveSearchData(String userId, String targetPhoneNumber, String data) {
+        userRepository.findByEmail(userId).ifPresent(user -> {
+            searchRepository.save(SearchHistory.builder()
+                    .user(user)
+                    .targetPhoneNumber(targetPhoneNumber)
+                    .data(data)
+                    .build());
+        });
     }
 }
