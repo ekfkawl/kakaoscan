@@ -1,6 +1,7 @@
 import React from 'react';
 import { Carousel } from 'flowbite-react';
 import { MusicInfo } from '../types/profileData';
+import timestampToDate from "../utils/datetime/convert";
 
 interface ProfileMusicProps {
     musicInfo: MusicInfo[];
@@ -24,6 +25,7 @@ const ProfileMusic: React.FC<ProfileMusicProps> = ({ musicInfo }) => {
                             <div className="text-center p-4">
                                 <p className="font-bold">{music.contentName}</p>
                                 <p>{music.artistName}</p>
+                                <p>{timestampToDate(music.updatedAt)}</p>
                             </div>
                         </div>
                     </div>
