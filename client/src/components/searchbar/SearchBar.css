@@ -22,6 +22,6 @@
 }
 
 .search_logo .ico_svg {
-    display: block
+    display: block;
+    cursor: pointer;
 }
-
