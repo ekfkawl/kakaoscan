@@ -15,7 +15,7 @@ import ProfileThumbPopup from '../components/Popup/ProfileThumbPopup';
 import { useProfileData } from '../hooks/profile/useProfileData';
 import ConfirmPopup from '../components/Popup/ConfirmPopup';
 import { useSubscription } from '../hooks/websocket/useSubscription';
-import useSendMessage from '../hooks/websocket/useSendMessage';
+import { useSendMessage } from '../hooks/websocket/useSendMessage';
 
 const HYPHEN_PHONE_NUMBER_LENGTH: number = 13;
 const TOAST_DEFAULT_MESSAGE: string = '전화번호 입력 후 엔터 키를 누르면 프로필 조회를 시작합니다.';
@@ -26,7 +26,7 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     const [stompProfileResponse, setStompProfileResponse] = useState<StompProfile | null>(null);
 
     const [showSearchConfirmPopup, setShowSearchConfirmPopup] = useState(false);
-    const [phoneNumber, , handlePhoneNumberChange] = usePhoneNumberFormat();
+    const [phoneNumber, setFormattedPhoneNumber, handlePhoneNumberChange] = usePhoneNumberFormat();
     const tabsRef = useRef<TabsRef>(null);
     const [, setActiveTab] = useState(0);
     const {
@@ -40,9 +40,8 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
         clearGalleryItems: clearBackgroundItems,
     } = useGalleryItems();
     const [isProfileCardVisible, setIsProfileCardVisible] = useState<boolean>(false);
-
     const { profileData } = useProfileData({
-        json: (stompProfileResponse && stompProfileResponse.jsonContent && stompProfileResponse.content) || '',
+        data: (stompProfileResponse && stompProfileResponse.jsonContent && stompProfileResponse.content) || '',
         clearProfileItems: clearProfileItems,
         clearBackgroundItems: clearBackgroundItems,
         addProfileItem: addProfileItem,
@@ -54,10 +53,10 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     const scrollTopRef = useRef<HTMLDivElement>(null);
     const { isVisible: isVisibleScrollToTop } = useScrollToComponent(scrollTopRef);
 
-    useSubscription<StompProfile>('/user/queue/message/profile', setStompProfileResponse);
+    useSubscription<StompProfile>('/user/queue/message/search', setStompProfileResponse);
     const handleSendProfile = useCallback(
         (content: string) => {
-            sendMessage('/pub/profile', { content: content });
+            sendMessage('/pub/search', { content: content });
         },
         [sendMessage],
     );
@@ -65,6 +64,7 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     useEffect(() => {
         let timeoutId: NodeJS.Timeout | null = null;
         if (stompProfileResponse?.hasNext) {
+            setFormattedPhoneNumber(phoneNumber || stompProfileResponse?.content || '');
             timeoutId = setTimeout(() => handleSendProfile(phoneNumber), 100);
         }
 
@@ -97,88 +97,86 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     const [showProfileThumbPopup, setProfileThumbPopup] = useState(false);
 
     return (
-        <section className="bg-white dark:bg-gray-900">
-            <div className="relative">
-                <SearchBar
-                    value={phoneNumber}
-                    onChange={handlePhoneNumberChange}
-                    onKeyPress={handleSearchBarKeyPress}
-                    onSearchClick={() => {
-                        if (phoneNumber.length === HYPHEN_PHONE_NUMBER_LENGTH) {
-                            setShowSearchConfirmPopup(true);
-                        }
-                    }}
-                />
-                {showSearchConfirmPopup && (
-                    <ConfirmPopup
-                        show={showSearchConfirmPopup}
-                        onClose={() => setShowSearchConfirmPopup(false)}
-                        title="포인트 차감 안내"
-                        description="프로필 조회에 성공하면 500 포인트가 차감됩니다. 계속 진행하시겠어요?"
-                        onConfirm={handleConfirmSendMessage}
-                        learnMoreLink="/"
-                    />
-                )}
-                <MessageToast
-                    message={
-                        (!stompProfileResponse?.jsonContent && stompProfileResponse?.content) ||
-                        (stompProfileResponse?.jsonContent && TOAST_SUCCESS_MESSAGE) ||
-                        TOAST_DEFAULT_MESSAGE
+        <div className="relative">
+            <SearchBar
+                value={phoneNumber}
+                onChange={handlePhoneNumberChange}
+                onKeyPress={handleSearchBarKeyPress}
+                onSearchClick={() => {
+                    if (phoneNumber.length === HYPHEN_PHONE_NUMBER_LENGTH) {
+                        setShowSearchConfirmPopup(true);
                     }
+                }}
+            />
+            {showSearchConfirmPopup && (
+                <ConfirmPopup
+                    show={showSearchConfirmPopup}
+                    onClose={() => setShowSearchConfirmPopup(false)}
+                    title="포인트 차감 안내"
+                    description="프로필 조회에 성공하면 500 포인트가 차감됩니다. 계속 진행하시겠어요?"
+                    onConfirm={handleConfirmSendMessage}
+                    learnMoreLink="/"
                 />
-                {isProfileCardVisible && profileData && (
-                    <>
-                        <ProfileCard
-                            profileImageUrl={profileData.profileImageUrl}
-                            name={profileData.name}
-                            statusMessage={profileData.statusMessage}
-                            onImageClick={() => setProfileThumbPopup(true)}
-                        />
-                        <ProfileThumbPopup
-                            show={showProfileThumbPopup}
-                            onClose={() => setProfileThumbPopup(false)}
-                            storyUrl={profileData.url}
-                            profileCaptureUrl={profileData.profileCaptureUrl}
-                            phoneNumber={phoneNumber}
-                            musicInfo={profileData.musicInfo}
-                        />
-                    </>
-                )}
-                <div ref={scrollTopRef}>{!isVisibleScrollToTop && <ScrollToTopButton />}</div>
-                <Tabs
-                    aria-label="Tabs with underline"
-                    style="underline"
-                    ref={tabsRef}
-                    onActiveTabChange={(tab) => setActiveTab(tab)}
-                >
-                    <Tabs.Item title="프로필" icon={HiUserCircle}>
-                        <Gallery items={profileItems} />
-                        {stompProfileResponse &&
-                            stompProfileResponse.jsonContent &&
-                            stompProfileResponse.content &&
-                            profileItems.length === 0 && (
-                                <p className="mt-3 mb-4 max-w-sm text-gray-500 dark:text-gray-400">
-                                    등록 된 프로필 사진이 없습니다.
-                                </p>
-                            )}
-                    </Tabs.Item>
-                    <Tabs.Item title="백그라운드" icon={HiPhotograph}>
-                        <Gallery items={backgroundItems} />
-                        {stompProfileResponse &&
-                            stompProfileResponse.jsonContent &&
-                            stompProfileResponse.content &&
-                            backgroundItems.length === 0 && (
-                                <p className="mt-3 mb-4 max-w-sm text-gray-500 dark:text-gray-400">
-                                    등록 된 배경 사진이 없습니다.
-                                </p>
-                            )}
-                    </Tabs.Item>
-                    <Tabs.Item active title="FAQ" icon={HiClipboardList}>
-                        <Faq />
-                    </Tabs.Item>
-                </Tabs>
-            </div>
-        </section>
+            )}
+            <MessageToast
+                message={
+                    (!stompProfileResponse?.jsonContent && stompProfileResponse?.content) ||
+                    (stompProfileResponse?.jsonContent && TOAST_SUCCESS_MESSAGE) ||
+                    TOAST_DEFAULT_MESSAGE
+                }
+            />
+            {isProfileCardVisible && profileData && (
+                <>
+                    <ProfileCard
+                        profileImageUrl={profileData.profileImageUrl}
+                        name={profileData.name}
+                        statusMessage={profileData.statusMessage}
+                        onImageClick={() => setProfileThumbPopup(true)}
+                    />
+                    <ProfileThumbPopup
+                        show={showProfileThumbPopup}
+                        onClose={() => setProfileThumbPopup(false)}
+                        storyUrl={profileData.url}
+                        profileCaptureUrl={profileData.profileCaptureUrl}
+                        phoneNumber={phoneNumber}
+                        musicInfo={profileData.musicInfo}
+                    />
+                </>
+            )}
+            <div ref={scrollTopRef}>{!isVisibleScrollToTop && <ScrollToTopButton />}</div>
+            <Tabs
+                aria-label="Tabs with underline"
+                style="underline"
+                ref={tabsRef}
+                onActiveTabChange={(tab) => setActiveTab(tab)}
+            >
+                <Tabs.Item title="프로필" icon={HiUserCircle}>
+                    <Gallery items={profileItems} />
+                    {stompProfileResponse &&
+                        stompProfileResponse.jsonContent &&
+                        stompProfileResponse.content &&
+                        profileItems.length === 0 && (
+                            <p className="mt-3 mb-4 max-w-sm text-gray-500 dark:text-gray-400">
+                                등록 된 프로필 사진이 없습니다.
+                            </p>
+                        )}
+                </Tabs.Item>
+                <Tabs.Item title="백그라운드" icon={HiPhotograph}>
+                    <Gallery items={backgroundItems} />
+                    {stompProfileResponse &&
+                        stompProfileResponse.jsonContent &&
+                        stompProfileResponse.content &&
+                        backgroundItems.length === 0 && (
+                            <p className="mt-3 mb-4 max-w-sm text-gray-500 dark:text-gray-400">
+                                등록 된 배경 사진이 없습니다.
+                            </p>
+                        )}
+                </Tabs.Item>
+                <Tabs.Item active title="FAQ" icon={HiClipboardList}>
+                    <Faq />
+                </Tabs.Item>
+            </Tabs>
+        </div>
     );
 };
 
