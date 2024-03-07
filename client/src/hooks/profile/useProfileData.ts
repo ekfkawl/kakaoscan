@@ -29,7 +29,7 @@ function renderFeeds(feeds: any[], addItem: (item: any) => void) {
                 id: feed.id,
                 src: srcUrl,
                 thumb: content.value,
-                subHtml: `<p>${feed.isCurrent ? '현재 프로필' : timestampToDate(feed.updatedAt)}</p>`,
+                subHtml: `<p>${timestampToDate(feed.updatedAt)}</p>`,
             });
         });
     });
@@ -80,6 +80,7 @@ export const useProfileData = ({
                     contentName: music.contentName,
                     artistName: music.artistList.map((artist: any) => artist.artistName).join(', '),
                     imageUrl: music.contentImgPath,
+                    updatedAt: music.updatedAt
                 });
             });
         }
