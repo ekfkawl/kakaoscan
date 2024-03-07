@@ -34,7 +34,7 @@ const Gallery: React.FC<GalleryProps> = React.memo(({ items }) => {
             const isMp4 = item.src?.endsWith('.mp4');
             return (
                 <a
-                    key={item.id}
+                    key={item.id + uuidv4()}
                     className="gallery-item"
                     data-src={item.src}
                     data-sub-html={item.subHtml}
