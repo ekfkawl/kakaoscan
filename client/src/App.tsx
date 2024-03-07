@@ -1,24 +1,14 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import AuthPage from './pages/AuthPage';
 import LoginForm from './components/Auth/LoginForm';
 import RegisterForm from './components/Auth/RegisterForm';
 import AppLayout from './components/AppLayout';
-import { refreshToken } from './utils/jwt/refreshToken';
 import SearchPage from './pages/SearchPage';
 import ProtectedRoute from './components/ProtectedRoute';
-import { useDispatch } from 'react-redux';
-import { setInitialized } from './redux/slices/authSlice';
+import SearchHistory from './pages/SearchHistory';
 
 const App = () => {
-    const dispatch = useDispatch();
-
-    useEffect(() => {
-        refreshToken().finally(() => {
-            dispatch(setInitialized());
-        });
-    }, [dispatch]);
-
     return (
         <BrowserRouter>
             <Routes>
@@ -28,6 +18,14 @@ const App = () => {
                         element={
                             <ProtectedRoute>
                                 <SearchPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="search-history"
+                        element={
+                            <ProtectedRoute>
+                                <SearchHistory />
                             </ProtectedRoute>
                         }
                     />
