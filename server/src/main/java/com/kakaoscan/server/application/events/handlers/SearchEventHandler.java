@@ -2,14 +2,12 @@ package com.kakaoscan.server.application.events.handlers;
 
 import com.kakaoscan.server.application.port.EventStatusPort;
 import com.kakaoscan.server.application.port.PointPort;
+import com.kakaoscan.server.application.service.SearchHistoryService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
 import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.events.model.SearchEvent;
-import com.kakaoscan.server.domain.search.entity.SearchHistory;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.domain.search.model.SearchResult;
-import com.kakaoscan.server.domain.user.repository.SearchRepository;
-import com.kakaoscan.server.domain.user.repository.UserRepository;
 import com.kakaoscan.server.infrastructure.events.processor.AbstractEventProcessor;
 import com.kakaoscan.server.infrastructure.service.RateLimitService;
 import com.kakaoscan.server.infrastructure.websocket.queue.SearchInMemoryQueue;
@@ -36,8 +34,7 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
     private final StompMessageDispatcher messageDispatcher;
     private final RateLimitService rateLimitService;
     private final PointPort pointPort;
-    private final UserRepository userRepository;
-    private final SearchRepository searchRepository;
+    private final SearchHistoryService searchHistoryService;
 
     @Value("${search.profile.cost}")
     private int searchCost;
@@ -69,7 +66,7 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
 
         if (deductPoints(event.getEmail(), status)) {
             SearchResult searchResult = deserialize(responseMessage, SearchResult.class);
-            saveSearchData(event.getEmail(), event.getPhoneNumber(), serialize(searchResult));
+            searchHistoryService.recordUserSearchHistory(event.getEmail(), event.getPhoneNumber(), serialize(searchResult));
         }
     }
 
@@ -91,15 +88,5 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
         }
 
         return false;
-    }
-
-    private void saveSearchData(String userId, String targetPhoneNumber, String data) {
-        userRepository.findByEmail(userId).ifPresent(user -> {
-            searchRepository.save(SearchHistory.builder()
-                    .user(user)
-                    .targetPhoneNumber(targetPhoneNumber)
-                    .data(data)
-                    .build());
-        });
     }
 }
