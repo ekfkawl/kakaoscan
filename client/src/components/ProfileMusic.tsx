@@ -1,7 +1,7 @@
 import React from 'react';
 import { Carousel } from 'flowbite-react';
 import { MusicInfo } from '../types/profileData';
-import timestampToDate from "../utils/datetime/convert";
+import { timestampToDate } from '../utils/datetime/convert';
 
 interface ProfileMusicProps {
     musicInfo: MusicInfo[];
