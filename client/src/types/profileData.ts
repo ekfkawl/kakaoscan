@@ -11,4 +11,5 @@ export interface MusicInfo {
     imageUrl: string;
     contentName: string;
     artistName: string;
+    updatedAt: number;
 }
