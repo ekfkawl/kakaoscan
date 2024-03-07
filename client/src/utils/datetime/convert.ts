@@ -1,5 +1,5 @@
 function timestampToDate(timestamp: number): string {
-    const date = new Date(timestamp * 1000);
+    const date = new Date(timestamp.toString().length === 10 ? timestamp * 1000 : timestamp);
     const formatter = new Intl.DateTimeFormat('ko-KR', {
         year: 'numeric',
         month: '2-digit',
