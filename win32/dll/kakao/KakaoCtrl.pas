@@ -145,6 +145,19 @@ begin
       if EnumInfo.FoundHandle = 0 then
         Exit;
 
+      const EditFriend = procedure(ViewFriendHandle: THandle)
+      begin
+        Click(ViewFriendHandle, 210, 444);
+      end;
+      IsCalledFriendNameHook:= False;
+
+      Tick:= GetTickCount64 + 3000;
+      while (not IsCalledFriendNameHook) and (Tick > GetTickCount64) do
+      begin
+        Sleep(100);
+        EditFriend(EnumInfo.FoundHandle);
+      end;
+
       Sleep(1000);
       Guard(Bitmap, GetProfileScreen(EnumInfo.FoundHandle));
       Res.ScreenToBase64:= BitmapToBase64String(Bitmap);
@@ -160,7 +173,6 @@ const
   BTN_XY: Array [0..1, 0..1] of Integer = ((150, 390), (20, 20));
 var
   EnumInfo: TEnumInfo;
-  ProfileStructure: Pointer;
   Tick: UInt64;
 begin
   Result:= TTask.Future<TFeedsContainer>(function: TFeedsContainer

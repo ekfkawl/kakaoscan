@@ -13,6 +13,9 @@ function GetProfileStructure: DWORD;
 function GetMoreProfile: TFeedsContainer;
 procedure CleanUpMemory;
 
+var
+  IsCalledFriendNameHook: Boolean;
+
 implementation
 
 var
@@ -179,13 +182,11 @@ end;
 function FriendNameHook(pName: Pointer): Pointer; stdcall;
   procedure _FriendNameHook(pName: Pointer); stdcall;
   var
-    pOriginName: PWideChar;
-    OriginName: string;
+    OriginName: UnicodeString;
   begin
-    pOriginName:= PPointer(DWORD(pName) - $14)^;
-    const OriginNameSize = PDWORD(DWORD(pOriginName) - 8)^;
-    OriginName:= UTF8ArrayToString(pOriginName, OriginNameSize);
+    OriginName:= PWideChar(Ptr(DWORD(pName) + $18));
     ViewFriendName:= OriginName;
+    IsCalledFriendNameHook:= True;
   end;
 asm
   pushad
@@ -212,16 +213,10 @@ initialization
 
   with Scanner do
   begin
-    AOBSCAN(SIG_GET_FRIEND_NAME1, 0, procedure(Address: DWORD)
+    AOBSCAN(SIG_GET_FRIEND_NAME, 0, procedure(Address: DWORD)
     begin
-      WriteProtectedMemory1(Address + 8, 1);
-    end);
-
-    AOBSCAN(SIG_GET_FRIEND_NAME2, 0, procedure(Address: DWORD)
-    begin
-      WriteProtectedMemory2(Address - 2, $9090);
-      pOriginFriendName:= Ptr(GetCallAddress(Address + 7));
-      CallHook(Address + 7, @FriendNameHook);
+      pOriginFriendName:= Ptr(GetCallAddress(Address + $1A));
+      CallHook(Address + $1A, @FriendNameHook);
     end);
 
     AOBSCAN(SIG_GET_SEARCH_COUNT, 0, procedure(Address: DWORD)
