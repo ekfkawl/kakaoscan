@@ -64,17 +64,13 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
         boolean hasNext = status.getStatus() == WAITING || status.getStatus() == PROCESSING;
         messageDispatcher.sendToUser(new SearchMessage(event.getEmail(), responseMessage, hasNext, status.getStatus() == SUCCESS));
 
-        if (deductPoints(event.getEmail(), status)) {
+        if (status.getStatus() == SUCCESS && deductPoints(event.getEmail(), status)) {
             SearchResult searchResult = deserialize(responseMessage, SearchResult.class);
             searchHistoryService.recordUserSearchHistory(event.getEmail(), event.getPhoneNumber(), serialize(searchResult));
         }
     }
 
     private boolean deductPoints(String userId, EventStatus status) {
-        if (status.getStatus() != SUCCESS) {
-            return false;
-        }
-
         int cachePoints = pointPort.getPointsFromCache(userId);
         pointPort.cachePoints(userId, cachePoints - searchCost);
 

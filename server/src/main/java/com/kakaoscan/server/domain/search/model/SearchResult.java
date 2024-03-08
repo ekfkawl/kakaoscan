@@ -1,10 +1,14 @@
 package com.kakaoscan.server.domain.search.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 public class SearchResult {
     private Profile profile;
     private int status;

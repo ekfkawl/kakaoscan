@@ -21,10 +21,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,13 +39,6 @@ public class AuthController extends ApiEndpointPrefix {
     private final AuthPort authPort;
     private final GoogleUserDetailsService googleUserDetailsService;
     private final EventPublisher eventPublisher;
-
-    @PreAuthorize("hasAnyRole('ROLE_USER')")
-    @GetMapping("/login/test")
-    public String test(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
-        System.out.println(customUserDetails.getUsername());
-        return "dasdasd";
-    }
 
     @PostMapping("/login")
     @Operation(summary = "Returns AccessToken and RefreshToken", description = "AccessToken validity is 1 hour")
