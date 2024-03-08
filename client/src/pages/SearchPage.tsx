@@ -136,7 +136,7 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                     <ProfileThumbPopup
                         show={showProfileThumbPopup}
                         onClose={() => setProfileThumbPopup(false)}
-                        storyUrl={profileData.url}
+                        storyUrl={profileData.storyWebUrl}
                         profileCaptureUrl={profileData.profileCaptureUrl}
                         phoneNumber={phoneNumber}
                         musicInfo={profileData.musicInfo}
@@ -150,7 +150,7 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                 ref={tabsRef}
                 onActiveTabChange={(tab) => setActiveTab(tab)}
             >
-                <Tabs.Item title="프로필" icon={HiUserCircle}>
+                <Tabs.Item title={`프로필 (${profileItems.length})`} icon={HiUserCircle}>
                     <Gallery items={profileItems} />
                     {stompProfileResponse &&
                         stompProfileResponse.jsonContent &&
@@ -161,7 +161,7 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                             </p>
                         )}
                 </Tabs.Item>
-                <Tabs.Item title="백그라운드" icon={HiPhotograph}>
+                <Tabs.Item title={`백그라운드 (${backgroundItems.length})`} icon={HiPhotograph}>
                     <Gallery items={backgroundItems} />
                     {stompProfileResponse &&
                         stompProfileResponse.jsonContent &&
@@ -185,7 +185,7 @@ const MessageToast: React.FC<{ message: string }> = ({ message }) => (
         <div className="flex justify-center">
             <div className="pl-4 text-sm font-normal">
                 <Toast>
-                    <MdInfo className="h-5 w-5 text-[#03C75C] dark:text-blue-500" />
+                    <MdInfo className="h-6 w-6 lg:h-5 lg:w-5 text-[#03C75C] dark:text-blue-500" />
                     <div className="pl-4 text-sm font-normal">{message}</div>
                 </Toast>
             </div>

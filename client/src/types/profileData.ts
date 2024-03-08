@@ -2,7 +2,7 @@ export interface ProfileData {
     profileCaptureUrl: string;
     profileImageUrl?: string;
     name?: string;
-    url?: string;
+    storyWebUrl?: string;
     statusMessage?: string;
     musicInfo?: MusicInfo[];
 }

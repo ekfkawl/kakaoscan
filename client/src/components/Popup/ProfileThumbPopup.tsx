@@ -7,7 +7,7 @@ import ProfileMusic from '../ProfileMusic';
 interface ProfileThumbPopupProps {
     show: boolean;
     onClose: () => void;
-    profileCaptureUrl: string;
+    profileCaptureUrl?: string;
     storyUrl?: string;
     phoneNumber: string;
     musicInfo?: MusicInfo[];
@@ -40,9 +40,11 @@ const ProfileThumbPopup: FC<ProfileThumbPopupProps> = ({
                 >
                     <Modal.Header />
                     <Modal.Body>
-                        <div className="flex justify-center">
-                            <img src={profileCaptureUrl} alt="" />
-                        </div>
+                        {profileCaptureUrl && (
+                            <div className="flex justify-center">
+                                <img src={profileCaptureUrl} alt="" />
+                            </div>
+                        )}
                         <div className="my-2">{musicInfo && <ProfileMusic musicInfo={musicInfo} />}</div>
                         <hr className="my-6 border-gray-200 dark:border-gray-700 sm:mx-auto" />
                         <div className="flex justify-end space-x-2">

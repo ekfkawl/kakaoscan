@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import timestampToDate from '../../utils/datetime/convert';
 import { TabsRef } from 'flowbite-react';
 import { MusicInfo, ProfileData } from '../../types/profileData';
+import { timestampToDate } from '../../utils/datetime/convert';
 
 export interface UseProfileDataProps {
-    json: string;
+    data: any;
     clearProfileItems: () => void;
     clearBackgroundItems: () => void;
     addProfileItem: (item: any) => void;
@@ -36,7 +36,7 @@ function renderFeeds(feeds: any[], addItem: (item: any) => void) {
 }
 
 export const useProfileData = ({
-    json,
+    data,
     clearProfileItems,
     clearBackgroundItems,
     addProfileItem,
@@ -50,7 +50,7 @@ export const useProfileData = ({
         profileCaptureUrl: '',
         profileImageUrl: '',
         statusMessage: '',
-        url: '',
+        storyWebUrl: '',
     });
 
     const addMusicInfo = useCallback((newMusicInfo: MusicInfo) => {
@@ -61,26 +61,32 @@ export const useProfileData = ({
     }, []);
 
     useEffect(() => {
-        if (!json) {
+        if (!data) {
             return;
         }
 
-        const profileJson = JSON.parse(json);
+        let profileData;
+        if (typeof data === 'string') {
+            profileData = JSON.parse(data);
+        } else {
+            profileData = data;
+        }
+
         setProfileData({
-            profileCaptureUrl: `data:image/bmp;base64,${profileJson.profile.screenBase64}`,
-            profileImageUrl: profileJson.profile.profileImageUrl || '/default-profile.jpg',
-            name: profileJson.profile.nickName || '이름 없음',
-            url: profileJson.profile.storyWebUrl,
-            statusMessage: profileJson.profile.statusMessage || '상태메세지 없음',
+            profileCaptureUrl: `data:image/bmp;base64,${profileData.profile.screenBase64}`,
+            profileImageUrl: profileData.profile.profileImageUrl || '/default-profile.jpg',
+            name: profileData.profile.nickName || '이름 없음',
+            storyWebUrl: profileData.profile.storyWebUrl,
+            statusMessage: profileData.profile.statusMessage || '상태메세지 없음',
         });
 
-        if (profileJson.profile.musics && profileJson.profile.musics.contentsInfo) {
-            profileJson.profile.musics.contentsInfo.forEach((music: any) => {
+        if (profileData.profile.musics && profileData.profile.musics.contentsInfo) {
+            profileData.profile.musics.contentsInfo.forEach((music: any) => {
                 addMusicInfo({
                     contentName: music.contentName,
                     artistName: music.artistList.map((artist: any) => artist.artistName).join(', '),
                     imageUrl: music.contentImgPath,
-                    updatedAt: music.updatedAt
+                    updatedAt: music.updatedAt,
                 });
             });
         }
@@ -88,11 +94,11 @@ export const useProfileData = ({
         clearProfileItems();
         clearBackgroundItems();
 
-        if (profileJson.profile.profileFeeds && profileJson.profile.profileFeeds.feeds) {
-            renderFeeds(profileJson.profile.profileFeeds.feeds, addProfileItem);
+        if (profileData.profile.profileFeeds && profileData.profile.profileFeeds.feeds) {
+            renderFeeds(profileData.profile.profileFeeds.feeds, addProfileItem);
         }
-        if (profileJson.profile.backgroundFeeds && profileJson.profile.backgroundFeeds.feeds) {
-            renderFeeds(profileJson.profile.backgroundFeeds.feeds, addBackgroundItem);
+        if (profileData.profile.backgroundFeeds && profileData.profile.backgroundFeeds.feeds) {
+            renderFeeds(profileData.profile.backgroundFeeds.feeds, addBackgroundItem);
         }
 
         if (setIsProfileCardVisible) {
@@ -100,7 +106,7 @@ export const useProfileData = ({
         }
         tabsRef.current?.setActiveTab(0);
     }, [
-        json,
+        data,
         addMusicInfo,
         clearProfileItems,
         clearBackgroundItems,
