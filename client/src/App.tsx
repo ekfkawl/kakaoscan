@@ -7,6 +7,7 @@ import AppLayout from './components/AppLayout';
 import SearchPage from './pages/SearchPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import SearchHistory from './pages/SearchHistory';
+import SearchHistoryDetail from './pages/SearchHistoryDetail';
 
 const App = () => {
     return (
@@ -26,6 +27,14 @@ const App = () => {
                         element={
                             <ProtectedRoute>
                                 <SearchHistory />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="search-history/detail"
+                        element={
+                            <ProtectedRoute>
+                                <SearchHistoryDetail />
                             </ProtectedRoute>
                         }
                     />
