@@ -16,9 +16,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Builder
 @AllArgsConstructor
@@ -65,7 +63,8 @@ public class User {
     private Point point;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<SearchHistory> searchHistories = new HashSet<>();
+    @OrderBy("createdAt DESC")
+    private List<SearchHistory> searchHistories = new ArrayList<>();
 
     protected User() {
     }
