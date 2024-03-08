@@ -1,8 +1,14 @@
 import { Avatar, DarkThemeToggle, Dropdown, Navbar } from 'flowbite-react';
-import React from 'react';
-import { FaGithub } from 'react-icons/fa';
+import React, { useCallback, useEffect, useState } from 'react';
+import { FaCoins, FaGithub } from 'react-icons/fa';
 import useLogout from '../../hooks/auth/useLogout';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import useUser from '../../hooks/auth/useUser';
+import { StompPoint } from '../../types/stomp/stompPoint';
+import { useSubscription } from '../../hooks/websocket/useSubscription';
+import { faFolderOpen, faRightFromBracket, faUser } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useSendMessage } from '../../hooks/websocket/useSendMessage';
 
 const HeaderWithUser = () => {
     const navigate = useNavigate();
@@ -11,17 +17,35 @@ const HeaderWithUser = () => {
         await logout();
         navigate('/login');
     };
+    const user = useUser();
+    const sendMessage = useSendMessage();
+    const [stompPointResponse, setStompPointResponse] = useState<StompPoint | null>(null);
+
+    useSubscription<StompPoint>('/user/queue/message/point', setStompPointResponse);
+    const handleSendPoint = useCallback(() => {
+        sendMessage('/pub/points');
+    }, [sendMessage]);
+
+    useEffect(() => {
+        let intervalId = setInterval(() => {
+            handleSendPoint();
+        }, 500);
+
+        return () => {
+            clearInterval(intervalId);
+        };
+    }, [handleSendPoint, sendMessage]);
 
     return (
         <header>
             <Navbar className="dark:bg-gray-900">
-                <Navbar.Brand href="/">
+                <Link to="/" className="flex items-center">
                     <img src="/favicon.png" className="mr-3 h-6 sm:h-9 dark:hidden" alt="Kakaoscan Logo" />
                     <img src="/favicon-dark.png" className="mr-3 h-6 sm:h-9 hidden dark:block" alt="Kakaoscan Logo" />
                     <span className="self-center whitespace-nowrap text-xl quicksand font-semibold dark:text-white">
                         kakaoscan
                     </span>
-                </Navbar.Brand>
+                </Link>
                 <div className="flex items-center gap-1 lg:order-2 lg:gap-3">
                     <DarkThemeToggle
                         iconDark={FaGithub}
@@ -36,12 +60,42 @@ const HeaderWithUser = () => {
                         <Dropdown
                             arrowIcon={false}
                             inline
-                            label={<Avatar size="sm" alt="User Menu" img="/favicon.png" rounded />}
+                            label={
+                                <Avatar
+                                    size="sm"
+                                    alt="User Menu"
+                                    img={user?.profileUrl || '/default-profile.jpg'}
+                                    rounded
+                                />
+                            }
                         >
                             <Dropdown.Header>
-                                <strong className="block text-sm">email@test.com</strong>
+                                <strong className="block text-sm">
+                                    <FontAwesomeIcon icon={faUser} className="mr-2" />
+                                    {user?.email}
+                                </strong>
                             </Dropdown.Header>
-                            <Dropdown.Item className="text-gray-500 dark:text-gray-400" onClick={handleLogout}>
+                            <Dropdown.Header>
+                                <strong className="block text-sm">
+                                    <FaCoins className="mr-2 text-yellow-300 dark:text-yellow-200" />
+                                    {stompPointResponse == null
+                                        ? '로딩 중..'
+                                        : stompPointResponse?.message ||
+                                          new Intl.NumberFormat('ko-KR').format(stompPointResponse?.balance)}{' '}
+                                    P
+                                </strong>
+                            </Dropdown.Header>
+                            <Dropdown.Item
+                                className="text-sm"
+                                onClick={() => {
+                                    navigate('/search-history');
+                                }}
+                            >
+                                <FontAwesomeIcon icon={faFolderOpen} className="mr-2" />
+                                조회 내역
+                            </Dropdown.Item>
+                            <Dropdown.Item className="text-sm" onClick={handleLogout}>
+                                <FontAwesomeIcon icon={faRightFromBracket} className="mr-2" />
                                 로그아웃
                             </Dropdown.Item>
                         </Dropdown>
@@ -58,12 +112,20 @@ const HeaderWithUser = () => {
                 >
                     <Navbar.Link
                         href="#"
-                        active
-                        className="text-gray-900 bg-transparent border-b border-gray-100 md:border-0 dark:border-gray-700 dark:text-white"
+                        onClick={() => {
+                            navigate('/shop');
+                        }}
                     >
-                        Menu1
+                        상점
                     </Navbar.Link>
-                    <Navbar.Link href="#">Menu2</Navbar.Link>
+                    <Navbar.Link
+                        href="#"
+                        onClick={() => {
+                            navigate('/notice');
+                        }}
+                    >
+                        공지사항
+                    </Navbar.Link>
                 </Navbar.Collapse>
             </Navbar>
         </header>
