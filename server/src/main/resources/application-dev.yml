@@ -13,11 +13,11 @@ spring:
           auto: none
 #          auto: update
 
-logging:
-  level:
-    org:
-      hibernate: # SQL 쿼리 로그 레벨 설정
-        SQL: DEBUG
-        type:
-          descriptor:
-            sql: TRACE
+#logging:
+#  level:
+#    org:
+#      hibernate: # SQL 쿼리 로그 레벨 설정
+#        SQL: DEBUG
+#        type:
+#          descriptor:
+#            sql: TRACE

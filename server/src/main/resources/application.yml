@@ -22,7 +22,6 @@ cors:
     - /api/verify/**
     - /api/login/**
     - /api/register
-    - /api/logout
     - /api/refresh-token
     - /swagger-ui/**
     - /v3/api-docs/**
