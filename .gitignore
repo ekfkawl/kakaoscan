@@ -2,3 +2,4 @@ __history/
 __recovery/
 
 *.iml
+server/src/main/java/com/kakaoscan/server/infrastructure/logging/LogsStoreConnectionFactory.java
