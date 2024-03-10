@@ -1,6 +1,6 @@
 package com.kakaoscan.server.infrastructure.redis;
 
-import com.kakaoscan.server.application.domain.TestEvent;
+import com.kakaoscan.server.application.domain.events.model.TestEvent;
 import com.kakaoscan.server.infrastructure.events.processor.EventProcessor;
 import com.kakaoscan.server.infrastructure.events.processor.EventProcessorFactory;
 import com.kakaoscan.server.infrastructure.events.processor.TestEventProcessor;

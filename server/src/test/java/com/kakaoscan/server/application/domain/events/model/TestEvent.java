@@ -1,4 +1,4 @@
-package com.kakaoscan.server.application.domain;
+package com.kakaoscan.server.application.domain.events.model;
 
 import com.kakaoscan.server.domain.events.model.EventMetadata;
 
