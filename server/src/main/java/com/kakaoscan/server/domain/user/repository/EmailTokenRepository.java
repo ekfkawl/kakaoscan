@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface EmailTokenRepository extends JpaRepository<EmailVerificationToken, Long>, EmailTokenRepositoryCustom {
+public interface EmailTokenRepository extends JpaRepository<EmailVerificationToken, Long> {
     Optional<EmailVerificationToken> findByToken(String token);
 }
