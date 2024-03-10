@@ -2,7 +2,9 @@ package com.kakaoscan.server.application.service;
 
 import com.kakaoscan.server.application.dto.response.SearchHistories;
 import com.kakaoscan.server.domain.search.entity.SearchHistory;
+import com.kakaoscan.server.domain.search.enums.CostType;
 import com.kakaoscan.server.domain.search.model.SearchResult;
+import com.kakaoscan.server.domain.search.repository.SearchHistoryRepository;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
 import com.kakaoscan.server.infrastructure.serialization.JsonDeserialize;
@@ -17,6 +19,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SearchHistoryService {
     private final UserRepository userRepository;
+    private final SearchHistoryRepository searchHistoryRepository;
 
     @Transactional(readOnly = true)
     public SearchHistories findSearchHistories(String userId) {
@@ -41,13 +44,16 @@ public class SearchHistoryService {
     @Transactional
     public void recordUserSearchHistory(String userId, String targetPhoneNumber, String data) {
         userRepository.findByEmail(userId).ifPresent(user -> {
+            CostType costType = searchHistoryRepository.getCurrentCostType(user, targetPhoneNumber);
+
             SearchHistory searchHistory = SearchHistory.builder()
-                    .user(user)
                     .targetPhoneNumber(targetPhoneNumber)
                     .data(data)
+                    .costType(costType)
+                    .createdAt(LocalDateTime.now())
                     .build();
 
-            user.getSearchHistories().add(searchHistory);
+            user.addSearchHistory(searchHistory);
         });
     }
 }

@@ -1,11 +1,12 @@
 package com.kakaoscan.server.domain.search.entity;
 
+import com.kakaoscan.server.domain.search.enums.CostType;
 import com.kakaoscan.server.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
@@ -13,12 +14,15 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Entity
-@Table(name = "search_history")
+@Table(name = "search_history", indexes = {
+        @Index(name = "idx_phone_cost_created", columnList = "targetPhoneNumber,costType,createdAt DESC")
+})
 public class SearchHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Setter
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
@@ -29,9 +33,13 @@ public class SearchHistory {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String data; // ALTER TABLE search_history CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
-    @CreationTimestamp
+//    @CreationTimestamp
     @Column(nullable = false, columnDefinition = "DATETIME(6)")
     private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private CostType costType;
 
     protected SearchHistory() {
     }
