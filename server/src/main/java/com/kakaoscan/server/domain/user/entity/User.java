@@ -86,4 +86,9 @@ public class User {
                 .balance(0)
                 .build();
     }
+
+    public void addSearchHistory(SearchHistory searchHistory) {
+        searchHistory.setUser(this);
+        this.searchHistories.add(searchHistory);
+    }
 }
