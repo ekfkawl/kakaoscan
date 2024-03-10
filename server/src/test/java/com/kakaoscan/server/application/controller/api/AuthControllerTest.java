@@ -1,4 +1,4 @@
-package com.kakaoscan.server.application.controller;
+package com.kakaoscan.server.application.controller.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kakaoscan.server.application.controller.api.AuthController;
