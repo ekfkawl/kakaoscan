@@ -23,7 +23,7 @@ public class SearchHistoryController extends ApiEndpointPrefix {
     @GetMapping("/search-histories")
     @Operation(summary = "search history within N hours of the createdAt")
     public ResponseEntity<ApiResponse<SearchHistories>> findSearchHistories(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        SearchHistories searchHistories = searchHistoryService.findSearchHistories(userDetails.getEmail());
+        SearchHistories searchHistories = searchHistoryService.findUserSearchHistories(userDetails.getEmail());
 
         return new ResponseEntity<>(ApiResponse.success(searchHistories), HttpStatus.OK);
     }

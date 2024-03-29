@@ -1,6 +1,6 @@
 package com.kakaoscan.server.application.service.websocket.search;
 
-import com.kakaoscan.server.application.port.PointPort;
+import com.kakaoscan.server.application.service.PointService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
 import com.kakaoscan.server.common.validation.ValidationPatterns;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
@@ -19,10 +19,10 @@ import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEA
 @RequiredArgsConstructor
 public class SearchMessageService {
     private final StompMessageDispatcher messageDispatcher;
-    private final PointPort pointPort;
+    private final PointService pointService;
 
-    @Value("${search.profile.cost}")
-    private int searchCost;
+    @Value("${search.profile.cost.origin}")
+    private int costOrigin;
 
     public SearchMessage createSearchMessage(Principal principal, SearchMessage.OriginMessage originMessage) {
         if (principal != null) {
@@ -40,8 +40,8 @@ public class SearchMessageService {
 
     public boolean validatePoints(SearchMessage message) {
         try {
-            int points = pointPort.getPointsFromCache(message.getEmail());
-            return points >= searchCost;
+            int points = pointService.getPointsFromCache(message.getEmail());
+            return points >= 500;
 
         } catch (ConcurrentModificationException e) {
             messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), CONCURRENT_MODIFICATION_POINTS, false));

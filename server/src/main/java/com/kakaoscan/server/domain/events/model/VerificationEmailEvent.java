@@ -10,4 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class VerificationEmailEvent extends EventMetadata {
     private VerificationEmail verificationEmail;
+
+    public VerificationEmailEvent(String receiver, String verificationLink) {
+        this.verificationEmail = new VerificationEmail(receiver, verificationLink);
+    }
 }

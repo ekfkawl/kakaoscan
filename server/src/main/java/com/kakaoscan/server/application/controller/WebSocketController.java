@@ -1,15 +1,16 @@
 package com.kakaoscan.server.application.controller;
 
 import com.kakaoscan.server.application.exception.EmptyQueueException;
+import com.kakaoscan.server.application.port.CacheStorePort;
 import com.kakaoscan.server.application.port.EventStatusPort;
-import com.kakaoscan.server.application.port.PhoneNumberCachePort;
-import com.kakaoscan.server.application.port.PointPort;
+import com.kakaoscan.server.application.service.PointService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
 import com.kakaoscan.server.application.service.websocket.search.SearchEventManagerService;
 import com.kakaoscan.server.application.service.websocket.search.SearchMessageService;
 import com.kakaoscan.server.application.service.websocket.search.SearchQueueService;
 import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.point.model.PointMessage;
+import com.kakaoscan.server.domain.search.model.InvalidPhoneNumber;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.infrastructure.service.RateLimitService;
 import lombok.RequiredArgsConstructor;
@@ -30,11 +31,13 @@ public class WebSocketController {
     private final SearchQueueService searchQueueService;
     private final SearchMessageService searchMessageService;
     private final SearchEventManagerService searchEventManagerService;
-    private final PhoneNumberCachePort phoneNumberCachePort;
+    private final CacheStorePort<InvalidPhoneNumber> cacheStorePort;
     private final StompMessageDispatcher messageDispatcher;
     private final RateLimitService rateLimitService;
     private final EventStatusPort eventStatusPort;
-    private final PointPort pointPort;
+    private final PointService pointService;
+
+    private static final String INVALID_PHONE_NUMBER_KEY_PREFIX = "invalidPhoneNumber:";
 
     @EventListener
     public void handleWebSocketConnectListener(SessionSubscribeEvent event) {
@@ -58,7 +61,8 @@ public class WebSocketController {
             return;
         }
 
-        if (phoneNumberCachePort.isInvalidPhoneNumberCached(message.getContent())) {
+        boolean isInvalidPhoneNumberCached = cacheStorePort.containsKey(INVALID_PHONE_NUMBER_KEY_PREFIX + message.getContent(), InvalidPhoneNumber.class);
+        if (isInvalidPhoneNumberCached) {
             messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), SEARCH_INVALID_PHONE_NUMBER, false));
             return;
         }
@@ -82,7 +86,7 @@ public class WebSocketController {
     @MessageMapping("/points")
     public void handlePointBalance(Principal principal) {
         try {
-            int points = pointPort.getPointsFromCache(principal.getName());
+            int points = pointService.getPointsFromCache(principal.getName());
             messageDispatcher.sendToUser(new PointMessage(principal.getName(), points));
         } catch (NullPointerException | ConcurrentModificationException e) {
             messageDispatcher.sendToUser(new PointMessage(principal.getName(), -1, LOADING_POINTS_BALANCE));

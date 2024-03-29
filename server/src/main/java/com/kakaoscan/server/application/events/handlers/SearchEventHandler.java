@@ -1,11 +1,12 @@
 package com.kakaoscan.server.application.events.handlers;
 
 import com.kakaoscan.server.application.port.EventStatusPort;
-import com.kakaoscan.server.application.port.PointPort;
+import com.kakaoscan.server.application.service.PointService;
 import com.kakaoscan.server.application.service.SearchHistoryService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
 import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.events.model.SearchEvent;
+import com.kakaoscan.server.domain.search.enums.CostType;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.domain.search.model.SearchResult;
 import com.kakaoscan.server.infrastructure.events.processor.AbstractEventProcessor;
@@ -33,11 +34,14 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
     private final SearchInMemoryQueue queue;
     private final StompMessageDispatcher messageDispatcher;
     private final RateLimitService rateLimitService;
-    private final PointPort pointPort;
+    private final PointService pointService;
     private final SearchHistoryService searchHistoryService;
 
-    @Value("${search.profile.cost}")
-    private int searchCost;
+    @Value("${search.profile.cost.origin}")
+    private int costOrigin;
+
+    @Value("${search.profile.cost.discount}")
+    private int costDiscount;
 
     @Override
     protected void handleEvent(SearchEvent event) {
@@ -64,19 +68,24 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
         boolean hasNext = status.getStatus() == WAITING || status.getStatus() == PROCESSING;
         messageDispatcher.sendToUser(new SearchMessage(event.getEmail(), responseMessage, hasNext, status.getStatus() == SUCCESS));
 
-        if (status.getStatus() == SUCCESS && deductPoints(event.getEmail(), status)) {
-            SearchResult searchResult = deserialize(responseMessage, SearchResult.class);
-            searchHistoryService.recordUserSearchHistory(event.getEmail(), event.getPhoneNumber(), serialize(searchResult));
+        if (status.getStatus() == SUCCESS) {
+            CostType costType = searchHistoryService.getSearchCostType(event.getEmail(), event.getPhoneNumber());
+            int cost = CostType.ORIGIN.equals(costType) ? costOrigin : costDiscount;
+
+            if (deductPoints(event.getEmail(), cost)) {
+                SearchResult searchResult = deserialize(responseMessage, SearchResult.class);
+                searchHistoryService.recordUserSearchHistory(event.getEmail(), event.getPhoneNumber(), serialize(searchResult), costType);
+            }
         }
     }
 
-    private boolean deductPoints(String userId, EventStatus status) {
-        int cachePoints = pointPort.getPointsFromCache(userId);
-        pointPort.cachePoints(userId, cachePoints - searchCost);
+    private boolean deductPoints(String userId, int cost) {
+        int cachePoints = pointService.getPointsFromCache(userId);
+        pointService.cachePoints(userId, cachePoints - cost);
 
         try {
-            if (pointPort.deductPoints(userId, searchCost)) {
-                log.info("deduct points: {} ({}-{}={})", userId, cachePoints, searchCost, cachePoints - searchCost);
+            if (pointService.deductPoints(userId, cost)) {
+                log.info("deduct points: {} ({}-{}={})", userId, cachePoints, cost, cachePoints - cost);
                 return true;
             }
         } catch (Exception e) {

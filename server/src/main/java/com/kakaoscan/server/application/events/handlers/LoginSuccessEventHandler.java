@@ -1,6 +1,6 @@
 package com.kakaoscan.server.application.events.handlers;
 
-import com.kakaoscan.server.application.port.PointPort;
+import com.kakaoscan.server.application.service.PointService;
 import com.kakaoscan.server.domain.events.model.LoginSuccessEvent;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
@@ -15,14 +15,14 @@ import org.springframework.stereotype.Component;
 public class LoginSuccessEventHandler extends AbstractEventProcessor<LoginSuccessEvent> {
 
     private final UserRepository userRepository;
-    private final PointPort pointPort;
+    private final PointService pointService;
 
     @Override
     protected void handleEvent(LoginSuccessEvent event) {
         User user = userRepository.findByEmail(event.getEmail())
                 .orElseThrow(() -> new IllegalArgumentException("user not found"));
 
-        pointPort.cachePoints(event.getEmail(), user.getPoint().getBalance());
+        pointService.cachePoints(event.getEmail(), user.getPoint().getBalance());
 
         log.info("cached point: {}", event.getEmail());
     }

@@ -1,14 +1,12 @@
-package com.kakaoscan.server.infrastructure.adapter;
+package com.kakaoscan.server.application.service;
 
-import com.kakaoscan.server.application.port.PointPort;
+import com.kakaoscan.server.application.port.CacheStorePort;
 import com.kakaoscan.server.domain.point.entity.Point;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronization;
@@ -19,33 +17,28 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
-public class PointAdapter implements PointPort {
+public class PointService {
     private final UserRepository userRepository;
     private final RedissonClient redissonClient;
-    private final RedisTemplate<String, Integer> redisTemplate;
+    private final CacheStorePort<Integer> cacheStorePort;
 
     private static final String LOCK_KEY_PREFIX = "userPointsLock:";
     private static final String POINT_CACHE_KEY_PREFIX = "pointCache:";
     private static final int LOCK_WAIT_TIME = 10;
     private static final int LOCK_LEASE_TIME = 30;
 
-    @Override
     @Transactional(readOnly = true)
     public void cachePoints(String userId, int value) {
-        ValueOperations<String, Integer> ops = redisTemplate.opsForValue();
-        ops.set(POINT_CACHE_KEY_PREFIX + userId, value, 1, TimeUnit.DAYS);
+        cacheStorePort.put(POINT_CACHE_KEY_PREFIX + userId, value, 1, TimeUnit.DAYS);
     }
 
-    @Override
     public int getPointsFromCache(String userId) {
         RLock lock = redissonClient.getLock(LOCK_KEY_PREFIX + userId);
         if (lock.isLocked()) {
             throw new ConcurrentModificationException("points data is currently being modified");
         }
 
-        ValueOperations<String, Integer> ops = redisTemplate.opsForValue();
-
-        Integer points = ops.get(POINT_CACHE_KEY_PREFIX + userId);
+        Integer points = cacheStorePort.get(POINT_CACHE_KEY_PREFIX + userId, Integer.class);
         if (points == null) {
             throw new NullPointerException("points not found from cache");
         }
@@ -53,7 +46,6 @@ public class PointAdapter implements PointPort {
         return points;
     }
 
-    @Override
     @Transactional
     public boolean deductPoints(String userId, int value) {
         RLock lock = redissonClient.getLock(LOCK_KEY_PREFIX + userId);

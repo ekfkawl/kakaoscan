@@ -1,7 +1,7 @@
 package com.kakaoscan.server.infrastructure.adapter;
 
 import com.kakaoscan.server.application.domain.test.TestUserDataInitializer;
-import com.kakaoscan.server.application.port.PointPort;
+import com.kakaoscan.server.application.service.PointService;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
 import org.junit.jupiter.api.AfterEach;
@@ -22,12 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class PointAdapterTest {
+class PointServiceTest {
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
-    private PointPort pointPort;
+    private PointService pointService;
 
     private User user;
 
@@ -57,7 +57,7 @@ class PointAdapterTest {
         for (int i = 0; i < THREAD_COUNT; i++) {
             executor.submit(() -> {
                 try {
-                    boolean result = pointPort.deductPoints(TEST_USER_ID, 1000);
+                    boolean result = pointService.deductPoints(TEST_USER_ID, 1000);
                     if (result) {
                         successfulDeductions.incrementAndGet();
                     }

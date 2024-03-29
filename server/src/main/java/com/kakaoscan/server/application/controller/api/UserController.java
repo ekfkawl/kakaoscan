@@ -3,8 +3,8 @@ package com.kakaoscan.server.application.controller.api;
 import com.kakaoscan.server.application.controller.ApiEndpointPrefix;
 import com.kakaoscan.server.application.dto.request.RegisterRequest;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
-import com.kakaoscan.server.application.port.PointPort;
-import com.kakaoscan.server.application.port.UserPort;
+import com.kakaoscan.server.application.service.PointService;
+import com.kakaoscan.server.application.service.UserService;
 import com.kakaoscan.server.infrastructure.service.RateLimitService;
 import com.kakaoscan.server.infrastructure.utils.WebUtils;
 import io.github.bucket4j.Bucket;
@@ -23,9 +23,9 @@ import java.time.Duration;
 @RestController
 @Tag(name = "User", description = "User API")
 public class UserController extends ApiEndpointPrefix {
-    private final UserPort userPort;
+    private final UserService userService;
     private final RateLimitService rateLimitService;
-    private final PointPort pointPort;
+    private final PointService pointService;
 
     @Value("${verify.replace}")
     private String verifyReplace;
@@ -34,7 +34,7 @@ public class UserController extends ApiEndpointPrefix {
     public ResponseEntity<ApiResponse<Void>> register(@RequestBody @Valid RegisterRequest registerRequest, HttpServletRequest request) {
         Bucket bucket = rateLimitService.resolveBucket(WebUtils.getRemoteAddress(request), 10, Duration.ofHours(1));
         if (bucket.tryConsume(1)) {
-            return new ResponseEntity<>(userPort.register(registerRequest), HttpStatus.OK);
+            return new ResponseEntity<>(userService.register(registerRequest), HttpStatus.OK);
         }else {
             return new ResponseEntity<>(ApiResponse.failure("too many requests"), HttpStatus.TOO_MANY_REQUESTS);
         }
@@ -42,7 +42,7 @@ public class UserController extends ApiEndpointPrefix {
 
     @GetMapping("/verify/{token}")
     public String consumeVerificationToken(@PathVariable("token") String token) {
-        ApiResponse<Void> apiResponse = userPort.consumeVerificationToken(token);
+        ApiResponse<Void> apiResponse = userService.consumeVerificationToken(token);
         if (apiResponse.isSuccess()) {
             return String.format("<script>location.replace('%s')</script>", verifyReplace);
         }else {

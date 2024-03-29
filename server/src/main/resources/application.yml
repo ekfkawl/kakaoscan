@@ -43,7 +43,9 @@ verify:
 
 search:
   profile:
-    cost: 100
+    cost:
+      origin: 500
+      discount: 100
 
 ---
 
@@ -58,4 +60,6 @@ verify:
 
 search:
   profile:
-    cost: 500
+    cost:
+      origin: 500
+      discount: 100
