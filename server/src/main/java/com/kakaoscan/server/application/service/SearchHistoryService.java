@@ -24,8 +24,7 @@ public class SearchHistoryService {
 
     @Transactional(readOnly = true)
     public SearchHistories findUserSearchHistories(String userId) {
-        User user = userRepository.findByEmail(userId)
-                .orElseThrow(() -> new IllegalArgumentException("user not found"));
+        User user = userRepository.findByEmailOrThrow(userId);
 
         SearchHistories result = new SearchHistories();
 
@@ -44,22 +43,21 @@ public class SearchHistoryService {
 
     @Transactional
     public void recordUserSearchHistory(String userId, String targetPhoneNumber, String data, CostType costType) {
-        userRepository.findByEmail(userId).ifPresent(user -> {
-            SearchHistory searchHistory = SearchHistory.builder()
-                    .targetPhoneNumber(targetPhoneNumber)
-                    .data(data)
-                    .costType(costType)
-                    .createdAt(LocalDateTime.now())
-                    .build();
+        User user = userRepository.findByEmailOrThrow(userId);
 
-            user.addSearchHistory(searchHistory);
-        });
+        SearchHistory searchHistory = SearchHistory.builder()
+                .targetPhoneNumber(targetPhoneNumber)
+                .data(data)
+                .costType(costType)
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        user.addSearchHistory(searchHistory);
     }
 
     @Transactional(readOnly = true)
     public SearchCost getTargetSearchCost(String userId, String targetPhoneNumber) {
-        User user = userRepository.findByEmail(userId)
-                .orElseThrow(() -> new IllegalArgumentException("user not found: " + userId));
+        User user = userRepository.findByEmailOrThrow(userId);
 
         return searchHistoryRepository.getTargetSearchCost(user, targetPhoneNumber);
     }

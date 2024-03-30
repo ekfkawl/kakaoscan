@@ -19,8 +19,7 @@ public class LoginSuccessEventHandler extends AbstractEventProcessor<LoginSucces
 
     @Override
     protected void handleEvent(LoginSuccessEvent event) {
-        User user = userRepository.findByEmail(event.getEmail())
-                .orElseThrow(() -> new IllegalArgumentException("user not found"));
+        User user = userRepository.findByEmailOrThrow(event.getEmail());
 
         pointService.cachePoints(event.getEmail(), user.getPoint().getBalance());
 
