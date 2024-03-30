@@ -1,6 +1,8 @@
 package com.kakaoscan.server.infrastructure.config;
 
+import com.kakaoscan.server.common.utils.ObjectMapperSingleton;
 import com.kakaoscan.server.domain.events.model.EventStatus;
+import com.kakaoscan.server.domain.point.model.SearchCost;
 import com.kakaoscan.server.domain.search.model.InvalidPhoneNumber;
 import com.kakaoscan.server.infrastructure.redis.subscriber.DynamicEventReceiver;
 import org.springframework.context.annotation.Bean;
@@ -57,37 +59,32 @@ public class RedisConfig {
 
     @Bean
     public RedisTemplate<String, EventStatus> eventStatusRedisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, EventStatus> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-
-        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(EventStatus.class));
-        template.setKeySerializer(new StringRedisSerializer());
-
-        template.afterPropertiesSet();
-        return template;
+        return createRedisTemplate(connectionFactory, EventStatus.class);
     }
 
     @Bean
     public RedisTemplate<String, InvalidPhoneNumber> invalidPhoneNumberRedisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, InvalidPhoneNumber> template = new RedisTemplate<>();
-        template.setConnectionFactory(connectionFactory);
-
-        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(InvalidPhoneNumber.class));
-        template.setKeySerializer(new StringRedisSerializer());
-
-        template.afterPropertiesSet();
-        return template;
+        return createRedisTemplate(connectionFactory, InvalidPhoneNumber.class);
     }
 
     @Bean
     public RedisTemplate<String, Integer> integerRedisTemplate(RedisConnectionFactory connectionFactory) {
-        RedisTemplate<String, Integer> template = new RedisTemplate<>();
+        return createRedisTemplate(connectionFactory, Integer.class);
+    }
+
+    @Bean
+    public RedisTemplate<String, SearchCost> searchCostRedisTemplate(RedisConnectionFactory connectionFactory) {
+        return createRedisTemplate(connectionFactory, SearchCost.class);
+    }
+
+    private <T> RedisTemplate<String, T> createRedisTemplate(RedisConnectionFactory connectionFactory, Class<T> clazz) {
+        RedisTemplate<String, T> template = new RedisTemplate<>();
+
         template.setConnectionFactory(connectionFactory);
-
         template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(Integer.class));
-
+        template.setValueSerializer(new Jackson2JsonRedisSerializer<>(ObjectMapperSingleton.getInstance(), clazz));
         template.afterPropertiesSet();
+
         return template;
     }
 }
