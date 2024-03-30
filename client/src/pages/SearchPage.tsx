@@ -16,6 +16,9 @@ import { useProfileData } from '../hooks/profile/useProfileData';
 import ConfirmPopup from '../components/Popup/ConfirmPopup';
 import { useSubscription } from '../hooks/websocket/useSubscription';
 import { useSendMessage } from '../hooks/websocket/useSendMessage';
+import { useFetchData } from '../hooks/useFetchData';
+import { SearchCostResponse } from '../types/searchCost';
+import { formatDate } from '../utils/format/format';
 
 const HYPHEN_PHONE_NUMBER_LENGTH: number = 13;
 const TOAST_DEFAULT_MESSAGE: string = '전화번호 입력 후 엔터 키를 누르면 프로필 조회를 시작합니다.';
@@ -87,10 +90,21 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
         setShowSearchConfirmPopup(false);
     }, [handleSendProfile, phoneNumber]);
 
+    const {
+        data: searchCost,
+        isLoading,
+        error,
+        fetchData,
+    } = useFetchData<SearchCostResponse | null>('/api/search-cost', null, false);
+    const handleOnSearch = (targetPhoneNumber: string) => {
+        fetchData({ targetPhoneNumber: targetPhoneNumber });
+        setShowSearchConfirmPopup(true);
+    };
+
     const handleSearchBarKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
         const trimmedValue = e.currentTarget.value.trim();
         if (e.key === 'Enter' && trimmedValue.length === HYPHEN_PHONE_NUMBER_LENGTH) {
-            setShowSearchConfirmPopup(true);
+            handleOnSearch(trimmedValue);
         }
     }, []);
 
@@ -104,7 +118,7 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                 onKeyPress={handleSearchBarKeyPress}
                 onSearchClick={() => {
                     if (phoneNumber.length === HYPHEN_PHONE_NUMBER_LENGTH) {
-                        setShowSearchConfirmPopup(true);
+                        handleOnSearch(phoneNumber);
                     }
                 }}
             />
@@ -113,7 +127,25 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                     show={showSearchConfirmPopup}
                     onClose={() => setShowSearchConfirmPopup(false)}
                     title="포인트 차감 안내"
-                    description="프로필 조회에 성공하면 500 포인트가 차감됩니다. 계속 진행하시겠어요?"
+                    description={
+                        !isLoading && searchCost?.success && searchCost?.data.cost ? (
+                            <div>
+                                <p>
+                                    프로필 조회에 성공하면 <strong>{searchCost.data.cost} 포인트</strong>가 차감됩니다.
+                                    계속 진행하시겠어요?
+                                </p>
+                                {searchCost?.data.expiredAtDiscount && (
+                                    <p className="mt-4">
+                                        * {formatDate(new Date(searchCost?.data.expiredAtDiscount))} 까지,
+                                        <br />
+                                        해당 번호의 프로필 조회 포인트가 80% 할인됩니다!
+                                    </p>
+                                )}
+                            </div>
+                        ) : (
+                            <p>현재 프로필 조회 비용을 불러올 수 없습니다. 나중에 다시 시도해주세요.</p>
+                        )
+                    }
                     onConfirm={handleConfirmSendMessage}
                     learnMoreLink="/"
                 />

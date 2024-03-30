@@ -6,7 +6,7 @@ import com.kakaoscan.server.application.service.SearchHistoryService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
 import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.events.model.SearchEvent;
-import com.kakaoscan.server.domain.search.enums.CostType;
+import com.kakaoscan.server.domain.point.model.SearchCost;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.domain.search.model.SearchResult;
 import com.kakaoscan.server.infrastructure.events.processor.AbstractEventProcessor;
@@ -15,7 +15,6 @@ import com.kakaoscan.server.infrastructure.websocket.queue.SearchInMemoryQueue;
 import io.github.bucket4j.Bucket;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -36,12 +35,6 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
     private final RateLimitService rateLimitService;
     private final PointService pointService;
     private final SearchHistoryService searchHistoryService;
-
-    @Value("${search.profile.cost.origin}")
-    private int costOrigin;
-
-    @Value("${search.profile.cost.discount}")
-    private int costDiscount;
 
     @Override
     protected void handleEvent(SearchEvent event) {
@@ -69,18 +62,17 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
         messageDispatcher.sendToUser(new SearchMessage(event.getEmail(), responseMessage, hasNext, status.getStatus() == SUCCESS));
 
         if (status.getStatus() == SUCCESS) {
-            CostType costType = searchHistoryService.getSearchCostType(event.getEmail(), event.getPhoneNumber());
-            int cost = CostType.ORIGIN.equals(costType) ? costOrigin : costDiscount;
+            SearchCost searchCost = searchHistoryService.getTargetSearchCost(event.getEmail(), event.getPhoneNumber());
 
-            if (deductPoints(event.getEmail(), cost)) {
+            if (deductPoints(event.getEmail(), searchCost.getCost())) {
                 SearchResult searchResult = deserialize(responseMessage, SearchResult.class);
-                searchHistoryService.recordUserSearchHistory(event.getEmail(), event.getPhoneNumber(), serialize(searchResult), costType);
+                searchHistoryService.recordUserSearchHistory(event.getEmail(), event.getPhoneNumber(), serialize(searchResult), searchCost.getCostType());
             }
         }
     }
 
     private boolean deductPoints(String userId, int cost) {
-        int cachePoints = pointService.getPointsFromCache(userId);
+        int cachePoints = pointService.getAndCachePoints(userId);
         pointService.cachePoints(userId, cachePoints - cost);
 
         try {

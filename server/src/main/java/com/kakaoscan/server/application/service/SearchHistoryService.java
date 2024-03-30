@@ -1,6 +1,7 @@
 package com.kakaoscan.server.application.service;
 
 import com.kakaoscan.server.application.dto.response.SearchHistories;
+import com.kakaoscan.server.domain.point.model.SearchCost;
 import com.kakaoscan.server.domain.search.entity.SearchHistory;
 import com.kakaoscan.server.domain.search.enums.CostType;
 import com.kakaoscan.server.domain.search.model.SearchResult;
@@ -56,10 +57,10 @@ public class SearchHistoryService {
     }
 
     @Transactional(readOnly = true)
-    public CostType getSearchCostType(String userId, String targetPhoneNumber) {
+    public SearchCost getTargetSearchCost(String userId, String targetPhoneNumber) {
         User user = userRepository.findByEmail(userId)
                 .orElseThrow(() -> new IllegalArgumentException("user not found: " + userId));
 
-        return searchHistoryRepository.getCurrentCostType(user, targetPhoneNumber);
+        return searchHistoryRepository.getTargetSearchCost(user, targetPhoneNumber);
     }
 }

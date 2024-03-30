@@ -56,14 +56,14 @@ public class WebSocketController {
     public void handleSearchProfile(Principal principal, SearchMessage.OriginMessage originMessage) {
         SearchMessage message = searchMessageService.createSearchMessage(principal, originMessage);
 
-        if (!searchMessageService.validatePoints(message)) {
-            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), NOT_ENOUGH_POINTS, false));
-            return;
-        }
-
         boolean isInvalidPhoneNumberCached = cacheStorePort.containsKey(INVALID_PHONE_NUMBER_KEY_PREFIX + message.getContent(), InvalidPhoneNumber.class);
         if (isInvalidPhoneNumberCached) {
             messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), SEARCH_INVALID_PHONE_NUMBER, false));
+            return;
+        }
+
+        if (!searchMessageService.validatePoints(message)) {
+            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), NOT_ENOUGH_POINTS, false));
             return;
         }
 
@@ -86,9 +86,9 @@ public class WebSocketController {
     @MessageMapping("/points")
     public void handlePointBalance(Principal principal) {
         try {
-            int points = pointService.getPointsFromCache(principal.getName());
+            int points = pointService.getAndCachePoints(principal.getName());
             messageDispatcher.sendToUser(new PointMessage(principal.getName(), points));
-        } catch (NullPointerException | ConcurrentModificationException e) {
+        } catch (ConcurrentModificationException e) {
             messageDispatcher.sendToUser(new PointMessage(principal.getName(), -1, LOADING_POINTS_BALANCE));
         }
     }

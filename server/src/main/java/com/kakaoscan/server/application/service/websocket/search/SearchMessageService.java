@@ -3,10 +3,10 @@ package com.kakaoscan.server.application.service.websocket.search;
 import com.kakaoscan.server.application.service.PointService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
 import com.kakaoscan.server.common.validation.ValidationPatterns;
+import com.kakaoscan.server.domain.point.model.SearchCost;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.infrastructure.exception.UserNotVerifiedException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
@@ -20,9 +20,6 @@ import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEA
 public class SearchMessageService {
     private final StompMessageDispatcher messageDispatcher;
     private final PointService pointService;
-
-    @Value("${search.profile.cost.origin}")
-    private int costOrigin;
 
     public SearchMessage createSearchMessage(Principal principal, SearchMessage.OriginMessage originMessage) {
         if (principal != null) {
@@ -40,8 +37,10 @@ public class SearchMessageService {
 
     public boolean validatePoints(SearchMessage message) {
         try {
-            int points = pointService.getPointsFromCache(message.getEmail());
-            return points >= 500;
+            int points = pointService.getAndCachePoints(message.getEmail());
+
+            SearchCost searchCost = pointService.getAndCacheTargetSearchCost(message.getEmail(), message.getContent());
+            return points >= searchCost.getCost();
 
         } catch (ConcurrentModificationException e) {
             messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), CONCURRENT_MODIFICATION_POINTS, false));

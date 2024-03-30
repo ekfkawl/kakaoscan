@@ -2,6 +2,8 @@ package com.kakaoscan.server.application.service;
 
 import com.kakaoscan.server.application.port.CacheStorePort;
 import com.kakaoscan.server.domain.point.entity.Point;
+import com.kakaoscan.server.domain.point.model.SearchCost;
+import com.kakaoscan.server.domain.search.repository.SearchHistoryRepository;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,30 +22,39 @@ import java.util.concurrent.TimeUnit;
 public class PointService {
     private final UserRepository userRepository;
     private final RedissonClient redissonClient;
-    private final CacheStorePort<Integer> cacheStorePort;
+    private final CacheStorePort<Integer> integerCacheStorePort;
+    private final CacheStorePort<SearchCost> costCacheStorePort;
+    private final SearchHistoryRepository searchHistoryRepository;
 
     private static final String LOCK_KEY_PREFIX = "userPointsLock:";
     private static final String POINT_CACHE_KEY_PREFIX = "pointCache:";
+    private static final String TARGET_SEARCH_COST_KEY_PREFIX = "targetSearchCost:";
+
     private static final int LOCK_WAIT_TIME = 10;
     private static final int LOCK_LEASE_TIME = 30;
 
-    @Transactional(readOnly = true)
     public void cachePoints(String userId, int value) {
-        cacheStorePort.put(POINT_CACHE_KEY_PREFIX + userId, value, 1, TimeUnit.DAYS);
+        integerCacheStorePort.put(POINT_CACHE_KEY_PREFIX + userId, value, 5, TimeUnit.MINUTES);
     }
 
-    public int getPointsFromCache(String userId) {
+    @Transactional(readOnly = true)
+    public int getAndCachePoints(String userId) {
         RLock lock = redissonClient.getLock(LOCK_KEY_PREFIX + userId);
         if (lock.isLocked()) {
             throw new ConcurrentModificationException("points data is currently being modified");
         }
 
-        Integer points = cacheStorePort.get(POINT_CACHE_KEY_PREFIX + userId, Integer.class);
-        if (points == null) {
-            throw new NullPointerException("points not found from cache");
+        Integer points = integerCacheStorePort.get(POINT_CACHE_KEY_PREFIX + userId, Integer.class);
+        if (points != null) {
+            return points;
         }
 
-        return points;
+        User user = userRepository.findByEmail(userId)
+                .orElseThrow(() -> new IllegalArgumentException("user not found"));
+
+        cachePoints(userId, user.getPoint().getBalance());
+
+        return user.getPoint().getBalance();
     }
 
     @Transactional
@@ -78,5 +89,23 @@ public class PointService {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("lock acquisition interrupted");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public SearchCost getAndCacheTargetSearchCost(String userId, String targetPhoneNumber) {
+        final String key = TARGET_SEARCH_COST_KEY_PREFIX + userId + targetPhoneNumber;
+
+        SearchCost searchCost = costCacheStorePort.get(key, SearchCost.class);
+        if (searchCost != null) {
+            return searchCost;
+        }
+
+        User user = userRepository.findByEmail(userId)
+                .orElseThrow(() -> new IllegalArgumentException("user not found"));
+
+        searchCost = searchHistoryRepository.getTargetSearchCost(user, targetPhoneNumber);
+        costCacheStorePort.put(key, searchCost, 1, TimeUnit.MINUTES);
+
+        return searchCost;
     }
 }

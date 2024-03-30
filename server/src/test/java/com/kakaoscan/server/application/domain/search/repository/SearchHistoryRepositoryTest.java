@@ -1,6 +1,7 @@
 package com.kakaoscan.server.application.domain.search.repository;
 
 import com.kakaoscan.server.application.domain.test.TestUserDataInitializer;
+import com.kakaoscan.server.domain.point.model.SearchCost;
 import com.kakaoscan.server.domain.search.entity.SearchHistory;
 import com.kakaoscan.server.domain.search.enums.CostType;
 import com.kakaoscan.server.domain.search.repository.SearchHistoryRepository;
@@ -49,10 +50,10 @@ class SearchHistoryRepositoryTest {
         // given
 
         // when
-        CostType costType = searchHistoryRepository.getCurrentCostType(user, TARGET_PHONE_NUMBER);
+        SearchCost searchCost = searchHistoryRepository.getTargetSearchCost(user, TARGET_PHONE_NUMBER);
 
         // then
-        assertEquals(CostType.ORIGIN, costType);
+        assertEquals(CostType.ORIGIN, searchCost.getCostType());
     }
 
     @Test
@@ -65,10 +66,10 @@ class SearchHistoryRepositoryTest {
         userRepository.save(user);
 
         // when
-        CostType costType = searchHistoryRepository.getCurrentCostType(user, TARGET_PHONE_NUMBER);
+        SearchCost searchCost = searchHistoryRepository.getTargetSearchCost(user, TARGET_PHONE_NUMBER);
 
         // then
-        assertEquals(CostType.DISCOUNT, costType);
+        assertEquals(CostType.DISCOUNT, searchCost.getCostType());
     }
 
     @Test
@@ -82,10 +83,10 @@ class SearchHistoryRepositoryTest {
         userRepository.save(user);
 
         // when
-        CostType costType = searchHistoryRepository.getCurrentCostType(user, TARGET_PHONE_NUMBER);
+        SearchCost searchCost = searchHistoryRepository.getTargetSearchCost(user, TARGET_PHONE_NUMBER);
 
         // then
-        assertEquals(CostType.ORIGIN, costType);
+        assertEquals(CostType.ORIGIN, searchCost.getCostType());
     }
 
     private void addSearchHistoryToUser(User user, CostType costType, int hoursAgo) {
