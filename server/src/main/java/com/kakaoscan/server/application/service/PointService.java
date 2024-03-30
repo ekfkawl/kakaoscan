@@ -49,8 +49,7 @@ public class PointService {
             return points;
         }
 
-        User user = userRepository.findByEmail(userId)
-                .orElseThrow(() -> new IllegalArgumentException("user not found"));
+        User user = userRepository.findByEmailOrThrow(userId);
 
         cachePoints(userId, user.getPoint().getBalance());
 
@@ -66,8 +65,7 @@ public class PointService {
                 return false;
             }
 
-            User user = userRepository.findByEmail(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("user not found"));
+            User user = userRepository.findByEmailOrThrow(userId);
 
             Point point = user.getPoint();
             if (point.getBalance() < value) {
@@ -91,6 +89,12 @@ public class PointService {
         }
     }
 
+    public void cacheTargetSearchCost(String userId, String targetPhoneNumber, SearchCost searchCost) {
+        final String key = TARGET_SEARCH_COST_KEY_PREFIX + userId + targetPhoneNumber;
+
+        costCacheStorePort.put(key, searchCost, 1, TimeUnit.MINUTES);
+    }
+
     @Transactional(readOnly = true)
     public SearchCost getAndCacheTargetSearchCost(String userId, String targetPhoneNumber) {
         final String key = TARGET_SEARCH_COST_KEY_PREFIX + userId + targetPhoneNumber;
@@ -100,11 +104,10 @@ public class PointService {
             return searchCost;
         }
 
-        User user = userRepository.findByEmail(userId)
-                .orElseThrow(() -> new IllegalArgumentException("user not found"));
+        User user = userRepository.findByEmailOrThrow(userId);
 
         searchCost = searchHistoryRepository.getTargetSearchCost(user, targetPhoneNumber);
-        costCacheStorePort.put(key, searchCost, 1, TimeUnit.MINUTES);
+        cacheTargetSearchCost(userId, targetPhoneNumber, searchCost);
 
         return searchCost;
     }

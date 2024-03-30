@@ -67,6 +67,9 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
             if (deductPoints(event.getEmail(), searchCost.getCost())) {
                 SearchResult searchResult = deserialize(responseMessage, SearchResult.class);
                 searchHistoryService.recordUserSearchHistory(event.getEmail(), event.getPhoneNumber(), serialize(searchResult), searchCost.getCostType());
+
+                SearchCost nextSearchCost = searchHistoryService.getTargetSearchCost(event.getEmail(), event.getPhoneNumber());
+                pointService.cacheTargetSearchCost(event.getEmail(), event.getPhoneNumber(), nextSearchCost);
             }
         }
     }
