@@ -1,11 +1,11 @@
 import { Button, Modal } from 'flowbite-react';
-import { FC } from 'react';
+import {FC, ReactNode} from 'react';
 
 interface ConfirmPopupProps {
     show: boolean;
     onClose: () => void;
     title: string;
-    description: string;
+    description: ReactNode;
     learnMoreLink?: string;
     onConfirm: () => void;
 }
@@ -27,7 +27,7 @@ const ConfirmPopup: FC<ConfirmPopupProps> = ({ show, onClose, title, description
                     <Modal.Body className="p-9">
                         <div className="mb-4 text-sm text-gray-500 dark:text-gray-400">
                             <h3 className="mb-3 text-2xl font-bold text-gray-900 dark:text-white">{title}</h3>
-                            <p>{description}</p>
+                            {description}
                         </div>
 
                         <div className="items-center justify-between space-y-4 pt-4 sm:flex sm:space-y-0">
