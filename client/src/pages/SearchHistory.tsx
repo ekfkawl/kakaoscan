@@ -1,25 +1,25 @@
 import React, { useState } from 'react';
 import { Accordion, Button } from 'flowbite-react';
-import useSearchHistories from '../hooks/profile/useSearchHistories';
 import LearnMore from '../components/LearnMore';
-import {addDays, formatDate, formatPhoneNumber} from '../utils/format/format';
+import { addDays, formatDate, formatPhoneNumber } from '../utils/format/format';
 import { MdCheck } from 'react-icons/md';
 import TimeSince from '../components/TimeSince';
 import { useNavigate } from 'react-router-dom';
+import { useFetchData } from '../hooks/useFetchData';
 
 const SearchHistory = () => {
     const navigate = useNavigate();
-    const { searchHistories, isLoading } = useSearchHistories();
+    const { data: searchHistories, isLoading } = useFetchData<any>('/api/search-histories', {});
     const [isCopied, setIsCopied] = useState(false);
 
     return (
         <div className="mx-auto max-w-screen-lg">
             {isLoading ? (
                 <div></div>
-            ) : searchHistories.length > 0 ? (
+            ) : searchHistories?.data?.histories?.length > 0 ? (
                 <>
                     <Accordion flush collapseAll={true}>
-                        {searchHistories.map((history: any, index: number) => (
+                        {searchHistories.data.histories.map((history: any, index: number) => (
                             <Accordion.Panel key={index}>
                                 <Accordion.Title className="bg-transparent dark:bg-transparent">
                                     <div className="flex items-center sm:flex-row">
@@ -69,11 +69,10 @@ const SearchHistory = () => {
                                                 ></path>
                                             </svg>
                                         </div>
-                                        <TimeSince createdAt={history.createdAt}/>
+                                        <TimeSince createdAt={history.createdAt} />
                                     </div>
                                     <div className="flex justify-start items-center mb-2">
-                                        <div
-                                            className="mr-2 flex h-7 w-7 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 lg:h-8 lg:w-8">
+                                        <div className="mr-2 flex h-7 w-7 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 lg:h-8 lg:w-8">
                                             <svg
                                                 className="h-4 w-4 text-gray-600 dark:text-gray-500 lg:h-5 lg:w-5"
                                                 fill="currentColor"
@@ -81,9 +80,9 @@ const SearchHistory = () => {
                                                 xmlns="http://www.w3.org/2000/svg"
                                             >
                                                 <path
-                                                    fill-rule="evenodd"
+                                                    fillRule="evenodd"
                                                     d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-                                                    clip-rule="evenodd"
+                                                    clipRule="evenodd"
                                                 ></path>
                                             </svg>
                                         </div>
