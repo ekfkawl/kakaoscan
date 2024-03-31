@@ -10,7 +10,7 @@ import { useLocation } from 'react-router-dom';
 import ProfileCard from '../components/ProfileCard/ProfileCard';
 import ProfileThumbPopup from '../components/Popup/ProfileThumbPopup';
 
-const SearchHistoryDetail = () => {
+const SearchHistoryDetailPage = () => {
     const location = useLocation();
     const { targetHistory } = location.state || {};
     const tabsRef = useRef<TabsRef>(null);
@@ -93,4 +93,4 @@ const SearchHistoryDetail = () => {
     );
 };
 
-export default SearchHistoryDetail;
+export default SearchHistoryDetailPage;

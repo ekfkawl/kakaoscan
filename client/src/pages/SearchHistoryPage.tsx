@@ -7,7 +7,7 @@ import TimeSince from '../components/TimeSince';
 import { useNavigate } from 'react-router-dom';
 import { useFetchData } from '../hooks/useFetchData';
 
-const SearchHistory = () => {
+const SearchHistoryPage = () => {
     const navigate = useNavigate();
     const { data: searchHistories, isLoading } = useFetchData<any>('/api/search-histories', {});
     const [isCopied, setIsCopied] = useState(false);
@@ -135,4 +135,4 @@ const SearchHistory = () => {
     );
 };
 
-export default SearchHistory;
+export default SearchHistoryPage;
