@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import ChannelService from "../../ChannelService";
 
 const useScrollToComponent = (ref: React.RefObject<HTMLElement>) => {
     const [isVisible, setIsVisible] = useState(true);
@@ -6,7 +7,13 @@ const useScrollToComponent = (ref: React.RefObject<HTMLElement>) => {
     const checkVisibility = () => {
         if (ref.current) {
             const rect = ref.current.getBoundingClientRect();
-            setIsVisible(rect.bottom > 0 && rect.top < window.innerHeight);
+            if (rect.bottom > 0 && rect.top < window.innerHeight) {
+                setIsVisible(true);
+                ChannelService.showChannelButton();
+            }else {
+                setIsVisible(false);
+                ChannelService.hideChannelButton();
+            }
         }
     };
 
