@@ -1,5 +1,6 @@
 import { Button, Modal } from 'flowbite-react';
 import {FC, ReactNode} from 'react';
+import {useNavigate} from "react-router-dom";
 
 interface ConfirmPopupProps {
     show: boolean;
@@ -11,6 +12,8 @@ interface ConfirmPopupProps {
 }
 
 const ConfirmPopup: FC<ConfirmPopupProps> = ({ show, onClose, title, description, learnMoreLink, onConfirm }) => {
+    const navigate = useNavigate();
+
     return (
         <>
             {show && (
@@ -32,8 +35,10 @@ const ConfirmPopup: FC<ConfirmPopupProps> = ({ show, onClose, title, description
 
                         <div className="items-center justify-between space-y-4 pt-4 sm:flex sm:space-y-0">
                             <a
-                                href={learnMoreLink}
-                                className="font-medium text-primary-600 hover:underline dark:text-primary-500"
+                                className="font-medium text-primary-600 hover:underline dark:text-primary-500 cursor-pointer"
+                                onClick={() => {
+                                    navigate(learnMoreLink || '/');
+                                }}
                             >
                                 {(learnMoreLink && '자세히 알아보기') || ''}
                             </a>
