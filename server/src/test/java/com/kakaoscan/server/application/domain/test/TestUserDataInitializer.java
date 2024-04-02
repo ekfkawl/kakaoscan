@@ -27,7 +27,7 @@ public class TestUserDataInitializer {
                 .build();
 
         user.initializePoint();
-        user.getPoint().addBalance(1000);
+        user.getPointWallet().addBalance(1000);
 
         return userRepository.save(user);
     }

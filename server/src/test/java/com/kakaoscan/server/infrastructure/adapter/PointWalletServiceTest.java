@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class PointServiceTest {
+class PointWalletServiceTest {
     @Autowired
     private UserRepository userRepository;
 
@@ -37,13 +37,13 @@ class PointServiceTest {
     @DisplayName("사용자 및 포인트 초기 설정")
     void setUp() {
         user = new TestUserDataInitializer(userRepository).createUser();
-        System.out.println("----------- Init Balance : " + user.getPoint().getBalance());
+        System.out.println("----------- Init Balance : " + user.getPointWallet().getBalance());
     }
 
     @AfterEach
     @DisplayName("최종 포인트 잔액")
     void getPointBalance() {
-        int balance = user.getPoint().getBalance();
+        int balance = user.getPointWallet().getBalance();
         System.out.println("----------- Last Balance : " + balance);
     }
 

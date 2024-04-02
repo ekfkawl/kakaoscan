@@ -14,8 +14,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Entity
-@Table(name = "points")
-public class Point {
+@Table(name = "points_wallet")
+public class PointWallet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -35,7 +35,7 @@ public class Point {
     @Column(columnDefinition = "DATETIME(6)")
     private LocalDateTime updatedAt;
 
-    protected Point() {
+    protected PointWallet() {
     }
 
     public void deductBalance(int balance) {

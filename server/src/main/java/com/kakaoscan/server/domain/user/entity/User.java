@@ -1,6 +1,6 @@
 package com.kakaoscan.server.domain.user.entity;
 
-import com.kakaoscan.server.domain.point.entity.Point;
+import com.kakaoscan.server.domain.point.entity.PointWallet;
 import com.kakaoscan.server.domain.search.entity.SearchHistory;
 import com.kakaoscan.server.domain.user.enums.AuthenticationType;
 import com.kakaoscan.server.domain.user.enums.Role;
@@ -60,7 +60,7 @@ public class User {
     private LocalDateTime createdAt;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
-    private Point point;
+    private PointWallet pointWallet;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("createdAt DESC")
@@ -81,7 +81,7 @@ public class User {
     }
 
     public void initializePoint() {
-        this.point = Point.builder()
+        this.pointWallet = PointWallet.builder()
                 .user(this)
                 .balance(0)
                 .build();

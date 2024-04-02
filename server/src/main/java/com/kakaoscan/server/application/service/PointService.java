@@ -1,7 +1,7 @@
 package com.kakaoscan.server.application.service;
 
 import com.kakaoscan.server.application.port.CacheStorePort;
-import com.kakaoscan.server.domain.point.entity.Point;
+import com.kakaoscan.server.domain.point.entity.PointWallet;
 import com.kakaoscan.server.domain.point.model.SearchCost;
 import com.kakaoscan.server.domain.search.repository.SearchHistoryRepository;
 import com.kakaoscan.server.domain.user.entity.User;
@@ -51,9 +51,9 @@ public class PointService {
 
         User user = userRepository.findByEmailOrThrow(userId);
 
-        cachePoints(userId, user.getPoint().getBalance());
+        cachePoints(userId, user.getPointWallet().getBalance());
 
-        return user.getPoint().getBalance();
+        return user.getPointWallet().getBalance();
     }
 
     @Transactional
@@ -67,12 +67,12 @@ public class PointService {
 
             User user = userRepository.findByEmailOrThrow(userId);
 
-            Point point = user.getPoint();
-            if (point.getBalance() < value) {
+            PointWallet pointWallet = user.getPointWallet();
+            if (pointWallet.getBalance() < value) {
                 throw new IllegalStateException("not enough points");
             }
 
-            point.deductBalance(value);
+            pointWallet.deductBalance(value);
 
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                 @Override

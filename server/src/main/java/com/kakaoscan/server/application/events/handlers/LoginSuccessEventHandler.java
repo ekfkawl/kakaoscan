@@ -21,7 +21,7 @@ public class LoginSuccessEventHandler extends AbstractEventProcessor<LoginSucces
     protected void handleEvent(LoginSuccessEvent event) {
         User user = userRepository.findByEmailOrThrow(event.getEmail());
 
-        pointService.cachePoints(event.getEmail(), user.getPoint().getBalance());
+        pointService.cachePoints(event.getEmail(), user.getPointWallet().getBalance());
 
         log.info("cached point: {}", event.getEmail());
     }
