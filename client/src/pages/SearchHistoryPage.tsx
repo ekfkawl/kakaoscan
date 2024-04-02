@@ -128,7 +128,7 @@ const SearchHistoryPage = () => {
                 <div className="text-center">
                     <p className="text-gray-500 dark:text-gray-400 mb-2 text-4xl">🤔</p>
                     <p className="text-gray-500 dark:text-gray-400 mb-2">조회 내역이 비어있습니다.</p>
-                    <LearnMore to="/profile-search-policy" text="자세히 알아보기" />
+                    <LearnMore to="/policy" text="자세히 알아보기" />
                 </div>
             )}
         </div>

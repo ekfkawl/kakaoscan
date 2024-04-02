@@ -129,7 +129,7 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                     title="포인트 차감 안내"
                     description={
                         !isLoading && searchCost?.success && searchCost?.data.cost ? (
-                            <div>
+                            <div className="break-all">
                                 <p>
                                     프로필 조회에 성공하면 <strong>{searchCost.data.cost} 포인트</strong>가 차감됩니다.
                                     계속 진행하시겠어요?
@@ -138,16 +138,16 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                                     <p className="mt-4">
                                         * {formatDate(new Date(searchCost?.data.expiredAtDiscount))} 까지,
                                         <br />
-                                        해당 번호의 프로필 조회 포인트가 80% 할인됩니다!
+                                        해당 번호의 프로필 조회 비용이 80% 할인됩니다!
                                     </p>
                                 )}
                             </div>
                         ) : (
-                            <p>현재 프로필 조회 비용을 불러올 수 없습니다. 나중에 다시 시도해주세요.</p>
+                            <p>프로필 조회 비용을 불러올 수 없습니다. 나중에 다시 시도해주세요.</p>
                         )
                     }
                     onConfirm={handleConfirmSendMessage}
-                    learnMoreLink="/"
+                    learnMoreLink="/policy"
                 />
             )}
             <MessageToast

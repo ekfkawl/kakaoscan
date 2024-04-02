@@ -6,8 +6,11 @@ import RegisterForm from './components/Auth/RegisterForm';
 import AppLayout from './components/AppLayout';
 import SearchPage from './pages/SearchPage';
 import ProtectedRoute from './components/ProtectedRoute';
-import SearchHistory from './pages/SearchHistory';
-import SearchHistoryDetail from './pages/SearchHistoryDetail';
+import SearchHistoryPage from './pages/SearchHistoryPage';
+import SearchHistoryDetailPage from './pages/SearchHistoryDetailPage';
+import ShopPage from './pages/ShopPage';
+import E404Page from './pages/E404Page';
+import PolicyPage from './pages/PolicyPage';
 
 const App = () => {
     return (
@@ -26,7 +29,7 @@ const App = () => {
                         path="search-history"
                         element={
                             <ProtectedRoute>
-                                <SearchHistory />
+                                <SearchHistoryPage />
                             </ProtectedRoute>
                         }
                     />
@@ -34,7 +37,23 @@ const App = () => {
                         path="search-history/detail"
                         element={
                             <ProtectedRoute>
-                                <SearchHistoryDetail />
+                                <SearchHistoryDetailPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="shop"
+                        element={
+                            <ProtectedRoute>
+                                <ShopPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="policy"
+                        element={
+                            <ProtectedRoute>
+                                <PolicyPage />
                             </ProtectedRoute>
                         }
                     />
@@ -54,6 +73,7 @@ const App = () => {
                             </AuthPage>
                         }
                     />
+                    <Route path="*" element={<E404Page />} />
                 </Route>
             </Routes>
         </BrowserRouter>

@@ -26,7 +26,6 @@ const SearchHistoryDetailPage = () => {
         addGalleryItem: addBackgroundItem,
         clearGalleryItems: clearBackgroundItems,
     } = useGalleryItems();
-    const [, setActiveTab] = useState(0);
     const { profileData } = useProfileData({
         data: targetHistory,
         clearProfileItems: clearProfileItems,
@@ -65,13 +64,7 @@ const SearchHistoryDetailPage = () => {
                 phoneNumber={targetHistory.targetPhoneNumber}
                 musicInfo={profileData.musicInfo}
             />
-            <Tabs
-                className="my-1"
-                aria-label="Tabs with underline"
-                style="underline"
-                ref={tabsRef}
-                onActiveTabChange={(tab) => setActiveTab(tab)}
-            >
+            <Tabs className="my-1" aria-label="Tabs with underline" style="underline" ref={tabsRef}>
                 <Tabs.Item title={`프로필 (${profileItems.length})`} icon={HiUserCircle}>
                     <Gallery items={profileItems} />
                     {targetHistory && profileItems.length === 0 && (
