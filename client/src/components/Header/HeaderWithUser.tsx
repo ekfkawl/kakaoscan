@@ -2,7 +2,7 @@ import { Avatar, DarkThemeToggle, Dropdown, Navbar } from 'flowbite-react';
 import React, { useCallback, useEffect, useState } from 'react';
 import { FaCoins, FaGithub } from 'react-icons/fa';
 import useLogout from '../../hooks/auth/useLogout';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useUser from '../../hooks/auth/useUser';
 import { StompPoint } from '../../types/stomp/stompPoint';
 import { useSubscription } from '../../hooks/websocket/useSubscription';
@@ -11,6 +11,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useSendMessage } from '../../hooks/websocket/useSendMessage';
 
 const HeaderWithUser = () => {
+    const location = useLocation();
     const navigate = useNavigate();
     const { logout } = useLogout();
     const handleLogout = async () => {
@@ -35,6 +36,8 @@ const HeaderWithUser = () => {
             clearInterval(intervalId);
         };
     }, [handleSendPoint, sendMessage]);
+
+    const isActive = (path: string) => location.pathname === path;
 
     return (
         <header>
@@ -111,7 +114,8 @@ const HeaderWithUser = () => {
                     className="lg:order-1"
                 >
                     <Navbar.Link
-                        href="#"
+                        active={isActive('/shop')}
+                        className="cursor-pointer"
                         onClick={() => {
                             navigate('/shop');
                         }}
@@ -119,12 +123,13 @@ const HeaderWithUser = () => {
                         상점
                     </Navbar.Link>
                     <Navbar.Link
-                        href="#"
+                        active={isActive('/policy')}
+                        className="cursor-pointer"
                         onClick={() => {
-                            navigate('/notice');
+                            navigate('/policy');
                         }}
                     >
-                        공지사항
+                        정책
                     </Navbar.Link>
                 </Navbar.Collapse>
             </Navbar>
