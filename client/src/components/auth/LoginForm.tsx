@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Alert, Button, Checkbox, Label, TextInput } from 'flowbite-react';
 import useEmailValidation from '../../hooks/validation/useEmailValidation';
 import usePasswordValidation from '../../hooks/validation/usePasswordValidation';
@@ -11,16 +11,12 @@ import GoogleLoginButton from './GoogleLoginButton';
 const LoginForm = () => {
     useRedirectIfAuthenticated('/');
 
-    const navigate = useNavigate();
     const { email, setEmail } = useEmailValidation();
     const { password, setPassword } = usePasswordValidation();
     const { login, isLoading, error: loginError } = useLogin();
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        let res = await login({ email, password });
-        if (res && res.success) {
-            navigate('/');
-        }
+        await login({ email, password });
     };
 
     return (
