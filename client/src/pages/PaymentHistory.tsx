@@ -1,12 +1,13 @@
-import React, {useEffect, useState} from 'react';
-import {Badge, Button} from 'flowbite-react';
+import React, { useEffect, useState } from 'react';
+import { Badge, Button } from 'flowbite-react';
 import DateRangePicker from '../components/DateRangePicker';
-import {useFetchData} from '../hooks/useFetchData';
+import { useFetchData } from '../hooks/useFetchData';
 import useDateRangePicker from '../hooks/ui/useDateRangePicker';
-import {formatDate} from '../utils/format/format';
-import {useHttp} from '../hooks/useHttp';
-import {ApiResponse} from '../types/apiResponse';
+import { formatDate } from '../utils/format/format';
+import { useHttp } from '../hooks/useHttp';
+import { ApiResponse } from '../types/apiResponse';
 import MessagePopup from '../components/Popup/MessagePopup';
+import ConfirmPopup from '../components/Popup/ConfirmPopup';
 
 const PaymentHistory = () => {
     const { start, end, setStart, setEnd } = useDateRangePicker();
@@ -34,6 +35,8 @@ const PaymentHistory = () => {
     const [refreshFlag, setRefreshFlag] = useState(false);
 
     const [showMessage, setShowMessage] = useState(false);
+    const [showCancelTransactionConfirmPopup, setShowCancelTransactionConfirmPopup] = useState(false);
+    const [cancelTransactionId, setCancelTransactionId] = useState(0);
 
     useEffect(() => {
         fetchData({ startDate: start, endDate: end });
@@ -105,7 +108,13 @@ const PaymentHistory = () => {
                                         </p>
                                     </div>
                                     <div className="flex justify-end items-center">
-                                        <Button color="gray" onClick={() => cancelTransaction(product.id)}>
+                                        <Button
+                                            color="gray"
+                                            onClick={() => {
+                                                setCancelTransactionId(product.id);
+                                                setShowCancelTransactionConfirmPopup(true);
+                                            }}
+                                        >
                                             <svg
                                                 fill="currentColor"
                                                 viewBox="0 0 20 20"
@@ -132,6 +141,15 @@ const PaymentHistory = () => {
                             title="알림"
                             description={error}
                             onConfirm={() => setShowMessage(false)}
+                        />
+                    )}
+                    {showCancelTransactionConfirmPopup && (
+                        <ConfirmPopup
+                            show={showCancelTransactionConfirmPopup}
+                            onClose={() => setShowCancelTransactionConfirmPopup(false)}
+                            title="알림"
+                            description={<p>포인트 충전 신청을 취소하시겠어요?</p>}
+                            onConfirm={() => cancelTransaction(cancelTransactionId)}
                         />
                     )}
                 </>
