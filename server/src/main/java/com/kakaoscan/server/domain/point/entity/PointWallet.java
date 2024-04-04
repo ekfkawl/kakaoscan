@@ -1,5 +1,7 @@
 package com.kakaoscan.server.domain.point.entity;
 
+import com.kakaoscan.server.application.dto.request.PointPaymentRequest;
+import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
 import com.kakaoscan.server.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,6 +11,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 @AllArgsConstructor
@@ -35,6 +39,10 @@ public class PointWallet {
     @Column(columnDefinition = "DATETIME(6)")
     private LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("createdAt DESC")
+    private List<PointTransaction> pointTransaction = new ArrayList<>();
+
     protected PointWallet() {
     }
 
@@ -47,5 +55,17 @@ public class PointWallet {
 
     public void addBalance(int balance) {
         this.balance += balance;
+    }
+
+    public void addTransaction(PointPaymentRequest paymentRequest, String depositor) {
+        PointTransaction transaction = PointTransaction.builder()
+                .amount(paymentRequest.getAmount())
+                .productType(paymentRequest.getProductType())
+                .transactionStatus(ProductTransactionStatus.PENDING)
+                .depositor(depositor)
+                .wallet(this)
+                .build();
+
+        this.pointTransaction.add(transaction);
     }
 }

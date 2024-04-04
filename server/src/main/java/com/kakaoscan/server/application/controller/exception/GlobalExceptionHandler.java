@@ -3,6 +3,8 @@ package com.kakaoscan.server.application.controller.exception;
 import com.kakaoscan.server.application.dto.request.RegisterRequest;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.application.exception.EmailNotVerifiedException;
+import com.kakaoscan.server.application.exception.PendingTransactionExistsException;
+import com.kakaoscan.server.infrastructure.exception.DataNotFoundException;
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,5 +46,20 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmailNotVerifiedException.class)
     public ResponseEntity<ApiResponse<Void>> handleEmailNotVerifiedException() {
         return new ResponseEntity<>(ApiResponse.failure("이메일 인증을 완료해 주세요."), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(PendingTransactionExistsException.class)
+    public ResponseEntity<ApiResponse<Void>> handlePendingTransactionExistsException(PendingTransactionExistsException e) {
+        return new ResponseEntity<>(ApiResponse.failure(e.getMessage()), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(DataNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDataNotFoundException(DataNotFoundException e) {
+        return new ResponseEntity<>(ApiResponse.failure(e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalStateException(IllegalStateException e) {
+        return new ResponseEntity<>(ApiResponse.failure(e.getMessage()), HttpStatus.CONFLICT);
     }
 }

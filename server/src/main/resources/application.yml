@@ -5,6 +5,8 @@ spring:
       - classpath:application-jwt.yml
       - classpath:application-smtp.yml
       - classpath:application-swagger.yml
+      - classpath:application-words.yml
+      - classpath:application-private.yml
 
   mvc:
     hidden-method:

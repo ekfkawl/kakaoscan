@@ -3,3 +3,5 @@ __recovery/
 
 *.iml
 server/src/main/java/com/kakaoscan/server/infrastructure/logging/LogsStoreConnectionFactory.java
+server/src/main/resources/application-words.yml
+server/src/main/resources/application-private.yml
