@@ -29,8 +29,10 @@ const AppLayout = () => {
                 language: 'ko',
                 zIndex: 50,
             });
+        }else {
+            ChannelService.shutdown();
         }
-    }, [isAuthenticated]);
+    }, [isAuthenticated, user?.email]);
 
     return (
         <div className="relative bg-white dark:bg-gray-900">

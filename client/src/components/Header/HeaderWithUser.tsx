@@ -6,7 +6,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useUser from '../../hooks/auth/useUser';
 import { StompPoint } from '../../types/stomp/stompPoint';
 import { useSubscription } from '../../hooks/websocket/useSubscription';
-import { faFolderOpen, faRightFromBracket, faUser } from '@fortawesome/free-solid-svg-icons';
+import { faFolderOpen, faRightFromBracket, faShoppingCart, faUser } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useSendMessage } from '../../hooks/websocket/useSendMessage';
 
@@ -72,12 +72,12 @@ const HeaderWithUser = () => {
                                 />
                             }
                         >
-                            <Dropdown.Header>
+                            <Dropdown.Item onClick={() => navigate('/my-page')}>
                                 <strong className="block text-sm">
                                     <FontAwesomeIcon icon={faUser} className="mr-2" />
                                     {user?.email}
                                 </strong>
-                            </Dropdown.Header>
+                            </Dropdown.Item>
                             <Dropdown.Header>
                                 <strong className="block text-sm">
                                     <FaCoins className="mr-2 text-yellow-300 dark:text-yellow-200" />
@@ -88,12 +88,11 @@ const HeaderWithUser = () => {
                                     P
                                 </strong>
                             </Dropdown.Header>
-                            <Dropdown.Item
-                                className="text-sm"
-                                onClick={() => {
-                                    navigate('/search-history');
-                                }}
-                            >
+                            <Dropdown.Item className="text-sm" onClick={() => navigate('/payment-history')}>
+                                <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
+                                구매 내역
+                            </Dropdown.Item>
+                            <Dropdown.Item className="text-sm" onClick={() => navigate('/search-history')}>
                                 <FontAwesomeIcon icon={faFolderOpen} className="mr-2" />
                                 조회 내역
                             </Dropdown.Item>
@@ -116,18 +115,14 @@ const HeaderWithUser = () => {
                     <Navbar.Link
                         active={isActive('/shop')}
                         className="cursor-pointer"
-                        onClick={() => {
-                            navigate('/shop');
-                        }}
+                        onClick={() => navigate('/shop')}
                     >
                         상점
                     </Navbar.Link>
                     <Navbar.Link
                         active={isActive('/policy')}
                         className="cursor-pointer"
-                        onClick={() => {
-                            navigate('/policy');
-                        }}
+                        onClick={() => navigate('/policy')}
                     >
                         정책
                     </Navbar.Link>

@@ -11,6 +11,7 @@ import SearchHistoryDetailPage from './pages/SearchHistoryDetailPage';
 import ShopPage from './pages/ShopPage';
 import E404Page from './pages/E404Page';
 import PolicyPage from './pages/PolicyPage';
+import PaymentHistory from './pages/PaymentHistory';
 
 const App = () => {
     return (
@@ -54,6 +55,14 @@ const App = () => {
                         element={
                             <ProtectedRoute>
                                 <PolicyPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/payment-history"
+                        element={
+                            <ProtectedRoute>
+                                <PaymentHistory />
                             </ProtectedRoute>
                         }
                     />

@@ -49,6 +49,19 @@ export const formatDate = (date: Date): string => {
     return `${year}-${month}-${day} ${hours}:${minutes}`;
 };
 
+export const simpleFormatDate = (date: Date): string => {
+    return new Intl.DateTimeFormat('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        timeZone: 'Asia/Seoul',
+    })
+        .format(date)
+        .split('. ')
+        .join('-')
+        .slice(0, -1);
+};
+
 export const addDays = (dateString: string, daysToAdd: number): Date => {
     const date = new Date(dateString);
     date.setDate(date.getDate() + daysToAdd);

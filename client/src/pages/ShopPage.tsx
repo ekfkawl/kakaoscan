@@ -1,9 +1,39 @@
-import { Tabs } from 'flowbite-react';
-import React, { useState } from 'react';
+import {Button, Tabs} from 'flowbite-react';
+import React, {useEffect, useState} from 'react';
 import LearnMore from '../components/LearnMore';
+import {useHttp} from '../hooks/useHttp';
+import MessagePopup from '../components/Popup/MessagePopup';
+import {ApiResponse} from '../types/apiResponse';
+import {useNavigate} from 'react-router-dom';
 
 const ShopPage = () => {
+    const navigate = useNavigate();
+
     const [activeTab, setActiveTab] = useState(0);
+    const { sendRequest, data, isLoading, error } = useHttp<ApiResponse>();
+    const [showPaymentMessage, setShowPaymentMessage] = useState(false);
+
+    const pointPayment = async () => {
+        const amounts = [500, 1000, 5000];
+        const amount = amounts[activeTab];
+
+        await sendRequest({
+            url: '/api/payment',
+            method: 'POST',
+            data: JSON.stringify({
+                amount,
+            }),
+        });
+    };
+
+    useEffect(() => {
+        if (data && data.success) {
+            navigate('/payment-history');
+        }
+        if (error) {
+            setShowPaymentMessage(true);
+        }
+    }, [data, error]);
 
     return (
         <div className="mx-auto max-w-screen-lg">
@@ -25,50 +55,29 @@ const ShopPage = () => {
                     <div className={`self-center w-full ${activeTab === 0 ? '' : 'hidden'}`}>
                         <div className="text-gray-500 dark:text-gray-400">가격</div>
                         <div className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white">500원</div>
-                        <a
-                            href="#"
-                            className="flex justify-center text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-bue-200 dark:focus:ring-primary-900 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-4"
-                        >
-                            지금 구매
-                        </a>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">구매는 계좌이체로만 가능합니다.</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                            수작업으로 처리되므로 시간이 다소 걸릴 수도 있는 점 양해부탁드립니다. 늦어도 24시간 이내
-                            처리됩니다.
-                        </p>
+                        <BuyPoint pointPayment={pointPayment} />
                     </div>
                     <div className={`self-center w-full ${activeTab === 1 ? '' : 'hidden'}`}>
                         <div className="text-gray-500 dark:text-gray-400">가격</div>
                         <div className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white">1,000원</div>
-                        <a
-                            href="#"
-                            className="flex justify-center text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-bue-200 dark:focus:ring-primary-900 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-4"
-                        >
-                            지금 구매
-                        </a>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">구매는 계좌이체로만 가능합니다.</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                            수작업으로 처리되므로 시간이 다소 걸릴 수도 있는 점 양해부탁드립니다. 늦어도 24시간 이내
-                            처리됩니다.
-                        </p>
+                        <BuyPoint pointPayment={pointPayment} />
                     </div>
                     <div className={`self-center w-full ${activeTab === 2 ? '' : 'hidden'}`}>
                         <div className="text-gray-500 dark:text-gray-400">가격</div>
                         <div className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white">5,000원</div>
-                        <a
-                            href="#"
-                            className="flex justify-center text-white bg-primary-600 hover:bg-primary-700 focus:ring-4 focus:ring-bue-200 dark:focus:ring-primary-900 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-4"
-                        >
-                            지금 구매
-                        </a>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 break-all">구매는 계좌이체로만 가능합니다.</p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400 break-all">
-                            관리자의 수작업으로 처리되므로 시간이 다소 걸릴 수도 있는 점 양해부탁드립니다. 늦어도 24시간 이내
-                            처리됩니다.
-                        </p>
+                        <BuyPoint pointPayment={pointPayment} />
                     </div>
                 </div>
             </div>
+            {showPaymentMessage && (
+                <MessagePopup
+                    show={showPaymentMessage}
+                    onClose={() => setShowPaymentMessage(false)}
+                    title="알림"
+                    description={error}
+                    onConfirm={() => navigate('/payment-history')}
+                />
+            )}
         </div>
     );
 };
@@ -81,6 +90,19 @@ const AboutPoint: React.FC = () => (
             포인트를 충전하여 원하는 대상의 프로필을 탐색하실 수 있습니다.
         </p>
         <LearnMore to="/policy" text="자세히 알아보기" />
+    </div>
+);
+
+const BuyPoint: React.FC<{ pointPayment: () => Promise<void> }> = ({ pointPayment }) => (
+    <div>
+        <Button fullSized color="blue" className="my-4 inline-flex" onClick={() => pointPayment()}>
+            지금 구매
+        </Button>
+        <p className="text-sm text-gray-500 dark:text-gray-400 break-all">구매는 계좌이체로만 가능합니다.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400 break-all">
+            관리자의 수작업으로 처리되므로 시간이 다소 걸릴 수도 있는 점 양해부탁드립니다. 늦어도 24시간 이내
+            처리됩니다.
+        </p>
     </div>
 );
 
