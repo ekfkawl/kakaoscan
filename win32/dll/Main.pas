@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, System.Threading, System.Classes, System.SysUtils,
   KakaoHandle, KakaoCtrl, KakaoResponse, KakaoStatus, KakaoHook, KakaoProfile, RedisUtil, SearchEvent, EventStatus, Test, GuardObjectUtil,
-  InvalidPhoneNumber;
+  InvalidPhoneNumber, SearchNewPhoneNumberEvent, RedisConfig;
 
 procedure Initialize;
 procedure RunEvent(const EventId, Email, PhoneNumber: string);
@@ -36,6 +36,7 @@ procedure RunEvent(const EventId, Email, PhoneNumber: string);
 var
   KakaoResponse: TKakaoResponse;
   KakaoStatus: TKakaoStatus;
+  SearchNewNumberEvent: TSearchNewPhoneNumberEvent;
   KakaoProfile: TKakaoProfile;
   StatusResponse: TStatusResponse;
   ViewFriendInfo: TViewFriendInfo;
@@ -80,10 +81,18 @@ begin
 
             Exit;
           end else
-          if (KakaoStatus.Status = STATUS_OK) and (not KakaoCtrl.SearchFriend(PhoneNumber).Value) then
+          if KakaoStatus.Status = STATUS_OK then
           begin
-            Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EVENT_FAILURE, DELAYED_FRIEND_SYNC));
-            Exit;
+            Guard(SearchNewNumberEvent, TSearchNewPhoneNumberEvent.Create);
+            SearchNewNumberEvent.Email:= Email;
+            SearchNewNumberEvent.PhoneNumber:= PhoneNumber;
+            Redis.Publish(TOPIC_OTHER_EVENT, SearchNewNumberEvent.ToEventJSON);
+
+            if not KakaoCtrl.SearchFriend(PhoneNumber).Value then
+            begin
+              Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EVENT_FAILURE, DELAYED_FRIEND_SYNC));
+              Exit;
+            end;
           end else
           if KakaoResponse.ResponseType <> rtFriend then
           begin

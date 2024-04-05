@@ -2,7 +2,7 @@ package com.kakaoscan.server.application.events.handlers;
 
 import com.kakaoscan.server.application.port.EventStatusPort;
 import com.kakaoscan.server.application.service.PointService;
-import com.kakaoscan.server.application.service.SearchHistoryService;
+import com.kakaoscan.server.application.service.SearchService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
 import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.events.model.SearchEvent;
@@ -34,7 +34,7 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
     private final StompMessageDispatcher messageDispatcher;
     private final RateLimitService rateLimitService;
     private final PointService pointService;
-    private final SearchHistoryService searchHistoryService;
+    private final SearchService searchService;
 
     @Override
     protected void handleEvent(SearchEvent event) {
@@ -62,13 +62,13 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
         messageDispatcher.sendToUser(new SearchMessage(event.getEmail(), responseMessage, hasNext, status.getStatus() == SUCCESS));
 
         if (status.getStatus() == SUCCESS) {
-            SearchCost searchCost = searchHistoryService.getTargetSearchCost(event.getEmail(), event.getPhoneNumber());
+            SearchCost searchCost = searchService.getTargetSearchCost(event.getEmail(), event.getPhoneNumber());
 
             if (deductPoints(event.getEmail(), searchCost.getCost())) {
                 SearchResult searchResult = deserialize(responseMessage, SearchResult.class);
-                searchHistoryService.recordUserSearchHistory(event.getEmail(), event.getPhoneNumber(), serialize(searchResult), searchCost.getCostType());
+                searchService.recordUserSearchHistory(event.getEmail(), event.getPhoneNumber(), serialize(searchResult), searchCost.getCostType());
 
-                SearchCost nextSearchCost = searchHistoryService.getTargetSearchCost(event.getEmail(), event.getPhoneNumber());
+                SearchCost nextSearchCost = searchService.getTargetSearchCost(event.getEmail(), event.getPhoneNumber());
                 pointService.cacheTargetSearchCost(event.getEmail(), event.getPhoneNumber(), nextSearchCost);
             }
         }

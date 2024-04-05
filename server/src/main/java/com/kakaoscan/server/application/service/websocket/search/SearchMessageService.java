@@ -1,15 +1,18 @@
 package com.kakaoscan.server.application.service.websocket.search;
 
 import com.kakaoscan.server.application.service.PointService;
+import com.kakaoscan.server.application.service.SearchService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
 import com.kakaoscan.server.common.validation.ValidationPatterns;
 import com.kakaoscan.server.domain.point.model.SearchCost;
+import com.kakaoscan.server.domain.search.model.NewNumberSearch;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.infrastructure.exception.UserNotVerifiedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
+import java.time.LocalDate;
 import java.util.ConcurrentModificationException;
 
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.CONCURRENT_MODIFICATION_POINTS;
@@ -20,6 +23,7 @@ import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEA
 public class SearchMessageService {
     private final StompMessageDispatcher messageDispatcher;
     private final PointService pointService;
+    private final SearchService searchService;
 
     public SearchMessage createSearchMessage(Principal principal, SearchMessage.OriginMessage originMessage) {
         if (principal != null) {
@@ -46,5 +50,10 @@ public class SearchMessageService {
             messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), CONCURRENT_MODIFICATION_POINTS, false));
             return false;
         }
+    }
+
+    public boolean canAttemptNumberSearch(SearchMessage message) {
+        NewNumberSearch newNumberSearch = searchService.getAndCacheNewNumberSearch(message.getEmail(), LocalDate.now());
+        return newNumberSearch.getCount() >= 5 && newNumberSearch.getNumbers().contains(message.getContent());
     }
 }

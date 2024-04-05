@@ -3,7 +3,7 @@ package com.kakaoscan.server.application.controller.api;
 import com.kakaoscan.server.application.controller.ApiEndpointPrefix;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.application.dto.response.SearchHistories;
-import com.kakaoscan.server.application.service.SearchHistoryService;
+import com.kakaoscan.server.application.service.SearchService;
 import com.kakaoscan.server.domain.user.model.CustomUserDetails;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,12 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Tag(name = "SearchHistory", description = "SearchHistory API")
 public class SearchHistoryController extends ApiEndpointPrefix {
-    private final SearchHistoryService searchHistoryService;
+    private final SearchService searchService;
 
     @GetMapping("/search-histories")
     @Operation(summary = "search history within N hours of the createdAt")
     public ResponseEntity<ApiResponse<SearchHistories>> findSearchHistories(@AuthenticationPrincipal CustomUserDetails userDetails) {
-        SearchHistories searchHistories = searchHistoryService.findUserSearchHistories(userDetails.getEmail());
+        SearchHistories searchHistories = searchService.findUserSearchHistories(userDetails.getEmail());
 
         return new ResponseEntity<>(ApiResponse.success(searchHistories), HttpStatus.OK);
     }

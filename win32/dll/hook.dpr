@@ -27,7 +27,8 @@ uses
   BitmapUtil in 'utils\BitmapUtil.pas',
   KakaoProfilePageUtil in 'kakao\private\KakaoProfilePageUtil.pas',
   KakaoResponse in 'kakao\model\KakaoResponse.pas',
-  InvalidPhoneNumber in 'search\model\InvalidPhoneNumber.pas';
+  InvalidPhoneNumber in 'search\model\InvalidPhoneNumber.pas',
+  SearchNewPhoneNumberEvent in 'event\model\SearchNewPhoneNumberEvent.pas';
 
 {$R *.res}
 

@@ -3,7 +3,7 @@ object Form1: TForm1
   Top = 0
   Caption = 'Test'
   ClientHeight = 202
-  ClientWidth = 418
+  ClientWidth = 588
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -74,6 +74,15 @@ object Form1: TForm1
     Caption = 'ScanProfile'
     TabOrder = 6
     OnClick = Button5Click
+  end
+  object Button6: TButton
+    Left = 379
+    Top = 39
+    Width = 201
+    Height = 35
+    Caption = 'Pub SearchNewNumberEvent'
+    TabOrder = 7
+    OnClick = Button6Click
   end
   object Timer1: TTimer
     Enabled = False

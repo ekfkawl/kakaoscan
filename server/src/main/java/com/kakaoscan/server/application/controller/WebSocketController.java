@@ -67,6 +67,11 @@ public class WebSocketController {
             return;
         }
 
+        if (!searchMessageService.canAttemptNumberSearch(message)) {
+            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), MAX_DAILY_NEW_NUMBER_SEARCH, false));
+            return;
+        }
+
         if (rateLimitService.isBucketFull(message.getEmail())) {
             messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), SEARCH_TOO_MANY_INVALID_PHONE_NUMBER, false));
             return;

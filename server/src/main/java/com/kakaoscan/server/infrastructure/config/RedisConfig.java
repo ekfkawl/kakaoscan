@@ -4,6 +4,7 @@ import com.kakaoscan.server.common.utils.ObjectMapperSingleton;
 import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.point.model.SearchCost;
 import com.kakaoscan.server.domain.search.model.InvalidPhoneNumber;
+import com.kakaoscan.server.domain.search.model.NewNumberSearch;
 import com.kakaoscan.server.infrastructure.redis.subscriber.DynamicEventReceiver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -75,6 +76,11 @@ public class RedisConfig {
     @Bean
     public RedisTemplate<String, SearchCost> searchCostRedisTemplate(RedisConnectionFactory connectionFactory) {
         return createRedisTemplate(connectionFactory, SearchCost.class);
+    }
+
+    @Bean
+    public RedisTemplate<String, NewNumberSearch> newNumberSearchRedisTemplate(RedisConnectionFactory connectionFactory) {
+        return createRedisTemplate(connectionFactory, NewNumberSearch.class);
     }
 
     private <T> RedisTemplate<String, T> createRedisTemplate(RedisConnectionFactory connectionFactory, Class<T> clazz) {

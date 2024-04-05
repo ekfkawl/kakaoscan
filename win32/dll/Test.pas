@@ -5,7 +5,8 @@ interface
 uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, KakaoCtrl, System.Threading, KakaoHook,
-  KakaoResponse, Vcl.ExtCtrls, KakaoProfilePageUtil, KakaoProfile, GuardObjectUtil;
+  KakaoResponse, Vcl.ExtCtrls, KakaoProfilePageUtil, KakaoProfile, GuardObjectUtil, RedisUtil, RedisConfig,
+  SearchNewPhoneNumberEvent;
 
 type
   TForm1 = class(TForm)
@@ -17,6 +18,7 @@ type
     Timer1: TTimer;
     CheckBox1: TCheckBox;
     Button5: TButton;
+    Button6: TButton;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -26,6 +28,7 @@ type
     procedure Timer1Timer(Sender: TObject);
     procedure Button5Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
+    procedure Button6Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -35,6 +38,7 @@ type
 var
   Form1: TForm1;
   KakaoCtrl: TKakaoCtrl;
+  Redis: TRedis;
 
 implementation
 
@@ -83,6 +87,18 @@ begin
   end;
 end;
 
+procedure TForm1.Button6Click(Sender: TObject);
+var
+  SearchNewNumberEvent: TSearchNewPhoneNumberEvent;
+begin
+  Guard(SearchNewNumberEvent, TSearchNewPhoneNumberEvent.Create);
+  SearchNewNumberEvent.Email:= 'test@test.com';
+  SearchNewNumberEvent.PhoneNumber:= '00011112222';
+
+  Writeln(SearchNewNumberEvent.ToEventJSON);
+  Redis.Publish(TOPIC_OTHER_EVENT, SearchNewNumberEvent.ToEventJSON);
+end;
+
 procedure TForm1.CheckBox1Click(Sender: TObject);
 begin
   Timer1.Enabled:= CheckBox1.Checked;
@@ -97,6 +113,7 @@ end;
 procedure TForm1.FormCreate(Sender: TObject);
 begin
   KakaoCtrl:= TKakaoCtrl.GetInstance;
+  Redis:= TRedis.GetInstance;
 end;
 
 procedure TForm1.Timer1Timer(Sender: TObject);

@@ -1,6 +1,7 @@
 package com.kakaoscan.server.domain.user.entity;
 
 import com.kakaoscan.server.domain.point.entity.PointWallet;
+import com.kakaoscan.server.domain.search.entity.NewPhoneNumber;
 import com.kakaoscan.server.domain.search.entity.SearchHistory;
 import com.kakaoscan.server.domain.user.enums.AuthenticationType;
 import com.kakaoscan.server.domain.user.enums.Role;
@@ -66,6 +67,10 @@ public class User {
     @OrderBy("createdAt DESC")
     private List<SearchHistory> searchHistories = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("createdAt DESC")
+    private List<NewPhoneNumber> newPhoneNumbers = new ArrayList<>();
+
     protected User() {
     }
 
@@ -90,5 +95,10 @@ public class User {
     public void addSearchHistory(SearchHistory searchHistory) {
         searchHistory.setUser(this);
         this.searchHistories.add(searchHistory);
+    }
+
+    public void addNewPhoneNumbers(NewPhoneNumber newPhoneNumber) {
+        newPhoneNumber.setUser(this);
+        this.newPhoneNumbers.add(newPhoneNumber);
     }
 }
