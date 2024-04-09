@@ -47,7 +47,7 @@ search:
   profile:
     cost:
       origin: 500
-      discount: 100
+      discount: 250
 
 ---
 
@@ -64,4 +64,4 @@ search:
   profile:
     cost:
       origin: 500
-      discount: 100
+      discount: 250

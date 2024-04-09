@@ -21,7 +21,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({ start, end, setStart,
     };
 
     return (
-        <div className="flex justify-end items-center space-x-4 mb-4">
+        <>
             <div className="relative w-fit">
                 <Datepicker
                     id="date_start"
@@ -39,7 +39,7 @@ const DateRangePicker: React.FC<DateRangePickerProps> = ({ start, end, setStart,
                     maxDate={new Date()}
                 />
             </div>
-        </div>
+        </>
     );
 };
 

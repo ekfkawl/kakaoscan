@@ -1,6 +1,7 @@
 package com.kakaoscan.server.domain.point.entity;
 
 import com.kakaoscan.server.application.dto.request.PointPaymentRequest;
+import com.kakaoscan.server.domain.product.entity.ProductTransaction;
 import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
 import com.kakaoscan.server.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -41,7 +42,7 @@ public class PointWallet {
 
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("createdAt DESC")
-    private List<PointTransaction> pointTransaction = new ArrayList<>();
+    private List<ProductTransaction> productTransaction = new ArrayList<>();
 
     protected PointWallet() {
     }
@@ -58,7 +59,7 @@ public class PointWallet {
     }
 
     public void addTransaction(PointPaymentRequest paymentRequest, String depositor) {
-        PointTransaction transaction = PointTransaction.builder()
+        ProductTransaction transaction = ProductTransaction.builder()
                 .amount(paymentRequest.getAmount())
                 .productType(paymentRequest.getProductType())
                 .transactionStatus(ProductTransactionStatus.PENDING)
@@ -66,6 +67,6 @@ public class PointWallet {
                 .wallet(this)
                 .build();
 
-        this.pointTransaction.add(transaction);
+        this.productTransaction.add(transaction);
     }
 }

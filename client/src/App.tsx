@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import AuthPage from './pages/AuthPage';
 import LoginForm from './components/Auth/LoginForm';
 import RegisterForm from './components/Auth/RegisterForm';
@@ -12,6 +12,8 @@ import ShopPage from './pages/ShopPage';
 import E404Page from './pages/E404Page';
 import PolicyPage from './pages/PolicyPage';
 import PaymentHistory from './pages/PaymentHistory';
+import ProtectedAdminRoute from './components/ProtectedAdminRoute';
+import PaymentManagementPage from "./pages/admin/PaymentManagementPage";
 
 const App = () => {
     return (
@@ -63,6 +65,16 @@ const App = () => {
                         element={
                             <ProtectedRoute>
                                 <PaymentHistory />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/payment"
+                        element={
+                            <ProtectedRoute>
+                                <ProtectedAdminRoute>
+                                    <PaymentManagementPage />
+                                </ProtectedAdminRoute>
                             </ProtectedRoute>
                         }
                     />

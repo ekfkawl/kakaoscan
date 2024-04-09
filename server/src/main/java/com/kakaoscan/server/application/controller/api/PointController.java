@@ -3,7 +3,6 @@ package com.kakaoscan.server.application.controller.api;
 import com.kakaoscan.server.application.controller.ApiEndpointPrefix;
 import com.kakaoscan.server.application.dto.request.PointPaymentRequest;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
-import com.kakaoscan.server.application.dto.response.ProductTransactions;
 import com.kakaoscan.server.application.dto.response.TargetSearchCost;
 import com.kakaoscan.server.application.service.PointService;
 import com.kakaoscan.server.common.validation.ValidationPatterns;
@@ -12,15 +11,11 @@ import com.kakaoscan.server.domain.user.model.CustomUserDetails;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -53,17 +48,5 @@ public class PointController extends ApiEndpointPrefix {
         pointService.cancelPointPayment(userDetails.getEmail(), transactionId);
 
         return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
-    }
-
-    @GetMapping("/product/transactions")
-    public ResponseEntity<ApiResponse<ProductTransactions>> findProductTransactions(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-                                                                       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
-                                                                       @AuthenticationPrincipal CustomUserDetails userDetails) {
-        LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.atTime(LocalTime.MAX);
-
-        ProductTransactions transactions = pointService.findTransactionsByDateRange(userDetails.getUsername(), startDateTime, endDateTime);
-
-        return new ResponseEntity<>(ApiResponse.success(transactions), HttpStatus.OK);
     }
 }

@@ -1,5 +1,6 @@
-package com.kakaoscan.server.domain.point.entity;
+package com.kakaoscan.server.domain.product.entity;
 
+import com.kakaoscan.server.domain.point.entity.PointWallet;
 import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
 import com.kakaoscan.server.domain.product.enums.ProductType;
 import jakarta.persistence.*;
@@ -16,12 +17,13 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Getter
 @Entity
-@Table(name = "points_transaction", indexes = {
+@Table(name = "products_transaction", indexes = {
         @Index(name = "idx_transaction_status", columnList = "transactionStatus"),
         @Index(name = "idx_created_at", columnList = "createdAt"),
-        @Index(name = "idx_status_created_at", columnList = "transactionStatus, createdAt")
+        @Index(name = "idx_status_created_at", columnList = "transactionStatus, createdAt"),
+        @Index(name = "idx_depositor", columnList = "depositor")
 })
-public class PointTransaction {
+public class ProductTransaction {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -53,7 +55,7 @@ public class PointTransaction {
     @JoinColumn(name = "wallet_id", referencedColumnName = "id")
     private PointWallet wallet;
 
-    protected PointTransaction() {
+    protected ProductTransaction() {
     }
 
     public void cancelTransaction() {

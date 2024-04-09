@@ -1,11 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import {Badge, Button} from 'flowbite-react';
+import React, { useEffect, useState } from 'react';
+import { Badge, Button } from 'flowbite-react';
 import DateRangePicker from '../components/DateRangePicker';
-import {useFetchData} from '../hooks/useFetchData';
+import { useFetchData } from '../hooks/useFetchData';
 import useDateRangePicker from '../hooks/ui/useDateRangePicker';
-import {formatDate} from '../utils/format/format';
-import {useHttp} from '../hooks/useHttp';
-import {ApiResponse} from '../types/apiResponse';
+import { formatDate } from '../utils/format/format';
+import { useHttp } from '../hooks/useHttp';
+import { ApiResponse } from '../types/apiResponse';
 import MessagePopup from '../components/Popup/MessagePopup';
 import ConfirmPopup from '../components/Popup/ConfirmPopup';
 
@@ -50,9 +50,11 @@ const PaymentHistory = () => {
 
     return (
         <div className="mx-auto max-w-screen-lg">
-            <DateRangePicker start={start} setStart={setStart} end={end} setEnd={setEnd} />
+            <div className="flex justify-end items-center space-x-2 mb-4">
+                <DateRangePicker start={start} setStart={setStart} end={end} setEnd={setEnd} />
+            </div>
 
-            {isLoading ? (
+            {fetchIsLoading ? (
                 <div></div>
             ) : transactionsData?.data?.productTransactionList?.length > 0 ? (
                 <>

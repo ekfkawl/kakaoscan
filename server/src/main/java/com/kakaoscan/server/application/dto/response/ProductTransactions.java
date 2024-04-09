@@ -1,26 +1,48 @@
 package com.kakaoscan.server.application.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.kakaoscan.server.domain.product.entity.ProductTransaction;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ProductTransactions {
-    private final List<ProductTransactions.ProductTransactionResponse> productTransactionList;
-    private final String account;
+    private final List<ProductTransactionResponse> productTransactionList = new ArrayList<>();
+    private long totalCount;
+    private String account;
 
     public ProductTransactions(String backAccount) {
-        this.productTransactionList = new ArrayList<>();
         this.account = backAccount;
     }
 
     public void addTransaction(ProductTransactionResponse transaction) {
         this.productTransactionList.add(transaction);
+    }
+
+    public static ProductTransactions convertToProductTransactions(List<ProductTransaction> transactions, long totalCount, String account) {
+        ProductTransactions productTransactions = new ProductTransactions(account);
+
+        transactions.forEach(transaction ->
+                productTransactions.addTransaction(new ProductTransactionResponse(
+                        transaction.getId(),
+                        transaction.getTransactionStatus().getDisplayName(),
+                        transaction.getProductType().getDisplayName(),
+                        transaction.getAmount(),
+                        transaction.getDepositor(),
+                        transaction.getCreatedAt(),
+                        transaction.getUpdatedAt()
+                )));
+
+        productTransactions.totalCount = totalCount;
+
+        return productTransactions;
     }
 
     @Getter
@@ -32,5 +54,6 @@ public class ProductTransactions {
         private int amount;
         private String depositor;
         private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
     }
 }

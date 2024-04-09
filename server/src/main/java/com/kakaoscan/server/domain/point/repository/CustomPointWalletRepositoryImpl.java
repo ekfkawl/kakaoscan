@@ -1,9 +1,8 @@
 package com.kakaoscan.server.domain.point.repository;
 
-import com.kakaoscan.server.domain.point.entity.PointTransaction;
 import com.kakaoscan.server.domain.point.entity.PointWallet;
-import com.kakaoscan.server.domain.point.entity.QPointTransaction;
-import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
+import com.kakaoscan.server.domain.product.entity.ProductTransaction;
+import com.kakaoscan.server.domain.product.entity.QProductTransaction;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -15,25 +14,14 @@ public class CustomPointWalletRepositoryImpl implements CustomPointWalletReposit
     private final JPAQueryFactory factory;
 
     @Override
-    public boolean existsPendingTransaction(PointWallet pointWallet) {
-        QPointTransaction pointTransaction = QPointTransaction.pointTransaction;
+    public List<ProductTransaction> findProductTransactionsByPointWallet(PointWallet pointWallet, LocalDateTime startDate, LocalDateTime endDate) {
+        QProductTransaction productTransaction = QProductTransaction.productTransaction;
 
-        return factory.selectOne()
-                .from(pointTransaction)
-                .where(pointTransaction.wallet.eq(pointWallet)
-                        .and(pointTransaction.transactionStatus.eq(ProductTransactionStatus.PENDING)))
-                .fetchFirst() != null;
-    }
-
-    @Override
-    public List<PointTransaction> findTransactionsByDateRange(PointWallet pointWallet, LocalDateTime startDate, LocalDateTime endDate) {
-        QPointTransaction pointTransaction = QPointTransaction.pointTransaction;
-
-        return factory.selectFrom(pointTransaction)
-                .where(pointTransaction.wallet.eq(pointWallet)
-                        .and(pointTransaction.createdAt.goe(startDate))
-                        .and(pointTransaction.createdAt.loe(endDate)))
-                .orderBy(pointTransaction.createdAt.desc())
+        return factory.selectFrom(productTransaction)
+                .where(productTransaction.wallet.eq(pointWallet)
+                        .and(productTransaction.createdAt.goe(startDate))
+                        .and(productTransaction.createdAt.loe(endDate)))
+                .orderBy(productTransaction.createdAt.desc())
                 .fetch();
     }
 }
