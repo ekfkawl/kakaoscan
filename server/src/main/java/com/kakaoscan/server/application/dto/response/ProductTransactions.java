@@ -32,6 +32,7 @@ public class ProductTransactions {
         transactions.forEach(transaction ->
                 productTransactions.addTransaction(new ProductTransactionResponse(
                         transaction.getId(),
+                        transaction.getWallet().getUser().getEmail(),
                         transaction.getTransactionStatus().getDisplayName(),
                         transaction.getProductType().getDisplayName(),
                         transaction.getAmount(),
@@ -49,6 +50,7 @@ public class ProductTransactions {
     @AllArgsConstructor
     public static class ProductTransactionResponse {
         private long id;
+        private String email;
         private String productTransactionStatus;
         private String productName;
         private int amount;

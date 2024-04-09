@@ -5,6 +5,9 @@ import { Pagination, Select, Table, TextInput } from 'flowbite-react';
 import { useFetchData } from '../../hooks/useFetchData';
 import { formatDate } from '../../utils/format/format';
 import { useDebounce } from '../../hooks/ui/useDebounce';
+import ConfirmPopup from '../../components/Popup/ConfirmPopup';
+import { useHttp } from '../../hooks/useHttp';
+import { ApiResponse } from '../../types/apiResponse';
 
 const PaymentManagementPage = () => {
     const { start, end, setStart, setEnd } = useDateRangePicker();
@@ -30,6 +33,25 @@ const PaymentManagementPage = () => {
         setKeyword(event.target.value);
     };
 
+    const [showEditConfirmPopup, setEditConfirmPopup] = useState(false);
+    const [selectedProduct, setSelectedProduct] = useState<any>(null);
+
+    const { sendRequest, data, isLoading: sendIsLoading, error } = useHttp<ApiResponse>();
+    const approvalTransaction = async (transactionId: number): Promise<void> => {
+        try {
+            await sendRequest({
+                url: '/api/admin/product/approval',
+                method: 'PUT',
+                data: {
+                    transactionId: transactionId,
+                },
+            });
+            setRefreshFlag(!refreshFlag);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     useEffect(() => {
         fetchData({
             startDate: start,
@@ -37,7 +59,7 @@ const PaymentManagementPage = () => {
             status: status,
             keyword: debouncedKeyword,
             page: currentPage,
-            pageSize: 1,
+            pageSize: 10,
         });
     }, [start, end, status, debouncedKeyword, fetchData, refreshFlag, currentPage]);
 
@@ -69,7 +91,8 @@ const PaymentManagementPage = () => {
                 <Table hoverable>
                     <Table.Head>
                         <Table.HeadCell>상태</Table.HeadCell>
-                        <Table.HeadCell>상품명</Table.HeadCell>
+                        <Table.HeadCell>상품</Table.HeadCell>
+                        <Table.HeadCell>입금자</Table.HeadCell>
                         <Table.HeadCell>신청일</Table.HeadCell>
                         <Table.HeadCell>
                             <span className="sr-only">Edit</span>
@@ -84,14 +107,33 @@ const PaymentManagementPage = () => {
                                         key={product.id}
                                         className="whitespace-nowrap bg-white dark:border-gray-700 dark:bg-gray-800"
                                     >
-                                        <Table.Cell className="text-gray-900 dark:text-white">
+                                        <Table.Cell
+                                            className={`${
+                                                product.productTransactionStatus === '대기'
+                                                    ? 'text-red-500'
+                                                    : product.productTransactionStatus === '취소'
+                                                      ? 'text-gray-500'
+                                                      : 'text-green-500'
+                                            }`}
+                                        >
                                             {product.productTransactionStatus}
                                         </Table.Cell>
                                         <Table.Cell>{product.productName}</Table.Cell>
+                                        <Table.Cell>{product.depositor}</Table.Cell>
                                         <Table.Cell>{formatDate(new Date(product.createdAt)).slice(2)}</Table.Cell>
                                         <Table.Cell>
-                                            <p className="cursor-pointer font-medium hover:underline text-cyan-600 dark:text-cyan-500">
-                                                편집
+                                            <p
+                                                className={`cursor-pointer font-medium hover:underline ${
+                                                    product.productTransactionStatus !== '대기'
+                                                        ? 'line-through'
+                                                        : 'text-cyan-600 dark:text-cyan-500'
+                                                }`}
+                                                onClick={() => {
+                                                    setSelectedProduct(product);
+                                                    setEditConfirmPopup(true);
+                                                }}
+                                            >
+                                                승인
                                             </p>
                                         </Table.Cell>
                                     </Table.Row>
@@ -102,17 +144,46 @@ const PaymentManagementPage = () => {
                 </Table>
             </div>
 
-            {!fetchIsLoading && transactionsData?.data?.totalCount > 1 && (
+            {!fetchIsLoading && transactionsData?.data?.totalCount > 0 && (
                 <div className="flex overflow-x-auto justify-center mt-2">
                     <Pagination
                         currentPage={currentPage}
-                        totalPages={transactionsData?.data?.totalCount}
+                        totalPages={Math.ceil(transactionsData?.data?.totalCount / 10)}
                         onPageChange={onPageChange}
                         showIcons
                         previousLabel=""
                         nextLabel=""
                     />
                 </div>
+            )}
+
+            {showEditConfirmPopup && selectedProduct && (
+                <ConfirmPopup
+                    show={showEditConfirmPopup}
+                    onClose={() => {
+                        setEditConfirmPopup(false);
+                        setSelectedProduct(null);
+                    }}
+                    title="거래 승인"
+                    description={
+                        <>
+                            <p>트랜잭션 아이디: {selectedProduct.id}</p>
+                            <p>상태: {selectedProduct.productTransactionStatus}</p>
+                            <p>신청일: {formatDate(new Date(selectedProduct.createdAt))}</p>
+                            <p>수정일: {formatDate(new Date(selectedProduct.updatedAt))}</p>
+                            <br />
+                            <p>이메일: {selectedProduct.email}</p>
+                            <p>상품: {selectedProduct.productName}</p>
+                            <p>입금액: {selectedProduct.amount}원</p>
+                            <p>입금자: {selectedProduct.depositor}</p>
+                        </>
+                    }
+                    onConfirm={() => {
+                        if (selectedProduct.productTransactionStatus === '대기') {
+                            approvalTransaction(selectedProduct.id);
+                        }
+                    }}
+                />
             )}
         </div>
     );

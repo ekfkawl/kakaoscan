@@ -11,12 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -37,5 +36,13 @@ public class AdminController extends ApiEndpointPrefix {
         ProductTransactions transactions = productService.findAndFilterTransactions(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), status, keyword, page, pageSize);
 
         return new ResponseEntity<>(ApiResponse.success(transactions), HttpStatus.OK);
+    }
+
+    @AdminRole
+    @PutMapping("/admin/product/approval")
+    public ResponseEntity<ApiResponse<Void>> approvalTransaction(@RequestBody Map<String, Long> payload) {
+        productService.approvalTransaction(payload.get("transactionId"));
+
+        return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
     }
 }

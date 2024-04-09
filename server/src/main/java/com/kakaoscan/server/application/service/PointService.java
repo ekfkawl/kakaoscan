@@ -5,7 +5,6 @@ import com.kakaoscan.server.application.exception.PendingTransactionExistsExcept
 import com.kakaoscan.server.application.port.CacheStorePort;
 import com.kakaoscan.server.domain.point.entity.PointWallet;
 import com.kakaoscan.server.domain.point.model.SearchCost;
-import com.kakaoscan.server.domain.point.repository.PointWalletRepository;
 import com.kakaoscan.server.domain.product.entity.ProductTransaction;
 import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
 import com.kakaoscan.server.domain.product.repository.ProductTransactionRepository;
@@ -39,7 +38,6 @@ public class PointService {
     private final CacheStorePort<Integer> integerCacheStorePort;
     private final CacheStorePort<SearchCost> costCacheStorePort;
     private final SearchHistoryRepository searchHistoryRepository;
-    private final PointWalletRepository pointWalletRepository;
     private final ProductTransactionRepository productTransactionRepository;
     private final WordProperties wordProperties;
 

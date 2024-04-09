@@ -54,6 +54,10 @@ public class SearchMessageService {
 
     public boolean canAttemptNumberSearch(SearchMessage message) {
         NewNumberSearch newNumberSearch = searchService.getAndCacheNewNumberSearch(message.getEmail(), LocalDate.now());
-        return newNumberSearch.getCount() >= 5 && newNumberSearch.getNumbers().contains(message.getContent());
+        if (newNumberSearch.getCount() <= 5) {
+            return true;
+        }
+
+        return newNumberSearch.getNumbers().contains(message.getContent());
     }
 }

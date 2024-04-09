@@ -24,6 +24,7 @@ public class ProductService {
     private final UserRepository userRepository;
     private final ProductTransactionRepository productTransactionRepository;
     private final PointWalletRepository pointWalletRepository;
+    private final PointService pointService;
 
     @Value("${bank.account}")
     private String backAccount;
@@ -43,5 +44,21 @@ public class ProductService {
         List<ProductTransaction> filteredTransactions = transactionQueryResults.getResults();
 
         return ProductTransactions.convertToProductTransactions(filteredTransactions, transactionQueryResults.getTotal(), null);
+    }
+
+    @Transactional
+    public void approvalTransaction(Long productTransactionId) {
+        productTransactionRepository.findById(productTransactionId).ifPresent(productTransaction -> {
+            if (productTransaction.getTransactionStatus().equals(ProductTransactionStatus.PENDING)) {
+                productTransaction.getWallet().addBalance(productTransaction.getAmount());
+                productTransaction.approvalTransaction();
+
+                pointService.cachePoints(productTransaction.getWallet().getUser().getEmail(), productTransaction.getWallet().getBalance());
+
+                log.info("approval transactionId: " + productTransactionId);
+            }else {
+                log.info("already approved transactionId: " + productTransactionId);
+            }
+        });
     }
 }
