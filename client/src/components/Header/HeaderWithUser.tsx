@@ -9,6 +9,7 @@ import { useSubscription } from '../../hooks/websocket/useSubscription';
 import {
     faCreditCard,
     faFolderOpen,
+    faListAlt,
     faRightFromBracket,
     faShoppingCart,
     faUser,
@@ -97,6 +98,9 @@ const HeaderWithUser = () => {
                             <Dropdown.Item onClick={() => navigate('/admin/payment')}>
                                 <FontAwesomeIcon icon={faCreditCard} className="mr-2" />
                                 결제 관리
+                            </Dropdown.Item>
+                            <Dropdown.Item onClick={() => navigate('/admin/applog')}>
+                                <FontAwesomeIcon icon={faListAlt} className="mr-2" />앱 로그
                             </Dropdown.Item>
                             <Dropdown.Divider />
                             <Dropdown.Item className="text-sm" onClick={() => navigate('/payment-history')}>

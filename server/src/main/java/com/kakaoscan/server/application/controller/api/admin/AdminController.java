@@ -2,10 +2,13 @@ package com.kakaoscan.server.application.controller.api.admin;
 
 import com.kakaoscan.server.application.controller.ApiEndpointPrefix;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
+import com.kakaoscan.server.application.dto.response.AppLogs;
 import com.kakaoscan.server.application.dto.response.ProductTransactions;
 import com.kakaoscan.server.application.service.ProductService;
 import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
+import com.kakaoscan.server.infrastructure.logging.enums.LogLevel;
 import com.kakaoscan.server.infrastructure.security.validation.AdminRole;
+import com.kakaoscan.server.infrastructure.service.LoggingService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -22,6 +25,7 @@ import java.util.Map;
 @Tag(name = "Admin", description = "Admin API")
 public class AdminController extends ApiEndpointPrefix {
     private final ProductService productService;
+    private final LoggingService loggingService;
 
     @AdminRole
     @GetMapping("/admin/product/transactions")
@@ -44,5 +48,20 @@ public class AdminController extends ApiEndpointPrefix {
         productService.approvalTransaction(payload.get("transactionId"));
 
         return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
+    }
+
+    @AdminRole
+    @GetMapping("/admin/log")
+    public ResponseEntity<ApiResponse<AppLogs>> findAndFilterLogs(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam(required = false) LogLevel level,
+            @RequestParam(required = false, defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize) {
+
+        AppLogs logs = loggingService.findAndFilterLogs(startDate.atStartOfDay(), endDate.atTime(LocalTime.MAX), level, keyword, page, pageSize);
+
+        return new ResponseEntity<>(ApiResponse.success(logs), HttpStatus.OK);
     }
 }

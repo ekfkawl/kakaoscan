@@ -1,5 +1,6 @@
 package com.kakaoscan.server.infrastructure.persistence.entity;
 
+import com.kakaoscan.server.infrastructure.logging.enums.LogLevel;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,8 +12,10 @@ import java.sql.Timestamp;
 @AllArgsConstructor
 @Getter
 @Entity
-@Table(name = "logs")
-public class LogEntity {
+@Table(name = "logs", indexes = {
+        @Index(name = "idx_request_id", columnList = "requestId")
+})
+public class Log {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -24,7 +27,8 @@ public class LogEntity {
     private String logger;
 
     @Column(nullable = false, length = 50)
-    private String logLevel;
+    @Enumerated(EnumType.STRING)
+    private LogLevel level;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
@@ -36,6 +40,6 @@ public class LogEntity {
 
     private String requestId;
 
-    protected LogEntity() {
+    protected Log() {
     }
 }

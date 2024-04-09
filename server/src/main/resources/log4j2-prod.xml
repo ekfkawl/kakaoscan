@@ -11,7 +11,7 @@
                     method="getConnection" />
             <Column name="date" isEventTimestamp="true"/>
             <Column name="logger" pattern="%logger"/>
-            <Column name="log_level" pattern="%level"/>
+            <Column name="level" pattern="%level"/>
             <Column name="message" pattern="%message"/>
             <Column name="exception" pattern="%ex{full}"/>
             <Column name="thread_name" pattern="%t"/>
