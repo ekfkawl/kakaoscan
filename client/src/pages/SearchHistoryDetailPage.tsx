@@ -73,7 +73,7 @@ const SearchHistoryDetailPage = () => {
                         </p>
                     )}
                 </Tabs.Item>
-                <Tabs.Item title={`백그라운드 (${backgroundItems.length})`} icon={HiPhotograph}>
+                <Tabs.Item title={`배경 (${backgroundItems.length})`} icon={HiPhotograph}>
                     <Gallery items={backgroundItems} />
                     {targetHistory && backgroundItems.length === 0 && (
                         <p className="mt-3 mb-4 max-w-sm text-gray-500 dark:text-gray-400">

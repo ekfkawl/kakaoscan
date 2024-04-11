@@ -193,7 +193,7 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                             </p>
                         )}
                 </Tabs.Item>
-                <Tabs.Item title={`백그라운드 (${backgroundItems.length})`} icon={HiPhotograph}>
+                <Tabs.Item title={`배경 (${backgroundItems.length})`} icon={HiPhotograph}>
                     <Gallery items={backgroundItems} />
                     {stompProfileResponse &&
                         stompProfileResponse.jsonContent &&
@@ -215,10 +215,10 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
 const MessageToast: React.FC<{ message: string }> = ({ message }) => (
     <div className="pt-24 pb-12 md:pt-28 md:pb-14 lg:pt-28 lg:pb-60">
         <div className="flex justify-center">
-            <div className="pl-4 text-sm font-normal">
+            <div className="pr-1 pl-1 text-sm font-normal">
                 <Toast>
                     <MdInfo className="h-6 w-6 lg:h-5 lg:w-5 text-[#03C75C] dark:text-blue-500" />
-                    <div className="pl-4 text-sm font-normal">{message}</div>
+                    <div className="break-all pl-4 text-sm font-normal">{message}</div>
                 </Toast>
             </div>
         </div>
