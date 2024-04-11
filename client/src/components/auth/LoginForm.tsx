@@ -25,6 +25,7 @@ const LoginForm = () => {
     };
 
     useEffect(() => {
+        console.log(localStorage.getItem('rememberUserId') || 'dd');
         if (remember && userId) {
             setEmail(userId);
         }
