@@ -1,4 +1,5 @@
-export const getDomainFromURL = (): string => {
+export const getAPIBaseURL = (): string => {
     const { protocol, hostname, port } = window.location;
-    return `${protocol}//${hostname}${port ? `:${port}` : ''}`;
+    const updatedPort = port === '3000' ? '8080' : port;
+    return `${protocol}//${hostname}${updatedPort ? `:${updatedPort}` : ''}`;
 };
