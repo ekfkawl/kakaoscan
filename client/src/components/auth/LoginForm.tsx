@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Alert, Button, Checkbox, Label, TextInput } from 'flowbite-react';
 import useEmailValidation from '../../hooks/validation/useEmailValidation';
@@ -7,17 +7,28 @@ import useLogin from '../../hooks/auth/useLogin';
 import useRedirectIfAuthenticated from '../../hooks/auth/useRedirectIfAuthenticated';
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import GoogleLoginButton from './GoogleLoginButton';
+import useRememberUserId from '../../hooks/useRememberUserId';
 
 const LoginForm = () => {
     useRedirectIfAuthenticated('/');
 
+    const { userId, setUserId, remember, setRemember } = useRememberUserId();
     const { email, setEmail } = useEmailValidation();
     const { password, setPassword } = usePasswordValidation();
     const { login, isLoading, error: loginError } = useLogin();
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         await login({ email, password });
+        if (remember) {
+            setUserId(email);
+        }
     };
+
+    useEffect(() => {
+        if (remember && userId) {
+            setEmail(userId);
+        }
+    }, [remember, userId, setEmail]);
 
     return (
         <form className="w-full max-w-md space-y-4 md:space-y-6 xl:max-w-xl" onSubmit={handleSubmit}>
@@ -72,11 +83,15 @@ const LoginForm = () => {
                     </Link>
                     <div className="flex items-start">
                         <div className="flex h-5 items-center">
-                            <Checkbox id="remember-description" />
+                            <Checkbox
+                                id="remember-description"
+                                checked={remember}
+                                onChange={(e) => setRemember(e.target.checked)}
+                            />
                         </div>
                         <div className="ml-2 text-sm">
                             <Label htmlFor="remember-description" className="text-gray-500 dark:text-gray-300">
-                                로그인 유지
+                                아이디 저장
                             </Label>
                         </div>
                     </div>
