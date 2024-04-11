@@ -95,14 +95,18 @@ const HeaderWithUser = () => {
                                     P
                                 </strong>
                             </Dropdown.Header>
-                            <Dropdown.Item onClick={() => navigate('/admin/payment')}>
-                                <FontAwesomeIcon icon={faCreditCard} className="mr-2" />
-                                결제 관리
-                            </Dropdown.Item>
-                            <Dropdown.Item onClick={() => navigate('/admin/applog')}>
-                                <FontAwesomeIcon icon={faListAlt} className="mr-2" />앱 로그
-                            </Dropdown.Item>
-                            <Dropdown.Divider />
+                            {user?.role === 'ADMIN' && (
+                                <>
+                                    <Dropdown.Item onClick={() => navigate('/admin/payment')}>
+                                        <FontAwesomeIcon icon={faCreditCard} className="mr-2" />
+                                        결제 관리
+                                    </Dropdown.Item>
+                                    <Dropdown.Item onClick={() => navigate('/admin/applog')}>
+                                        <FontAwesomeIcon icon={faListAlt} className="mr-2" />앱 로그
+                                    </Dropdown.Item>
+                                    <Dropdown.Divider />
+                                </>
+                            )}
                             <Dropdown.Item className="text-sm" onClick={() => navigate('/payment-history')}>
                                 <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
                                 구매 내역
