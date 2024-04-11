@@ -1,0 +1,13 @@
+spring:
+  config:
+    import:
+      - classpath:application-db.yml
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+        ddl-auto: none
+
+logging:
+  config: classpath:log4j2-prod.xml

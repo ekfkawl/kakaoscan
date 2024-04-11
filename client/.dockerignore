@@ -1,0 +1,22 @@
+# 버전 관리 시스템
+.git
+.gitignore
+
+# Node.js 관련 파일
+node_modules
+npm-debug.log
+yarn-error.log
+package-lock.json
+
+# 에디터 설정
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS 생성 파일
+.DS_Store
+Thumbs.db
+
+# 기타
+README.md

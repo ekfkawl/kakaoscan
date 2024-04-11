@@ -1,0 +1,4 @@
+jwt:
+  secret-key: ${JWT_SECRET_KEY}
+  access-token-validity: 3600000 #1시간
+  refresh-token-validity: 2592000000 #한달

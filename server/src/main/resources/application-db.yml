@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    hikari:
+      poolName: HikariPool
+      maximumPoolSize: 25
+      minimumIdle: 10
+      idleTimeout: 600000
+      connectionTimeout: 30000
+      maxLifetime: 1800000
+      validationTimeout: 5000
+      leakDetectionThreshold: 0
+      connection-init-sql: set wait_timeout = 1830

@@ -71,7 +71,9 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
 }
 
-
+jar {
+    enabled = false
+}
 
 tasks.named('test') {
     useJUnitPlatform()

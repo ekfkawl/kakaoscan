@@ -1,0 +1,28 @@
+spring:
+  cache:
+    type: redis
+    redis:
+      cache-null-values: true
+  data:
+    redis:
+      port: 6379
+
+---
+
+spring:
+  config:
+      activate:
+        on-profile: dev
+  data:
+    redis:
+      host: host.docker.internal
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: prod
+  data:
+    redis:
+      host: ${REDIS_HOST}

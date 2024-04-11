@@ -1,0 +1,39 @@
+*.class
+*.jar
+*.war
+*.ear
+*.log
+*.nar
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+
+# Maven 디렉토리
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Gradle 디렉토리
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!build/libs/
+
+# 임시 파일
+tmp/
+temp/
+
+# IDE 설정
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.vscode
+
+# 시스템 파일
+.DS_Store
+Thumbs.db
+
+# 테스트 결과
+test-results/
+surefire-reports/
