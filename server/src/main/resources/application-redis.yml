@@ -25,4 +25,4 @@ spring:
       on-profile: prod
   data:
     redis:
-      host: ${REDIS_HOST}
+      host: redis #${REDIS_HOST}

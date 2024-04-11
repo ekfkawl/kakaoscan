@@ -19,6 +19,8 @@ cors:
     - http://localhost:3000
     - http://kakaoscan.com
     - https://kakaoscan.com
+    - http://test.kakaoscan.com
+    - https://test.kakaoscan.com
   permit-all-endpoints:
     - /
     - /api/verify/**
