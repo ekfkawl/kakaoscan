@@ -1,8 +1,9 @@
 import axios from 'axios';
 import store from '../../redux/store';
+import { getDomainFromURL } from '../web/url';
 
 const axiosInstance = axios.create({
-    baseURL: process.env.REACT_APP_API_URL,
+    baseURL: getDomainFromURL(),
 });
 
 axiosInstance.interceptors.request.use((config) => {

@@ -2,6 +2,7 @@ import React, { createContext, ReactNode, useContext, useEffect, useState } from
 import { Client, IFrame } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import store from '../redux/store';
+import { getDomainFromURL } from '../utils/web/url';
 
 interface WebSocketContextType {
     client: Client | null;
@@ -23,7 +24,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     useEffect(() => {
         const connect = () => {
             const newClient = new Client({
-                webSocketFactory: () => new SockJS(`${process.env.REACT_APP_API_URL}/ws`),
+                webSocketFactory: () => new SockJS(`${getDomainFromURL()}/ws`),
                 connectHeaders: {
                     Authorization: `Bearer ${store.getState().auth.token ?? ''}`,
                 },

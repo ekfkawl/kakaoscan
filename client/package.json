@@ -43,11 +43,11 @@
         "ws": "^8.15.1"
     },
     "scripts": {
-        "start": "react-scripts start",
+        "start": "craco start",
         "start:prod": "env-cmd -f .env.prod react-scripts start",
         "start:dev": "env-cmd -f .env.dev react-scripts start",
-        "build": "react-scripts build",
-        "test": "react-scripts test",
+        "build": "craco build",
+        "test": "craco test",
         "eject": "react-scripts eject"
     },
     "eslintConfig": {
@@ -69,6 +69,7 @@
         ]
     },
     "devDependencies": {
+        "@craco/craco": "^7.1.0",
         "@types/crypto-js": "^4.2.2",
         "@types/event-source-polyfill": "^1.0.5",
         "@types/react-image-gallery": "^1.2.4",
