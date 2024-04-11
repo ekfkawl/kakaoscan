@@ -26,3 +26,4 @@ spring:
   data:
     redis:
       host: redis #${REDIS_HOST}
+      password: ${REDIS_PASSWORD}

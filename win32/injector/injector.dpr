@@ -204,7 +204,7 @@ begin
           LClick(hFriendConfig, 20, 20);
         end;
 
-        Sleep(1000);
+        Sleep(3000);
 
         EnumWindows(@ConfigWindow, LPARAM(@EnumInfo));
         IsReadyInject:= True;
