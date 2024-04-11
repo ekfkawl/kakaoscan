@@ -11,9 +11,7 @@ const RegisterForm = () => {
     useRedirectIfAuthenticated('/');
 
     const { email, setEmail, error: emailError, handleBlur: handleEmailBlur } = useEmailValidation();
-
     const { password, setPassword, error: passwordError, handleBlur: handlePasswordBlur } = usePasswordValidation();
-
     const { register, isLoading, error, data } = useRegister();
     const { isOpen, openModal, closeModal } = useModalState();
     const navigate = useNavigate();

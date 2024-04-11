@@ -1,9 +1,11 @@
 package com.kakaoscan.server.application.controller.api;
 
 import com.kakaoscan.server.application.controller.ApiEndpointPrefix;
+import com.kakaoscan.server.application.dto.request.ChangePasswordRequest;
 import com.kakaoscan.server.application.dto.request.RegisterRequest;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.application.service.UserService;
+import com.kakaoscan.server.domain.user.model.CustomUserDetails;
 import com.kakaoscan.server.infrastructure.service.RateLimitService;
 import com.kakaoscan.server.infrastructure.utils.WebUtils;
 import io.github.bucket4j.Bucket;
@@ -14,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Duration;
@@ -36,6 +39,13 @@ public class UserController extends ApiEndpointPrefix {
         }else {
             return new ResponseEntity<>(ApiResponse.failure("too many requests"), HttpStatus.TOO_MANY_REQUESTS);
         }
+    }
+
+    @PutMapping("/user/password")
+    public ResponseEntity<ApiResponse<Void>> changePassword(@RequestBody @Valid ChangePasswordRequest passwordRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
+        userService.changePassword(userDetails.getEmail(), passwordRequest.getPassword());
+
+        return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
     }
 
     @GetMapping("/verify/{token}")

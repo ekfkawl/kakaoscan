@@ -115,6 +115,7 @@ const HeaderWithUser = () => {
                                 <FontAwesomeIcon icon={faFolderOpen} className="mr-2" />
                                 조회 내역
                             </Dropdown.Item>
+                            <Dropdown.Divider />
                             <Dropdown.Item className="text-sm" onClick={handleLogout}>
                                 <FontAwesomeIcon icon={faRightFromBracket} className="mr-2" />
                                 로그아웃

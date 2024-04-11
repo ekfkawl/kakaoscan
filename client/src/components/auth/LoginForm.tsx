@@ -25,7 +25,6 @@ const LoginForm = () => {
     };
 
     useEffect(() => {
-        console.log(localStorage.getItem('rememberUserId') || 'dd');
         if (remember && userId) {
             setEmail(userId);
         }
@@ -73,7 +72,10 @@ const LoginForm = () => {
             </Button>
             <div className="max-w-xs mx-auto">
                 <div className="flex items-center justify-between">
-                    <Link to="/" className="text-sm font-medium text-gray-500 hover:underline dark:text-gray-300">
+                    <Link
+                        to="/find-password"
+                        className="text-sm font-medium text-gray-500 hover:underline dark:text-gray-300"
+                    >
                         비밀번호 찾기
                     </Link>
                     <Link

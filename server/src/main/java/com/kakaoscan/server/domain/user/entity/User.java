@@ -11,6 +11,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,6 +40,7 @@ public class User {
 //    @NotBlank
 //    @Size(min = 8)
 //    @Column(nullable = false)
+    @Setter
     private String password;
 
     @Column(nullable = false)

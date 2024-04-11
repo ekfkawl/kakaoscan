@@ -101,4 +101,11 @@ public class UserService {
             return ApiResponse.failure(TOKEN_DOES_NOT_EXIST);
         }
     }
+
+    @Transactional
+    public void changePassword(String userId, String password) {
+        User user = userRepository.findByEmailOrThrow(userId);
+
+        user.setPassword(PasswordEncoderSingleton.getInstance().encode(password));
+    }
 }

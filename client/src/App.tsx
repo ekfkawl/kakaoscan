@@ -15,6 +15,7 @@ import PaymentHistory from './pages/PaymentHistory';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 import PaymentManagementPage from './pages/admin/PaymentManagementPage';
 import AppLogPage from './pages/admin/AppLogPage';
+import MyPage from './pages/MyPage';
 
 const App = () => {
     return (
@@ -66,6 +67,14 @@ const App = () => {
                         element={
                             <ProtectedRoute>
                                 <PaymentHistory />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/my-page"
+                        element={
+                            <ProtectedRoute>
+                                <MyPage />
                             </ProtectedRoute>
                         }
                     />
