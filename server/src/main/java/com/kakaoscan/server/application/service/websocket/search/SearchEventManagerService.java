@@ -33,7 +33,7 @@ public class SearchEventManagerService {
     private final SearchInMemoryQueue queue;
     private final StompMessageDispatcher messageDispatcher;
 
-    private static final int PROCESSING_TIMEOUT_SECONDS = 15;
+    private static final int PROCESSING_TIMEOUT_SECONDS = 20;
 
     public boolean checkUserTurnAndNotify(SearchMessage searchMessage, SearchMessage peekSearchMessage) {
         boolean isUserTurn = searchMessage.getEmail().equals(peekSearchMessage.getEmail());
@@ -77,10 +77,16 @@ public class SearchEventManagerService {
 
     private boolean isMessageTimedOut(SearchMessage searchMessage, LocalDateTime thresholdTime, Optional<EventStatus> optionalEventStatus) {
         return optionalEventStatus
-                .map(eventStatus ->
-                        (eventStatus.getStatus() == WAITING && searchMessage.getEventStartedAt().isBefore(thresholdTime)) ||
-                        (eventStatus.getStatus() == PROCESSING && searchMessage.getEventStartedAt().isBefore(LocalDateTime.now().minusSeconds(PROCESSING_TIMEOUT_SECONDS))))
-                .orElse(searchMessage.getEventStartedAt().isBefore(LocalDateTime.now().minusSeconds(PROCESSING_TIMEOUT_SECONDS)));
+                .map(eventStatus -> {
+                    LocalDateTime eventStartedAt = searchMessage.getEventStartedAt();
+                    return eventStartedAt != null && (
+                            (eventStatus.getStatus() == WAITING && eventStartedAt.isBefore(thresholdTime)) ||
+                            (eventStatus.getStatus() == PROCESSING && eventStartedAt.isBefore(LocalDateTime.now().minusSeconds(PROCESSING_TIMEOUT_SECONDS))));
+                })
+                .orElseGet(() -> {
+                    LocalDateTime eventStartedAt = searchMessage.getEventStartedAt();
+                    return eventStartedAt != null && eventStartedAt.isBefore(LocalDateTime.now().minusSeconds(PROCESSING_TIMEOUT_SECONDS));
+                });
     }
 
     private boolean shouldRemovePeek(SearchMessage currentSearchMessage, SearchMessage peekSearchMessage) {

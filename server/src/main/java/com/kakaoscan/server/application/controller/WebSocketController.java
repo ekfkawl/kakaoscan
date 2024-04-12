@@ -83,7 +83,6 @@ public class WebSocketController {
             return;
         }
 
-
         Optional<SearchMessage> optionalPeekMessage = searchQueueService.enqueueAndPeekNext(message);
         if (optionalPeekMessage.isEmpty()) {
             throw new EmptyQueueException("websocket message queue is empty");
