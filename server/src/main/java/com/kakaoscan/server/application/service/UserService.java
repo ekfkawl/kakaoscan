@@ -38,25 +38,35 @@ public class UserService {
     @Transactional
     public ApiResponse<Void> register(RegisterRequest request) {
         Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
-        if (existingUser.isPresent() && existingUser.get().isEmailVerified()) {
-            return ApiResponse.failure(ALREADY_REGISTERED_EMAIL);
+
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            if (user.isEmailVerified()) {
+                return ApiResponse.failure(ALREADY_REGISTERED_EMAIL);
+            }else {
+                sendVerificationEmail(user);
+                return ApiResponse.success();
+            }
         }
 
-        User user = User.builder()
+        User newUser = User.builder()
                 .email(request.getEmail())
                 .password(PasswordEncoderSingleton.getInstance().encode(request.getPassword()))
                 .role(Role.USER)
                 .authenticationType(AuthenticationType.LOCAL)
                 .build();
 
-        user.initializePoint();
-        userRepository.save(user);
+        newUser.initializePoint();
+        userRepository.save(newUser);
 
-        EmailVerificationToken verificationToken = createVerificationToken(user);
-        VerificationEmailEvent event = new VerificationEmailEvent(request.getEmail(), verifyPrefix + verificationToken.getToken());
-        eventPublisher.publish(OTHER_EVENT_TOPIC.getTopic(), event);
-
+        sendVerificationEmail(newUser);
         return ApiResponse.success();
+    }
+
+    private void sendVerificationEmail(User user) {
+        EmailVerificationToken verificationToken = createVerificationToken(user);
+        VerificationEmailEvent event = new VerificationEmailEvent(user.getEmail(), verifyPrefix + verificationToken.getToken());
+        eventPublisher.publish(OTHER_EVENT_TOPIC.getTopic(), event);
     }
 
     @Transactional
