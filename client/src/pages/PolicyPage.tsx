@@ -69,10 +69,10 @@ const PolicyPage = () => {
                     </div>
                     <div className="mb-10">
                         <h3 className="mb-4 flex items-center text-lg font-medium text-gray-900 dark:text-white">
-                            대상의 프로필과 배경이 200장을 초과하는 경우
+                            대상의 프로필과 배경이 100장을 초과하는 경우
                         </h3>
                         <p className="text-gray-500 dark:text-gray-400">
-                            대상의 프로필과 배경은 각각 최대 200장까지만 불러옵니다.
+                            대상의 프로필과 배경은 각각 최대 100장까지만 불러옵니다.
                         </p>
                     </div>
                 </div>
