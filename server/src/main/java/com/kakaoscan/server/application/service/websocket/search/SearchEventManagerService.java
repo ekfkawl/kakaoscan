@@ -8,6 +8,7 @@ import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.infrastructure.redis.enums.Topics;
 import com.kakaoscan.server.infrastructure.websocket.queue.SearchInMemoryQueue;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -22,6 +23,7 @@ import static com.kakaoscan.server.infrastructure.redis.enums.Topics.EVENT_TRACE
 import static com.kakaoscan.server.infrastructure.redis.enums.Topics.SEARCH_EVENT_TOPIC;
 import static java.lang.String.format;
 
+@Log4j2
 @Service
 @RequiredArgsConstructor
 public class SearchEventManagerService {
@@ -30,6 +32,8 @@ public class SearchEventManagerService {
     private final EventPublishService eventPublishService;
     private final SearchInMemoryQueue queue;
     private final StompMessageDispatcher messageDispatcher;
+
+    private static final int PROCESSING_TIMEOUT_SECONDS = 15;
 
     public boolean checkUserTurnAndNotify(SearchMessage searchMessage, SearchMessage peekSearchMessage) {
         boolean isUserTurn = searchMessage.getEmail().equals(peekSearchMessage.getEmail());
@@ -43,18 +47,21 @@ public class SearchEventManagerService {
 
     public boolean removeTimeoutEvent(SearchMessage peekSearchMessage) {
         boolean isRemovedPeek = false;
-        LocalDateTime thresholdTime = LocalDateTime.now().minusSeconds(1);
+        LocalDateTime thresholdTime = LocalDateTime.now().minusSeconds(1).minusNanos(500000000);
 
         Iterator<SearchMessage> iterator = queue.iterator();
         while (iterator.hasNext()) {
             SearchMessage next = iterator.next();
             Optional<EventStatus> eventStatus = eventStatusPort.getEventStatus(next.getMessageId());
 
-            if (eventStatus.isPresent() && isMessageTimedOut(next, thresholdTime, eventStatus.get())) {
+            if (isMessageTimedOut(next, thresholdTime, eventStatus)) {
                 isRemovedPeek = shouldRemovePeek(next, peekSearchMessage);
 
                 messageDispatcher.sendToUser(new SearchMessage(next.getEmail(), SEARCH_ERROR_PING_PONG, false));
                 iterator.remove();
+                eventStatusPort.deleteEventStatus(next.getMessageId());
+
+                log.info("remove timed out message: " + next.getEmail() + ", " + next.getContent());
             }
         }
 
@@ -68,9 +75,12 @@ public class SearchEventManagerService {
         eventPublishService.publishSearchEvent(topic, peekSearchMessage);
     }
 
-    private boolean isMessageTimedOut(SearchMessage searchMessage, LocalDateTime thresholdTime, EventStatus eventStatus) {
-        return eventStatus.getStatus() == WAITING && searchMessage.getEventStartedAt().isBefore(thresholdTime) ||
-               eventStatus.getStatus() == PROCESSING && searchMessage.getEventStartedAt().isBefore(LocalDateTime.now().minusSeconds(20));
+    private boolean isMessageTimedOut(SearchMessage searchMessage, LocalDateTime thresholdTime, Optional<EventStatus> optionalEventStatus) {
+        return optionalEventStatus
+                .map(eventStatus ->
+                        (eventStatus.getStatus() == WAITING && searchMessage.getEventStartedAt().isBefore(thresholdTime)) ||
+                        (eventStatus.getStatus() == PROCESSING && searchMessage.getEventStartedAt().isBefore(LocalDateTime.now().minusSeconds(PROCESSING_TIMEOUT_SECONDS))))
+                .orElse(searchMessage.getEventStartedAt().isBefore(LocalDateTime.now().minusSeconds(PROCESSING_TIMEOUT_SECONDS)));
     }
 
     private boolean shouldRemovePeek(SearchMessage currentSearchMessage, SearchMessage peekSearchMessage) {

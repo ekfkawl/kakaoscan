@@ -32,7 +32,7 @@ public class SearchMessage extends MessageMetadata {
         this(email, content, hasNext, false);
     }
 
-    public void createEventStartedAt() {
+    public void setEventStartedAt() {
         this.eventStartedAt = LocalDateTime.now();
     }
 

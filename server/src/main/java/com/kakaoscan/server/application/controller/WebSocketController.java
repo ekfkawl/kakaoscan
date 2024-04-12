@@ -46,9 +46,13 @@ public class WebSocketController {
             Optional<SearchMessage> optionalMessage = searchQueueService.findMessage(event.getUser().getName());
             optionalMessage.ifPresent(message -> {
                 Optional<EventStatus> eventStatus = eventStatusPort.getEventStatus(message.getMessageId());
-                if (eventStatus.isPresent() && eventStatus.get().getStatus() == EventStatusEnum.PROCESSING) {
-                    message.setReconnectContent(message.getContent());
-                    messageDispatcher.sendToUser(message);
+                if (eventStatus.isPresent()) {
+                    switch (eventStatus.get().getStatus()) {
+                        case PROCESSING, SUCCESS -> {
+                            message.setReconnectContent(message.getContent());
+                            messageDispatcher.sendToUser(message);
+                        }
+                    }
                 }
             });
         }
@@ -79,13 +83,15 @@ public class WebSocketController {
             return;
         }
 
+
         Optional<SearchMessage> optionalPeekMessage = searchQueueService.enqueueAndPeekNext(message);
         if (optionalPeekMessage.isEmpty()) {
             throw new EmptyQueueException("websocket message queue is empty");
         }
 
+        boolean removedMessage = searchEventManagerService.removeTimeoutEvent(optionalPeekMessage.get());
         boolean isUserTurn = searchEventManagerService.checkUserTurnAndNotify(message, optionalPeekMessage.get());
-        if (isUserTurn && !searchEventManagerService.removeTimeoutEvent(optionalPeekMessage.get())) {
+        if (!removedMessage && isUserTurn) {
             searchEventManagerService.publishAndTraceEvent(optionalPeekMessage.get());
         }
     }

@@ -20,7 +20,7 @@ public class SearchQueueService {
         Optional<SearchMessage> optionalMessage = queue.size() == 0 ? Optional.empty() : Optional.of(queue.iterator().next());
         optionalMessage.ifPresent(m -> {
             if (m.getEventStartedAt() == null) {
-                m.createEventStartedAt();
+                m.setEventStartedAt();
             }
         });
 

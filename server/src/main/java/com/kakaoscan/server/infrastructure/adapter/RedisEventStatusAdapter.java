@@ -31,7 +31,7 @@ public class RedisEventStatusAdapter implements EventStatusPort {
 
     @Override
     public void deleteEventStatus(String eventId) {
-        cacheStorePort.deleteKey(eventId, EventStatus.class);
+        cacheStorePort.deleteKey(EVENT_KEY_PREFIX + eventId, EventStatus.class);
     }
 
     @Override
