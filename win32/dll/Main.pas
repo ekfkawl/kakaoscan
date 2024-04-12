@@ -26,7 +26,11 @@ begin
     Guard(FeedsContainer, KakaoCtrl.Scan(ScanType).Value);
     if Assigned(FeedsContainer) then
     begin
-      KakaoProfile.Profile.ProfileFeeds.Merge(FeedsContainer);
+      if ScanType = 0 then
+        KakaoProfile.Profile.ProfileFeeds.Merge(FeedsContainer)
+      else
+        KakaoProfile.Profile.BackgroundFeeds.Merge(FeedsContainer);
+
       CleanUpMemory;
     end;
   end;

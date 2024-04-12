@@ -13,6 +13,7 @@ type
     HasProfile: boolean;
     HasBackground: boolean;
     Json: string;
+    CalledTick: UInt64;
 
     class function Initialize: TKakaoResponse; static;
   end;
