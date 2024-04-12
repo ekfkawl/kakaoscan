@@ -3,7 +3,7 @@ unit SearchEvent;
 interface
 
 uses
-  Winapi.Windows, System.Classes, EventMetadata, REST.Json, System.JSON;
+  Winapi.Windows, System.Classes, EventMetadata, REST.Json, System.JSON, System.SysUtils;
 
 type
   TSearchEvent = class(TEventMetadata)
@@ -11,10 +11,12 @@ type
     FEmail: string;
     FPhoneNumber: string;
   public
-    constructor Create; overload;
-    constructor Create(const JSONString: string); overload;
     property Email: string read FEmail write FEmail;
     property PhoneNumber: string read FPhoneNumber write FPhoneNumber;
+    constructor Create; overload;
+    constructor Create(const JSONString: string); overload;
+    function ToJSON: string;
+    function ToEventJSON: string;
   end;
 
 implementation
@@ -43,5 +45,16 @@ begin
     JSONValue.Free;
   end;
 end;
+
+function TSearchEvent.ToJSON: string;
+begin
+  Result:= TJson.ObjectToJsonString(Self);
+end;
+
+function TSearchEvent.ToEventJSON: string;
+begin
+  Result:= Format('{"eventType":"SearchEvent","data":%s}', [Self.ToJSON]);
+end;
+
 
 end.

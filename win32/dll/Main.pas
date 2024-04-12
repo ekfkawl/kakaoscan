@@ -41,6 +41,7 @@ var
   KakaoResponse: TKakaoResponse;
   KakaoStatus: TKakaoStatus;
   SearchNewNumberEvent: TSearchNewPhoneNumberEvent;
+  SearchEvent: TSearchEvent;
   KakaoProfile: TKakaoProfile;
   StatusResponse: TStatusResponse;
   ViewFriendInfo: TViewFriendInfo;
@@ -121,6 +122,12 @@ begin
           MergeFeeds(HasBackground, 1, KakaoProfile);
 
           Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EVENT_SUCCESS, KakaoProfile.ToJSON));
+
+          Guard(SearchEvent, TSearchEvent.Create);
+          SearchEvent.EventId:= EventId;
+          SearchEvent.Email:= Email;
+          SearchEvent.PhoneNumber:= PhoneNumber;
+          Redis.Publish(TOPIC_OTHER_EVENT, SearchEvent.ToEventJSON);
         end;
       finally
         Guard(EventStatus, Redis.GetEventStatus(EventId));

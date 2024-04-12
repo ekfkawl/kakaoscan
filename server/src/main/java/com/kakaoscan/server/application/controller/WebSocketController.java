@@ -46,13 +46,9 @@ public class WebSocketController {
             Optional<SearchMessage> optionalMessage = searchQueueService.findMessage(event.getUser().getName());
             optionalMessage.ifPresent(message -> {
                 Optional<EventStatus> eventStatus = eventStatusPort.getEventStatus(message.getMessageId());
-                if (eventStatus.isPresent()) {
-                    switch (eventStatus.get().getStatus()) {
-                        case PROCESSING, SUCCESS -> {
-                            message.setReconnectContent(message.getContent());
-                            messageDispatcher.sendToUser(message);
-                        }
-                    }
+                if (eventStatus.isPresent() && EventStatusEnum.PROCESSING.equals(eventStatus.get().getStatus())) {
+                    message.setReconnectContent(message.getContent());
+                    messageDispatcher.sendToUser(message);
                 }
             });
         }
