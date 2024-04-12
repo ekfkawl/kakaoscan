@@ -207,10 +207,10 @@ begin
         Sleep(3000);
 
         EnumWindows(@ConfigWindow, LPARAM(@EnumInfo));
-        IsReadyInject:= True;
       end;
 
       LClick(EnumInfo.FoundHandle, 38, 213);
+      IsReadyInject:= True;
     end;
   end;
 end;
