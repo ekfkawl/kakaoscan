@@ -15,7 +15,7 @@ spring:
         on-profile: dev
   data:
     redis:
-      host: host.docker.internal
+      host: localhost #host.docker.internal
 
 ---
 

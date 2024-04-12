@@ -46,12 +46,15 @@ constructor TRedis.Create;
 begin
   inherited Create;
   FRedisClient:= NewRedisClient(GetRedisHost, GetRedisPort);
-  FRedisClient.AUTH(GetRedisPassword);
-  Log('RedisClient.PING: '+ FRedisClient.PING);
-
   FRedisSubscriber:= NewRedisClient(GetRedisHost, GetRedisPort);
-  FRedisSubscriber.AUTH(GetRedisPassword);
-  Log('RedisSubscriber.PING: '+ FRedisClient.PING);
+
+  if Length(GetRedisPassword) > 0 then
+  begin
+    FRedisClient.AUTH(GetRedisPassword);
+    FRedisSubscriber.AUTH(GetRedisPassword);
+    Log('RedisClient.PING: '+ FRedisClient.PING);
+    Log('RedisSubscriber.PING: '+ FRedisClient.PING);
+  end;
 
   FIsDestroyed:= False;
   Reconnect;
@@ -85,9 +88,16 @@ begin
     FRedisSubscriber:= nil;
 
     FRedisClient:= NewRedisClient(GetRedisHost, GetRedisPort);
-    FRedisClient.AUTH(GetRedisPassword);
     FRedisSubscriber:= NewRedisClient(GetRedisHost, GetRedisPort);
-    FRedisSubscriber.AUTH(GetRedisPassword);
+
+    if Length(GetRedisPassword) > 0 then
+    begin
+      FRedisClient.AUTH(GetRedisPassword);
+      FRedisSubscriber.AUTH(GetRedisPassword);
+      Log('RedisClient.PING: '+ FRedisClient.PING);
+      Log('RedisSubscriber.PING: '+ FRedisClient.PING);
+    end;
+
     Log('redis reconnected');
   except
     on E: Exception do
