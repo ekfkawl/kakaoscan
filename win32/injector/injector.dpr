@@ -178,6 +178,8 @@ begin
 
     if (FindWindow(nil, 'CrashReporter') > 0) And (ExistsProcess('CrashReporter.exe')) then
     begin
+      Writeln(FormatDateTime('[yy-mm-dd hh:nn:ss] ', Now), 'redo..');
+
       IsReadyInject:= False;
       TerminateProcess('KakaoTalk.exe');
       TerminateProcess('CrashReporter.exe');
