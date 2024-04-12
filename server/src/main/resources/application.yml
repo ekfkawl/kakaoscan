@@ -59,8 +59,8 @@ spring:
       on-profile: prod
 
 verify:
-  prefix: https://kakaoscan.com/api/verify/
-  replace: https://kakaoscan.com
+  prefix: ${CURRENT_BASE_URL}/api/verify/
+  replace: ${CURRENT_BASE_URL}
 
 search:
   profile:
