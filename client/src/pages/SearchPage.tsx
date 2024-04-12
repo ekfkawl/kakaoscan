@@ -67,7 +67,9 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     useEffect(() => {
         let timeoutId: NodeJS.Timeout | null = null;
         if (stompProfileResponse?.hasNext) {
-            setFormattedPhoneNumber(phoneNumber || stompProfileResponse?.content || '');
+            if (stompProfileResponse?.reconnectContent) {
+                setFormattedPhoneNumber(stompProfileResponse?.reconnectContent);
+            }
             timeoutId = setTimeout(() => handleSendProfile(phoneNumber), 100);
         }
 
@@ -152,7 +154,9 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
             )}
             <MessageToast
                 message={
-                    (!stompProfileResponse?.jsonContent && stompProfileResponse?.content) ||
+                    (!stompProfileResponse?.reconnectContent &&
+                        !stompProfileResponse?.jsonContent &&
+                        stompProfileResponse?.content) ||
                     (stompProfileResponse?.jsonContent && TOAST_SUCCESS_MESSAGE) ||
                     TOAST_DEFAULT_MESSAGE
                 }

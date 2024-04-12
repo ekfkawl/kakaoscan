@@ -70,7 +70,7 @@ public class SearchEventManagerService {
 
     private boolean isMessageTimedOut(SearchMessage searchMessage, LocalDateTime thresholdTime, EventStatus eventStatus) {
         return eventStatus.getStatus() == WAITING && searchMessage.getEventStartedAt().isBefore(thresholdTime) ||
-               eventStatus.getStatus() == PROCESSING && searchMessage.getEventStartedAt().isBefore(LocalDateTime.now().minusSeconds(15));
+               eventStatus.getStatus() == PROCESSING && searchMessage.getEventStartedAt().isBefore(LocalDateTime.now().minusSeconds(20));
     }
 
     private boolean shouldRemovePeek(SearchMessage currentSearchMessage, SearchMessage peekSearchMessage) {

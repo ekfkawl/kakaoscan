@@ -32,7 +32,7 @@ public class SearchMessageService {
                 return new SearchMessage(principal.getName(), phoneNumber, true);
             }else {
                 messageDispatcher.sendToUser(new SearchMessage(principal.getName(), SEARCH_INVALID_PHONE_NUMBER, false));
-                throw new IllegalArgumentException("message content is not a phone number format");
+                throw new IllegalArgumentException("message content is not a phone number format: " + phoneNumber);
             }
         }else {
             throw new UserNotVerifiedException("websocket principal is empty");

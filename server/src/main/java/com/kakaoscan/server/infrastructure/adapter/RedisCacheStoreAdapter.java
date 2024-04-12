@@ -42,4 +42,10 @@ public class RedisCacheStoreAdapter<V> implements CacheStorePort<V> {
         RedisTemplate<String, V> redisTemplate = getRedisTemplate(type);
         return Boolean.TRUE.equals(redisTemplate.hasKey(key));
     }
+
+    @Override
+    public void deleteKey(String key, Class<V> type) {
+        RedisTemplate<String, V> redisTemplate = getRedisTemplate(type);
+        redisTemplate.delete(key);
+    }
 }

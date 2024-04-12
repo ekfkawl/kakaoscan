@@ -30,6 +30,11 @@ public class RedisEventStatusAdapter implements EventStatusPort {
     }
 
     @Override
+    public void deleteEventStatus(String eventId) {
+        cacheStorePort.deleteKey(eventId, EventStatus.class);
+    }
+
+    @Override
     public <T extends EventMetadata> Optional<EventStatus> getEventStatus(T event) {
         return getEventStatus(event.getEventId());
     }

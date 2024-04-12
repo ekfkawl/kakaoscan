@@ -4,12 +4,16 @@ import com.kakaoscan.server.domain.websocket.model.MessageMetadata;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Getter
 public class SearchMessage extends MessageMetadata {
-    private final String content;
+    @Setter
+    private String content;
+    @Setter
+    private String reconnectContent;
     private final boolean isJsonContent;
     private final boolean hasNext;
     private final LocalDateTime createdAt;

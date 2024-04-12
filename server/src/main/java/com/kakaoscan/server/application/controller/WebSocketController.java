@@ -8,6 +8,7 @@ import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher
 import com.kakaoscan.server.application.service.websocket.search.SearchEventManagerService;
 import com.kakaoscan.server.application.service.websocket.search.SearchMessageService;
 import com.kakaoscan.server.application.service.websocket.search.SearchQueueService;
+import com.kakaoscan.server.domain.events.enums.EventStatusEnum;
 import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.point.model.PointMessage;
 import com.kakaoscan.server.domain.search.model.InvalidPhoneNumber;
@@ -45,7 +46,8 @@ public class WebSocketController {
             Optional<SearchMessage> optionalMessage = searchQueueService.findMessage(event.getUser().getName());
             optionalMessage.ifPresent(message -> {
                 Optional<EventStatus> eventStatus = eventStatusPort.getEventStatus(message.getMessageId());
-                if (eventStatus.isPresent()) {
+                if (eventStatus.isPresent() && eventStatus.get().getStatus() == EventStatusEnum.PROCESSING) {
+                    message.setReconnectContent(message.getContent());
                     messageDispatcher.sendToUser(message);
                 }
             });

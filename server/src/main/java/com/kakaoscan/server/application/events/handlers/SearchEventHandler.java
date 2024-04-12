@@ -55,6 +55,8 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
                     }
                 }
                 queue.remove(event.getEventId());
+                eventStatusPort.deleteEventStatus(event.getEventId());
+
                 yield status.getMessage();
             }
         };
