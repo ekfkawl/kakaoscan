@@ -34,7 +34,7 @@ const ProfileThumbPopup: FC<ProfileThumbPopupProps> = ({
                     position="center"
                     theme={{
                         content: {
-                            inner: 'relative rounded-lg bg-white shadow dark:bg-gray-800 flex flex-col max-h-[90vh]',
+                            inner: 'relative rounded-lg bg-white shadow dark:bg-gray-800 flex flex-col max-h-[90vh] w-full sm:max-w-md',
                         },
                     }}
                 >
