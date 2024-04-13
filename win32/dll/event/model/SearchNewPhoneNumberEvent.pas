@@ -9,7 +9,8 @@ type
   TSearchNewPhoneNumberEvent = class(TSearchEvent)
   private
   public
-    constructor Create;
+    constructor Create; overload;
+    constructor Create(const Email, PhoneNumber: string); overload;
     function ToJSON: string;
     function ToEventJSON: string;
   end;
@@ -21,6 +22,11 @@ implementation
 constructor TSearchNewPhoneNumberEvent.Create;
 begin
   inherited Create;
+end;
+
+constructor TSearchNewPhoneNumberEvent.Create(const Email, PhoneNumber: string);
+begin
+  inherited Create('', Email, PhoneNumber);
 end;
 
 function TSearchNewPhoneNumberEvent.ToJSON: string;

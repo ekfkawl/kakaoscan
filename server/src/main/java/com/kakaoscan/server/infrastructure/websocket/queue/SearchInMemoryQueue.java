@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 @Component
@@ -21,6 +22,11 @@ public class SearchInMemoryQueue implements QueueAggregate {
     @Override
     public void add(SearchMessage searchMessage) {
         set.add(searchMessage);
+    }
+
+    @Override
+    public Optional<SearchMessage> peek() {
+        return this.size() == 0 ? Optional.empty() : Optional.of(this.iterator().next());
     }
 
     @Override

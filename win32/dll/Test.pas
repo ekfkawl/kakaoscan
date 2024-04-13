@@ -96,7 +96,7 @@ begin
   SearchNewNumberEvent.PhoneNumber:= '00011112222';
 
   Writeln(SearchNewNumberEvent.ToEventJSON);
-  Redis.Publish(TOPIC_OTHER_EVENT, SearchNewNumberEvent.ToEventJSON);
+  Redis.Publish(OTHER_EVENT_TOPIC, SearchNewNumberEvent.ToEventJSON);
 end;
 
 procedure TForm1.CheckBox1Click(Sender: TObject);

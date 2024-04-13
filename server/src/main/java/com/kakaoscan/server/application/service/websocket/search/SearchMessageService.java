@@ -8,15 +8,19 @@ import com.kakaoscan.server.domain.point.model.SearchCost;
 import com.kakaoscan.server.domain.search.model.NewNumberSearch;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.infrastructure.exception.UserNotVerifiedException;
+import com.kakaoscan.server.infrastructure.websocket.queue.SearchInMemoryQueue;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ConcurrentModificationException;
+import java.util.Iterator;
+import java.util.Optional;
+import java.util.Queue;
 
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.CONCURRENT_MODIFICATION_POINTS;
-import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEARCH_INVALID_PHONE_NUMBER;
+import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEARCH_NOT_PHONE_NUMBER_FORMAT;
 
 @Service
 @RequiredArgsConstructor
@@ -24,19 +28,31 @@ public class SearchMessageService {
     private final StompMessageDispatcher messageDispatcher;
     private final PointService pointService;
     private final SearchService searchService;
+    private final SearchInMemoryQueue queue;
 
     public SearchMessage createSearchMessage(Principal principal, SearchMessage.OriginMessage originMessage) {
         if (principal != null) {
             final String phoneNumber = originMessage.getContent().trim().replace("-", "");
             if (phoneNumber.matches(ValidationPatterns.PHONE_NUMBER)) {
-                return new SearchMessage(principal.getName(), phoneNumber, true);
+                return new SearchMessage(principal.getName(), phoneNumber);
             }else {
-                messageDispatcher.sendToUser(new SearchMessage(principal.getName(), SEARCH_INVALID_PHONE_NUMBER, false));
+                messageDispatcher.sendToUser(new SearchMessage(principal.getName(), SEARCH_NOT_PHONE_NUMBER_FORMAT, false));
                 throw new IllegalArgumentException("message content is not a phone number format: " + phoneNumber);
             }
         }else {
             throw new UserNotVerifiedException("websocket principal is empty");
         }
+    }
+
+    public Optional<SearchMessage> findSearchMessage(String email) {
+        Iterator<SearchMessage> iterator = queue.iterator();
+        while (iterator.hasNext()) {
+            SearchMessage next = iterator.next();
+            if (next.getEmail().equals(email)) {
+                return Optional.of(next);
+            }
+        }
+        return Optional.empty();
     }
 
     public boolean validatePoints(SearchMessage message) {

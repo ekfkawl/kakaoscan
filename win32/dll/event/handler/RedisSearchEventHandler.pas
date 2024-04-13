@@ -36,7 +36,7 @@ initialization
       begin
         if Redis.IsConnected then
         begin
-          Redis.Subscribe(TOPIC_SEARCH_EVENT, OnSearchEventReceived);
+          Redis.Subscribe(SEARCH_EVENT_TOPIC, OnSearchEventReceived);
         end else
         begin
           Sleep(1000);

@@ -14,6 +14,7 @@ type
     property Email: string read FEmail write FEmail;
     property PhoneNumber: string read FPhoneNumber write FPhoneNumber;
     constructor Create; overload;
+    constructor Create(const EventId, Email, PhoneNumber: string); overload;
     constructor Create(const JSONString: string); overload;
     function ToJSON: string;
     function ToEventJSON: string;
@@ -26,6 +27,13 @@ implementation
 constructor TSearchEvent.Create;
 begin
   inherited Create;
+end;
+
+constructor TSearchEvent.Create(const EventId, Email, PhoneNumber: string);
+begin
+  inherited Create(EventId);
+  FEmail:= Email;
+  FPhoneNumber:= PhoneNumber;
 end;
 
 constructor TSearchEvent.Create(const JSONString: string);

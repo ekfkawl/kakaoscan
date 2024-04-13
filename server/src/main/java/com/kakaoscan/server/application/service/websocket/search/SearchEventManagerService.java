@@ -5,21 +5,18 @@ import com.kakaoscan.server.application.service.websocket.EventPublishService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
 import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
-import com.kakaoscan.server.infrastructure.redis.enums.Topics;
 import com.kakaoscan.server.infrastructure.websocket.queue.SearchInMemoryQueue;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Iterator;
 import java.util.Optional;
 
 import static com.kakaoscan.server.domain.events.enums.EventStatusEnum.PROCESSING;
 import static com.kakaoscan.server.domain.events.enums.EventStatusEnum.WAITING;
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEARCH_ERROR_PING_PONG;
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEARCH_QUEUE_WAITING;
-import static com.kakaoscan.server.infrastructure.redis.enums.Topics.EVENT_TRACE_TOPIC;
 import static com.kakaoscan.server.infrastructure.redis.enums.Topics.SEARCH_EVENT_TOPIC;
 import static java.lang.String.format;
 
@@ -39,40 +36,35 @@ public class SearchEventManagerService {
         boolean isUserTurn = searchMessage.getEmail().equals(peekSearchMessage.getEmail());
         if (!isUserTurn) {
             int waitingCount = queue.size() - 1;
-            messageDispatcher.sendToUser(new SearchMessage(searchMessage.getEmail(), format(SEARCH_QUEUE_WAITING, waitingCount), true));
+            messageDispatcher.sendToUser(new SearchMessage(searchMessage.getEmail(), format(SEARCH_QUEUE_WAITING, waitingCount), false));
             return false;
         }
         return true;
     }
 
-    public boolean removeTimeoutEvent(SearchMessage peekSearchMessage) {
-        boolean isRemovedPeek = false;
+    public boolean removeTimeoutEvent(SearchMessage searchMessage) {
         LocalDateTime thresholdTime = LocalDateTime.now().minusSeconds(1).minusNanos(500000000);
 
-        Iterator<SearchMessage> iterator = queue.iterator();
-        while (iterator.hasNext()) {
-            SearchMessage next = iterator.next();
-            Optional<EventStatus> eventStatus = eventStatusPort.getEventStatus(next.getMessageId());
+        Optional<EventStatus> eventStatus = eventStatusPort.getEventStatus(searchMessage.getMessageId());
 
-            if (isMessageTimedOut(next, thresholdTime, eventStatus)) {
-                isRemovedPeek = shouldRemovePeek(next, peekSearchMessage);
+        if (isMessageTimedOut(searchMessage, thresholdTime, eventStatus)) {
+            messageDispatcher.sendToUser(new SearchMessage(searchMessage.getEmail(), SEARCH_ERROR_PING_PONG, false));
+            queue.remove(searchMessage.getMessageId());
+            eventStatusPort.deleteEventStatus(searchMessage.getMessageId());
 
-                messageDispatcher.sendToUser(new SearchMessage(next.getEmail(), SEARCH_ERROR_PING_PONG, false));
-                iterator.remove();
-                eventStatusPort.deleteEventStatus(next.getMessageId());
-
-                log.info("remove timed out message: " + next.getEmail() + ", " + next.getContent());
-            }
+            log.info("remove timed out message: " + searchMessage.getEmail() + ", " + searchMessage.getContent());
+            return true;
         }
 
-        return isRemovedPeek;
+        return false;
     }
 
     public void publishAndTraceEvent(SearchMessage peekSearchMessage) {
         Optional<EventStatus> optionalEventStatus = eventStatusPort.getEventStatus(peekSearchMessage.getMessageId());
 
-        Topics topic = optionalEventStatus.isEmpty() ? SEARCH_EVENT_TOPIC : EVENT_TRACE_TOPIC;
-        eventPublishService.publishSearchEvent(topic, peekSearchMessage);
+        if (optionalEventStatus.isEmpty()) {
+            eventPublishService.publishSearchEvent(SEARCH_EVENT_TOPIC, peekSearchMessage);
+        }
     }
 
     private boolean isMessageTimedOut(SearchMessage searchMessage, LocalDateTime thresholdTime, Optional<EventStatus> optionalEventStatus) {
@@ -87,9 +79,5 @@ public class SearchEventManagerService {
                     LocalDateTime eventStartedAt = searchMessage.getEventStartedAt();
                     return eventStartedAt != null && eventStartedAt.isBefore(LocalDateTime.now().minusSeconds(PROCESSING_TIMEOUT_SECONDS));
                 });
-    }
-
-    private boolean shouldRemovePeek(SearchMessage currentSearchMessage, SearchMessage peekSearchMessage) {
-        return currentSearchMessage.getEmail().equals(peekSearchMessage.getEmail());
     }
 }

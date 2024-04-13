@@ -57,28 +57,28 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     const { isVisible: isVisibleScrollToTop } = useScrollToComponent(scrollTopRef);
 
     useSubscription<StompProfile>('/user/queue/message/search', setStompProfileResponse);
-    const handleSendProfile = useCallback(
+    const searchProfile = useCallback(
         (content: string) => {
-            sendMessage('/pub/search', { content: content });
+            if (content.length === 13) {
+                sendMessage('/pub/search', { content: content });
+            }
         },
         [sendMessage],
     );
 
+    const searchProfileHeartbeat = useCallback(() => {
+        sendMessage('/pub/search/heartbeat');
+    }, [sendMessage]);
+
     useEffect(() => {
-        let timeoutId: NodeJS.Timeout | null = null;
-        if (stompProfileResponse?.hasNext) {
-            if (stompProfileResponse?.reconnectContent) {
-                setFormattedPhoneNumber(stompProfileResponse?.reconnectContent);
-            }
-            timeoutId = setTimeout(() => handleSendProfile(phoneNumber), 100);
-        }
+        let intervalId = setInterval(() => {
+            searchProfileHeartbeat();
+        }, 500);
 
         return () => {
-            if (timeoutId) {
-                clearTimeout(timeoutId);
-            }
+            clearInterval(intervalId);
         };
-    }, [stompProfileResponse, phoneNumber, handleSendProfile]);
+    }, [searchProfileHeartbeat, sendMessage]);
 
     useEffect(() => {
         if (stompProfileResponse && stompProfileResponse.jsonContent && stompProfileResponse.content) {
@@ -88,9 +88,9 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     }, [stompProfileResponse]);
 
     const handleConfirmSendMessage = useCallback(() => {
-        handleSendProfile(phoneNumber);
+        searchProfile(phoneNumber);
         setShowSearchConfirmPopup(false);
-    }, [handleSendProfile, phoneNumber]);
+    }, [searchProfile, phoneNumber]);
 
     const {
         data: searchCost,
@@ -154,9 +154,7 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
             )}
             <MessageToast
                 message={
-                    (!stompProfileResponse?.reconnectContent &&
-                        !stompProfileResponse?.jsonContent &&
-                        stompProfileResponse?.content) ||
+                    (!stompProfileResponse?.jsonContent && stompProfileResponse?.content) ||
                     (stompProfileResponse?.jsonContent && TOAST_SUCCESS_MESSAGE) ||
                     TOAST_DEFAULT_MESSAGE
                 }

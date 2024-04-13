@@ -7,13 +7,13 @@ import com.kakaoscan.server.application.service.PointService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
 import com.kakaoscan.server.application.service.websocket.search.SearchEventManagerService;
 import com.kakaoscan.server.application.service.websocket.search.SearchMessageService;
-import com.kakaoscan.server.application.service.websocket.search.SearchQueueService;
-import com.kakaoscan.server.domain.events.enums.EventStatusEnum;
 import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.point.model.PointMessage;
 import com.kakaoscan.server.domain.search.model.InvalidPhoneNumber;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
+import com.kakaoscan.server.infrastructure.security.model.SimplePrincipal;
 import com.kakaoscan.server.infrastructure.service.RateLimitService;
+import com.kakaoscan.server.infrastructure.websocket.queue.SearchInMemoryQueue;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -29,7 +29,6 @@ import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.*;
 @Controller
 @RequiredArgsConstructor
 public class WebSocketController {
-    private final SearchQueueService searchQueueService;
     private final SearchMessageService searchMessageService;
     private final SearchEventManagerService searchEventManagerService;
     private final CacheStorePort<InvalidPhoneNumber> cacheStorePort;
@@ -37,18 +36,25 @@ public class WebSocketController {
     private final RateLimitService rateLimitService;
     private final EventStatusPort eventStatusPort;
     private final PointService pointService;
+    private final SearchInMemoryQueue queue;
 
     private static final String INVALID_PHONE_NUMBER_KEY_PREFIX = "invalidPhoneNumber:";
 
     @EventListener
     public void handleWebSocketConnectListener(SessionSubscribeEvent event) {
         if (event.getUser() != null) {
-            Optional<SearchMessage> optionalMessage = searchQueueService.findMessage(event.getUser().getName());
+            Optional<SearchMessage> optionalMessage = searchMessageService.findSearchMessage(event.getUser().getName());
             optionalMessage.ifPresent(message -> {
+                boolean removedMessage = searchEventManagerService.removeTimeoutEvent(message);
+                if (removedMessage) {
+                    return;
+                }
+
                 Optional<EventStatus> eventStatus = eventStatusPort.getEventStatus(message.getMessageId());
-                if (eventStatus.isPresent() && EventStatusEnum.PROCESSING.equals(eventStatus.get().getStatus())) {
-                    message.setReconnectContent(message.getContent());
-                    messageDispatcher.sendToUser(message);
+                if (eventStatus.isPresent()) {
+                    switch (eventStatus.get().getStatus()) {
+                        case WAITING, PROCESSING -> messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), SEARCH_CONTINUE, false));
+                    }
                 }
             });
         }
@@ -79,9 +85,17 @@ public class WebSocketController {
             return;
         }
 
-        Optional<SearchMessage> optionalPeekMessage = searchQueueService.enqueueAndPeekNext(message);
+        if (!queue.contains(message.getEmail())) {
+            queue.add(message);
+        }
+
+        Optional<SearchMessage> optionalPeekMessage = queue.peek();
         if (optionalPeekMessage.isEmpty()) {
             throw new EmptyQueueException("websocket message queue is empty");
+        }
+
+        if (optionalPeekMessage.get().getEventStartedAt() == null) {
+            optionalPeekMessage.get().setEventStartedAt();
         }
 
         boolean removedMessage = searchEventManagerService.removeTimeoutEvent(optionalPeekMessage.get());
@@ -89,6 +103,17 @@ public class WebSocketController {
         if (!removedMessage && isUserTurn) {
             searchEventManagerService.publishAndTraceEvent(optionalPeekMessage.get());
         }
+    }
+
+    @MessageMapping("/search/heartbeat")
+    public void handleSearchProfileHeartbeat() {
+        queue.peek().ifPresent(searchMessage -> {
+            if (searchMessage.getEventStartedAt() == null) {
+                handleSearchProfile(new SimplePrincipal(searchMessage.getEmail()), new SearchMessage.OriginMessage(searchMessage.getContent()));
+            }else {
+                searchEventManagerService.removeTimeoutEvent(searchMessage);
+            }
+        });
     }
 
     @MessageMapping("/points")
@@ -100,5 +125,4 @@ public class WebSocketController {
             messageDispatcher.sendToUser(new PointMessage(principal.getName(), -1, LOADING_POINTS_BALANCE));
         }
     }
-
 }
