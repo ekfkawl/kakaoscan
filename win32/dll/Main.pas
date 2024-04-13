@@ -115,6 +115,11 @@ begin
 
         SetEventStatusAndPublish(EVENT_PROCESSING, FRIEND_PROFILE_SCAN_START);
         ViewFriendInfo:= KakaoCtrl.ViewFriend.Value;
+        if ViewFriendInfo.Name = '' then
+        begin
+          SetEventStatusAndPublish(EVENT_FAILURE, FAILURE_ADD_FRIEND);
+          Exit;
+        end;
 
         KakaoResponse:= GetRecentKakaoResponse;
         if KakaoResponse.ResponseType = rtProfile then
