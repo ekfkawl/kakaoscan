@@ -98,6 +98,7 @@ begin
           begin
             Guard(SearchNewNumberEvent, TSearchNewPhoneNumberEvent.Create(Email, PhoneNumber));
             Redis.Publish(OTHER_EVENT_TOPIC, SearchNewNumberEvent.ToEventJSON);
+            Writeln(#9'isNewPhoneNumber: TRUE');
 
             if not KakaoCtrl.SearchFriend(PhoneNumber).Value then
             begin

@@ -28,10 +28,9 @@ public class SearchNewPhoneNumberEventHandler extends AbstractEventProcessor<Sea
     @Override
     protected void handleEvent(SearchNewPhoneNumberEvent event) {
         try {
+            searchService.recordNewPhoneNumber(event.getEmail(), event.getPhoneNumber());
+
             User user = userRepository.findByEmailOrThrow(event.getEmail());
-
-            searchService.recordNewPhoneNumber(user, event.getPhoneNumber());
-
             List<NewPhoneNumber> newPhoneNumbers = newPhoneNumberRepository.findNewPhoneNumbersByDate(user, LocalDate.now());
             NewNumberSearch newNumberSearch = new NewNumberSearch(newPhoneNumbers);
 

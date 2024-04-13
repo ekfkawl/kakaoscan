@@ -78,11 +78,6 @@ public class SearchService {
     public void recordNewPhoneNumber(String userId, String targetPhoneNumber) {
         User user = userRepository.findByEmailOrThrow(userId);
 
-        recordNewPhoneNumber(user, targetPhoneNumber);
-    }
-
-    @Transactional
-    public void recordNewPhoneNumber(User user, String targetPhoneNumber) {
         user.addNewPhoneNumbers(NewPhoneNumber.builder()
                 .targetPhoneNumber(targetPhoneNumber)
                 .createdAt(LocalDateTime.now())
