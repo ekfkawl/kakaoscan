@@ -21,11 +21,13 @@ public class CustomSearchHistoryRepositoryImpl implements CustomSearchHistoryRep
     @Value("${search.profile.cost.discount}")
     private int costDiscount;
 
+    private static final int costFree = 0;
+
     @Override
     public SearchCost getTargetSearchCost(User user, String targetPhoneNumber) {
         QSearchHistory searchHistory = QSearchHistory.searchHistory;
 
-        SearchHistory recentHistory = factory.selectFrom(searchHistory)
+        SearchHistory lastOriginHistory = factory.selectFrom(searchHistory)
                 .where(searchHistory.user.eq(user)
                         .and(searchHistory.targetPhoneNumber.eq(targetPhoneNumber))
                         .and(searchHistory.costType.eq(CostType.ORIGIN))
@@ -33,13 +35,27 @@ public class CustomSearchHistoryRepositoryImpl implements CustomSearchHistoryRep
                 .orderBy(searchHistory.createdAt.desc())
                 .fetchFirst();
 
-        CostType costType = CostType.ORIGIN;
+        SearchHistory lastNonFreeHistory = factory.selectFrom(searchHistory)
+                .where(searchHistory.user.eq(user)
+                        .and(searchHistory.targetPhoneNumber.eq(targetPhoneNumber))
+                        .and(searchHistory.costType.ne(CostType.FREE))
+                        .and(searchHistory.createdAt.after(LocalDateTime.now().minusMinutes(10))))
+                .orderBy(searchHistory.createdAt.desc())
+                .fetchFirst();
+
         LocalDateTime expiredAtDiscount = null;
-        if (recentHistory != null) {
+        CostType costType = CostType.ORIGIN;
+        int cost = costOrigin;
+
+        if (lastNonFreeHistory != null) {
+            costType = CostType.FREE;
+            cost = costFree;
+            expiredAtDiscount = lastNonFreeHistory.getCreatedAt().plusMinutes(10);
+        }else if (lastOriginHistory != null) {
             costType = CostType.DISCOUNT;
-            expiredAtDiscount = recentHistory.getCreatedAt().plusHours(24);
+            cost = costDiscount;
+            expiredAtDiscount = lastOriginHistory.getCreatedAt().plusHours(24);
         }
-        int cost = CostType.ORIGIN.equals(costType) ? costOrigin : costDiscount;
 
         return new SearchCost(costType, cost, expiredAtDiscount);
     }

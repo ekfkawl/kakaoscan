@@ -74,7 +74,6 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
         }
 
         queue.remove(event.getEventId());
-        eventStatusPort.deleteEventStatus(event.getEventId());
     }
 
     private void processSuccessEvent(SearchEvent event, String responseMessage) {

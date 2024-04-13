@@ -130,19 +130,13 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                     onClose={() => setShowSearchConfirmPopup(false)}
                     title="포인트 차감 안내"
                     description={
-                        !isLoading && searchCost?.success && searchCost?.data.cost ? (
+                        !isLoading && searchCost?.success ? (
                             <div className="break-all">
                                 <p>
                                     프로필 조회에 성공하면 <strong>{searchCost.data.cost} 포인트</strong>가 차감됩니다.
                                     계속 진행하시겠어요?
                                 </p>
-                                {searchCost?.data.expiredAtDiscount && (
-                                    <p className="mt-4">
-                                        * {formatDate(new Date(searchCost?.data.expiredAtDiscount))} 까지,
-                                        <br />
-                                        해당 번호의 프로필 조회 비용이 50% 할인됩니다!
-                                    </p>
-                                )}
+                                {renderDiscountMessage(searchCost)}
                             </div>
                         ) : (
                             <p>프로필 조회 비용을 불러올 수 없습니다. 나중에 다시 시도해주세요.</p>
@@ -226,5 +220,17 @@ const MessageToast: React.FC<{ message: string }> = ({ message }) => (
         </div>
     </div>
 );
+
+const renderDiscountMessage = (searchCostResponse: SearchCostResponse): React.ReactNode => {
+    if (!searchCostResponse.data.expiredAtDiscount) return null;
+
+    const formattedDate = formatDate(new Date(searchCostResponse.data.expiredAtDiscount));
+    const messages: { [key: string]: string } = {
+        DISCOUNT: `* ${formattedDate}까지,\n해당 번호의 프로필 조회 비용이 50% 할인됩니다!`,
+        FREE: `* ${formattedDate}까지,\n해당 번호의 프로필 조회 비용이 무료입니다!`,
+    };
+
+    return <p className="mt-4">{messages[searchCostResponse.data.costType]}</p>;
+};
 
 export default SearchPage;

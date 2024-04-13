@@ -1,5 +1,5 @@
 export interface SearchCost {
-    costType: string;
+    costType: 'DISCOUNT' | 'FREE' | 'ORIGIN';
     cost: number;
     expiredAtDiscount?: string;
 }

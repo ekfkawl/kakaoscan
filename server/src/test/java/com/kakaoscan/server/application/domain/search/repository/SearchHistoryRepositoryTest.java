@@ -60,9 +60,9 @@ class SearchHistoryRepositoryTest {
     @DisplayName("이전에 target 을 조회한 적이 있고, 가장 최근에 COST_ORIGIN 포인트가 차감된 시점이 현재 시점으로부터 24시간 이내인 경우 -> COST_DISCOUNT")
     void testCase2() {
         // given
-        addSearchHistoryToUser(user, CostType.ORIGIN, 10);
-        addSearchHistoryToUser(user, CostType.DISCOUNT, 9);
-        addSearchHistoryToUser(user, CostType.DISCOUNT, 8);
+        addSearchHistoryToUser(user, CostType.ORIGIN, LocalDateTime.now().minusHours(3));
+        addSearchHistoryToUser(user, CostType.DISCOUNT, LocalDateTime.now().minusHours(2));
+        addSearchHistoryToUser(user, CostType.DISCOUNT, LocalDateTime.now().minusHours(1));
         userRepository.save(user);
 
         // when
@@ -76,10 +76,8 @@ class SearchHistoryRepositoryTest {
     @DisplayName("이전에 target 을 조회한 적이 있지만, 가장 최근에 COST_ORIGIN 포인트가 차감된 시점이 현재 시점으로부터 24시간을 초과한 경우 -> COST_ORIGIN")
     void testCase3() {
         // given
-        addSearchHistoryToUser(user, CostType.ORIGIN, 48);
-        addSearchHistoryToUser(user, CostType.DISCOUNT, 47);
-        addSearchHistoryToUser(user, CostType.DISCOUNT, 46);
-        addSearchHistoryToUser(user, CostType.ORIGIN, 25);
+        addSearchHistoryToUser(user, CostType.ORIGIN, LocalDateTime.now().minusDays(2));
+        addSearchHistoryToUser(user, CostType.DISCOUNT, LocalDateTime.now().minusDays(2).plusHours(1));
         userRepository.save(user);
 
         // when
@@ -89,12 +87,42 @@ class SearchHistoryRepositoryTest {
         assertEquals(CostType.ORIGIN, searchCost.getCostType());
     }
 
-    private void addSearchHistoryToUser(User user, CostType costType, int hoursAgo) {
+    @Test
+    @DisplayName("이전에 target 을 조회한 적이 있고, 가장 최근에 COST_ORIGIN 포인트가 차감된 시점이 현재 시점으로부터 10분 이내인 경우 -> COST_FREE")
+    void testCase4() {
+        // given
+        addSearchHistoryToUser(user, CostType.ORIGIN, LocalDateTime.now().minusMinutes(9));
+        userRepository.save(user);
+
+        // when
+        SearchCost searchCost = searchHistoryRepository.getTargetSearchCost(user, TARGET_PHONE_NUMBER);
+
+        // then
+        assertEquals(CostType.FREE, searchCost.getCostType());
+    }
+
+    @Test
+    @DisplayName("이전에 target 을 조회한 적이 있고, 가장 최근에 COST_DISCOUNT 포인트가 차감된 시점이 현재 시점으로부터 10분 이내인 경우 -> COST_FREE")
+    void testCase5() {
+        // given
+        addSearchHistoryToUser(user, CostType.ORIGIN, LocalDateTime.now().minusHours(3));
+        addSearchHistoryToUser(user, CostType.DISCOUNT, LocalDateTime.now().minusHours(2));
+        addSearchHistoryToUser(user, CostType.DISCOUNT, LocalDateTime.now().minusHours(1).plusMinutes(51));
+        userRepository.save(user);
+
+        // when
+        SearchCost searchCost = searchHistoryRepository.getTargetSearchCost(user, TARGET_PHONE_NUMBER);
+
+        // then
+        assertEquals(CostType.FREE, searchCost.getCostType());
+    }
+    
+    private void addSearchHistoryToUser(User user, CostType costType, LocalDateTime localDateTime) {
         user.addSearchHistory(SearchHistory.builder()
                 .targetPhoneNumber(SearchHistoryRepositoryTest.TARGET_PHONE_NUMBER)
                 .data("")
                 .costType(costType)
-                .createdAt(LocalDateTime.now().minusHours(hoursAgo))
+                .createdAt(localDateTime)
                 .build());
     }
 
