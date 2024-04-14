@@ -9,7 +9,7 @@ interface ProfileThumbPopupProps {
     onClose: () => void;
     profileCaptureUrl?: string;
     storyUrl?: string;
-    phoneNumber: string;
+    phoneNumber?: string;
     musicInfo?: MusicInfo[];
 }
 
@@ -48,7 +48,7 @@ const ProfileThumbPopup: FC<ProfileThumbPopupProps> = ({
                         <div className="my-2">{musicInfo && <ProfileMusic musicInfo={musicInfo} />}</div>
                         <hr className="my-6 border-gray-200 dark:border-gray-700 sm:mx-auto" />
                         <div className="flex justify-end space-x-2">
-                            {navigator.clipboard && (
+                            {navigator.clipboard && phoneNumber && (
                                 <Button
                                     onClick={() =>
                                         navigator.clipboard.writeText(phoneNumber).then(() => {

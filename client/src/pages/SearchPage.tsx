@@ -152,7 +152,6 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                         onClose={() => setProfileThumbPopup(false)}
                         storyUrl={profileData.storyWebUrl}
                         profileCaptureUrl={profileData.profileCaptureUrl}
-                        phoneNumber={phoneNumber}
                         musicInfo={profileData.musicInfo}
                     />
                 </>
