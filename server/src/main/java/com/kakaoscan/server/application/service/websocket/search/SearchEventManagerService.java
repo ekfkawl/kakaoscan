@@ -42,7 +42,7 @@ public class SearchEventManagerService {
         return true;
     }
 
-    public boolean removeTimeoutEvent(SearchMessage searchMessage) {
+    public boolean removeTimeoutEventAndNotify(SearchMessage searchMessage) {
         LocalDateTime thresholdTime = LocalDateTime.now().minusSeconds(1).minusNanos(500000000);
 
         Optional<EventStatus> eventStatus = eventStatusPort.getEventStatus(searchMessage.getMessageId());

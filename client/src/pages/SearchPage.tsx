@@ -66,20 +66,6 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
         [sendMessage],
     );
 
-    const searchProfileHeartbeat = useCallback(() => {
-        sendMessage('/pub/search/heartbeat');
-    }, [sendMessage]);
-
-    useEffect(() => {
-        let intervalId = setInterval(() => {
-            searchProfileHeartbeat();
-        }, 500);
-
-        return () => {
-            clearInterval(intervalId);
-        };
-    }, [searchProfileHeartbeat, sendMessage]);
-
     useEffect(() => {
         if (stompProfileResponse && stompProfileResponse.jsonContent && stompProfileResponse.content) {
             tabsRef.current?.setActiveTab(0);

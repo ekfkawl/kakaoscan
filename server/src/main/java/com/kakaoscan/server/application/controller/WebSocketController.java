@@ -17,12 +17,14 @@ import com.kakaoscan.server.infrastructure.websocket.queue.SearchInMemoryQueue;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
 import java.security.Principal;
-import java.util.ConcurrentModificationException;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.*;
 
@@ -38,27 +40,8 @@ public class WebSocketController {
     private final PointService pointService;
     private final SearchInMemoryQueue queue;
 
+    private static final Map<String, Set<String>> sessionSubscriptions = new ConcurrentHashMap<>();
     private static final String INVALID_PHONE_NUMBER_KEY_PREFIX = "invalidPhoneNumber:";
-
-    @EventListener
-    public void handleWebSocketConnectListener(SessionSubscribeEvent event) {
-        if (event.getUser() != null) {
-            Optional<SearchMessage> optionalMessage = searchMessageService.findSearchMessage(event.getUser().getName());
-            optionalMessage.ifPresent(message -> {
-                boolean removedMessage = searchEventManagerService.removeTimeoutEvent(message);
-                if (removedMessage) {
-                    return;
-                }
-
-                Optional<EventStatus> eventStatus = eventStatusPort.getEventStatus(message.getMessageId());
-                if (eventStatus.isPresent()) {
-                    switch (eventStatus.get().getStatus()) {
-                        case WAITING, PROCESSING -> messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), SEARCH_CONTINUE, false));
-                    }
-                }
-            });
-        }
-    }
 
     @MessageMapping("/search")
     public void handleSearchProfile(Principal principal, SearchMessage.OriginMessage originMessage) {
@@ -98,22 +81,26 @@ public class WebSocketController {
             optionalPeekMessage.get().setEventStartedAt();
         }
 
-        boolean removedMessage = searchEventManagerService.removeTimeoutEvent(optionalPeekMessage.get());
+        boolean removedMessage = searchEventManagerService.removeTimeoutEventAndNotify(optionalPeekMessage.get());
         boolean isUserTurn = searchEventManagerService.checkUserTurnAndNotify(message, optionalPeekMessage.get());
         if (!removedMessage && isUserTurn) {
             searchEventManagerService.publishAndTraceEvent(optionalPeekMessage.get());
         }
     }
 
-    @MessageMapping("/search/heartbeat")
-    public void handleSearchProfileHeartbeat() {
-        queue.peek().ifPresent(searchMessage -> {
-            if (searchMessage.getEventStartedAt() == null) {
-                handleSearchProfile(new SimplePrincipal(searchMessage.getEmail()), new SearchMessage.OriginMessage(searchMessage.getContent()));
-            }else {
-                searchEventManagerService.removeTimeoutEvent(searchMessage);
+    @EventListener
+    public void handleWebSocketConnectListener(SessionSubscribeEvent event) {
+        String sessionId = event.getMessage().getHeaders().get(SimpMessageHeaderAccessor.SESSION_ID_HEADER, String.class);
+        String destination = event.getMessage().getHeaders().get(SimpMessageHeaderAccessor.DESTINATION_HEADER, String.class);
+
+        if (sessionId != null && destination != null) {
+            if (sessionSubscriptions.containsKey(sessionId) && sessionSubscriptions.get(sessionId).contains(destination)) {
+                return;
             }
-        });
+            sessionSubscriptions.computeIfAbsent(sessionId, k -> new HashSet<>()).add(destination);
+        }
+
+        continueSearchEvent(event);
     }
 
     @MessageMapping("/points")
@@ -124,5 +111,46 @@ public class WebSocketController {
         } catch (ConcurrentModificationException e) {
             messageDispatcher.sendToUser(new PointMessage(principal.getName(), -1, LOADING_POINTS_BALANCE));
         }
+    }
+
+    @MessageMapping("/heartbeat")
+    @SendToUser("/queue/message/heartbeat")
+    public String handleSearchProfileHeartbeat() {
+        queue.peek().ifPresent(searchMessage -> {
+            if (searchMessage.getEventStartedAt() == null) {
+                handleSearchProfile(new SimplePrincipal(searchMessage.getEmail()), new SearchMessage.OriginMessage(searchMessage.getContent()));
+            }else {
+                searchEventManagerService.removeTimeoutEventAndNotify(searchMessage);
+            }
+        });
+
+        return "PONG";
+    }
+
+    private void continueSearchEvent(SessionSubscribeEvent event) {
+        if (event.getUser() == null) {
+            return;
+        }
+
+        Optional<SearchMessage> optionalMessage = searchMessageService.findSearchMessage(event.getUser().getName());
+        optionalMessage.ifPresent(message -> {
+            boolean removedMessage = searchEventManagerService.removeTimeoutEventAndNotify(message);
+            if (removedMessage) {
+                return;
+            }
+
+            Optional<EventStatus> eventStatus = eventStatusPort.getEventStatus(message.getMessageId());
+            if (eventStatus.isPresent()) {
+                switch (eventStatus.get().getStatus()) {
+                    case WAITING, PROCESSING:
+                        SearchMessage searchMessage = new SearchMessage(message.getEmail(), String.format(SEARCH_CONTINUE, eventStatus.get().getMessage()), false);
+                        messageDispatcher.sendToUser(searchMessage);
+                }
+            }else {
+                queue.peek().ifPresent(searchMessage -> {
+                    searchEventManagerService.checkUserTurnAndNotify(message, searchMessage);
+                });
+            }
+        });
     }
 }
