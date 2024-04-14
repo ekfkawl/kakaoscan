@@ -6,6 +6,7 @@ import { MdCheck } from 'react-icons/md';
 import TimeSince from '../components/TimeSince';
 import { useNavigate } from 'react-router-dom';
 import { useFetchData } from '../hooks/useFetchData';
+import { FaCoins } from 'react-icons/fa';
 
 const SearchHistoryPage = () => {
     const navigate = useNavigate();
@@ -70,6 +71,14 @@ const SearchHistoryPage = () => {
                                             </svg>
                                         </div>
                                         <TimeSince createdAt={history.createdAt} />
+                                    </div>
+                                    <div className="flex justify-start items-center mb-2">
+                                        <div className="mr-2 flex h-7 w-7 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 lg:h-8 lg:w-8">
+                                            <FaCoins className="h-3 w-3 text-gray-600 dark:text-gray-500 lg:h-4 lg:w-4" />
+                                        </div>
+                                        <p className="text-gray-900 dark:text-white">
+                                            {new Intl.NumberFormat('ko-KR').format(history.cost)} P
+                                        </p>
                                     </div>
                                     <div className="flex justify-start items-center mb-2">
                                         <div className="mr-2 flex h-7 w-7 items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 lg:h-8 lg:w-8">

@@ -15,14 +15,6 @@ import java.time.LocalDateTime;
 public class CustomSearchHistoryRepositoryImpl implements CustomSearchHistoryRepository {
     private final JPAQueryFactory factory;
 
-    @Value("${search.profile.cost.origin}")
-    private int costOrigin;
-
-    @Value("${search.profile.cost.discount}")
-    private int costDiscount;
-
-    private static final int costFree = 0;
-
     @Override
     public SearchCost getTargetSearchCost(User user, String targetPhoneNumber) {
         QSearchHistory searchHistory = QSearchHistory.searchHistory;
@@ -45,18 +37,15 @@ public class CustomSearchHistoryRepositoryImpl implements CustomSearchHistoryRep
 
         LocalDateTime expiredAtDiscount = null;
         CostType costType = CostType.ORIGIN;
-        int cost = costOrigin;
 
         if (lastNonFreeHistory != null) {
             costType = CostType.FREE;
-            cost = costFree;
             expiredAtDiscount = lastNonFreeHistory.getCreatedAt().plusMinutes(10);
         }else if (lastOriginHistory != null) {
             costType = CostType.DISCOUNT;
-            cost = costDiscount;
             expiredAtDiscount = lastOriginHistory.getCreatedAt().plusHours(24);
         }
 
-        return new SearchCost(costType, cost, expiredAtDiscount);
+        return new SearchCost(costType, costType.getCost(), expiredAtDiscount);
     }
 }

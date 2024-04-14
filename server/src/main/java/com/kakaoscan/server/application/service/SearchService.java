@@ -47,7 +47,7 @@ public class SearchService {
             }
 
             SearchResult searchResult = JsonDeserialize.deserialize(searchHistory.getData(), SearchResult.class);
-            result.addHistory(searchResult, searchHistory.getTargetPhoneNumber(), searchHistory.getCreatedAt());
+            result.addHistory(searchResult, searchHistory.getTargetPhoneNumber(), searchHistory.getCostType().getCost(), searchHistory.getCreatedAt());
         }
 
         return result;

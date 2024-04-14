@@ -45,12 +45,6 @@ verify:
   prefix: http://localhost:8080/api/verify/
   replace: http://localhost:3000
 
-search:
-  profile:
-    cost:
-      origin: 500
-      discount: 250
-
 ---
 
 spring:
@@ -61,9 +55,3 @@ spring:
 verify:
   prefix: ${CURRENT_BASE_URL}/api/verify/
   replace: ${CURRENT_BASE_URL}
-
-search:
-  profile:
-    cost:
-      origin: 500
-      discount: 250
