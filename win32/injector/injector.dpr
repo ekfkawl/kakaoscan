@@ -184,7 +184,7 @@ begin
       TerminateProcess('KakaoTalk.exe');
       TerminateProcess('CrashReporter.exe');
 
-      Sleep(2000);
+      Sleep(1000);
       RunAsAdmin(0, 'C:\Program Files (x86)\Kakao\KakaoTalk\KakaoTalk.exe', '');
 
       Kakao:= 0;
@@ -206,7 +206,7 @@ begin
           LClick(hFriendConfig, 20, 20);
         end;
 
-        Sleep(3000);
+        Sleep(1000);
 
         EnumWindows(@ConfigWindow, LPARAM(@EnumInfo));
       end;
