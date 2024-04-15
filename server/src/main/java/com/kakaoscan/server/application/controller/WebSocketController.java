@@ -93,7 +93,11 @@ public class WebSocketController {
         String sessionId = event.getMessage().getHeaders().get(SimpMessageHeaderAccessor.SESSION_ID_HEADER, String.class);
         String destination = event.getMessage().getHeaders().get(SimpMessageHeaderAccessor.DESTINATION_HEADER, String.class);
 
-        if (sessionId != null && destination != null) {
+        if (!"/user/queue/message/heartbeat".equals(destination)) {
+            return;
+        }
+
+        if (sessionId != null) {
             if (sessionSubscriptions.containsKey(sessionId) && sessionSubscriptions.get(sessionId).contains(destination)) {
                 return;
             }
