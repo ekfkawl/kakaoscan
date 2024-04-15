@@ -79,7 +79,13 @@ const HeaderWithUser = () => {
                                 />
                             }
                         >
-                            <Dropdown.Item onClick={() => navigate('/my-page')}>
+                            <Dropdown.Item
+                                onClick={() => {
+                                    if (user?.authenticationType === 'LOCAL') {
+                                        navigate('/my-page');
+                                    }
+                                }}
+                            >
                                 <strong className="block text-sm">
                                     <FontAwesomeIcon icon={faUser} className="mr-2" />
                                     {user?.email}

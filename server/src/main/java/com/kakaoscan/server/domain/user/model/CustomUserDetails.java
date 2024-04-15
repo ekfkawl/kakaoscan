@@ -1,9 +1,11 @@
 package com.kakaoscan.server.domain.user.model;
 
 import com.kakaoscan.server.application.dto.response.UserData;
+import com.kakaoscan.server.domain.user.enums.AuthenticationType;
 import com.kakaoscan.server.domain.user.enums.Role;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
@@ -14,12 +16,14 @@ import java.util.Map;
 public class CustomUserDetails implements UserDetails {
     private final String email;
     private final String password;
+    private AuthenticationType authenticationType;
     private final Collection<GrantedAuthority> authorities;
     private final Map<String, Object> attributes;
 
-    public CustomUserDetails(String email, String password, Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes) {
+    public CustomUserDetails(String email, String password, AuthenticationType authenticationType, Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes) {
         this.email = email;
         this.password = password;
+        this.authenticationType = authenticationType;
         this.authorities = new ArrayList<>(authorities);
         this.attributes = attributes;
     }
@@ -32,7 +36,7 @@ public class CustomUserDetails implements UserDetails {
 
         Role role = Role.fromAuthority(authority);
 
-        return new UserData(this.email, role, this.getImageUrl());
+        return new UserData(this.email, role, this.getImageUrl(), this.authenticationType);
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.kakaoscan.server.application.dto.response;
 
+import com.kakaoscan.server.domain.user.enums.AuthenticationType;
 import com.kakaoscan.server.domain.user.enums.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,4 +13,5 @@ public class UserData {
     private Role role;
     @Nullable
     private String profileUrl;
+    private AuthenticationType authenticationType;
 }

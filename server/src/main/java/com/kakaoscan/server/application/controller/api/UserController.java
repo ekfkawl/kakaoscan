@@ -4,7 +4,9 @@ import com.kakaoscan.server.application.controller.ApiEndpointPrefix;
 import com.kakaoscan.server.application.dto.request.ChangePasswordRequest;
 import com.kakaoscan.server.application.dto.request.RegisterRequest;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
+import com.kakaoscan.server.application.dto.response.UserData;
 import com.kakaoscan.server.application.service.UserService;
+import com.kakaoscan.server.domain.user.enums.AuthenticationType;
 import com.kakaoscan.server.domain.user.model.CustomUserDetails;
 import com.kakaoscan.server.infrastructure.service.RateLimitService;
 import com.kakaoscan.server.infrastructure.utils.WebUtils;
@@ -43,9 +45,13 @@ public class UserController extends ApiEndpointPrefix {
 
     @PutMapping("/user/password")
     public ResponseEntity<ApiResponse<Void>> changePassword(@RequestBody @Valid ChangePasswordRequest passwordRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        userService.changePassword(userDetails.getEmail(), passwordRequest.getPassword());
+        UserData userData = userDetails.convertToUserData();
+        if (userData.getAuthenticationType() == AuthenticationType.LOCAL) {
+            userService.changePassword(userDetails.getEmail(), passwordRequest.getPassword());
+            return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
+        }
 
-        return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
+        return new ResponseEntity<>(ApiResponse.failure("OAuth 계정은 비밀번호를 변경할 수 없습니다."), HttpStatus.OK);
     }
 
     @GetMapping("/verify/{token}")

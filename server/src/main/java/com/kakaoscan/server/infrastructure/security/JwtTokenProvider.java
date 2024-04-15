@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
@@ -80,8 +79,8 @@ public class JwtTokenProvider {
         String username = claims.getSubject();
         Map<String, Object> attributes = claims.get("attributes", HashMap.class);
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        CustomUserDetails customUserDetails = new CustomUserDetails(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthorities(), attributes);
+        CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
+        CustomUserDetails customUserDetails = new CustomUserDetails(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthenticationType(), userDetails.getAuthorities(), attributes);
 
         return new UsernamePasswordAuthenticationToken(customUserDetails, null, userDetails.getAuthorities());
     }

@@ -1,5 +1,6 @@
 package com.kakaoscan.server.domain.user.model.oauth2;
 
+import com.kakaoscan.server.domain.user.enums.AuthenticationType;
 import com.kakaoscan.server.domain.user.model.CustomUserDetails;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -18,7 +19,7 @@ public class GoogleOAuth2User implements OAuth2UserCommon, OAuth2User {
     }
 
     public CustomUserDetails convertToCustomUserDetails() {
-        return new CustomUserDetails(this.getEmail(), null, this.getAuthorities(), this.attributes);
+        return new CustomUserDetails(this.getEmail(), null, AuthenticationType.GOOGLE, this.getAuthorities(), this.attributes);
     }
 
     @Override
