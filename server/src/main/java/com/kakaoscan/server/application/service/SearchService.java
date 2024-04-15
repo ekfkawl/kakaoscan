@@ -42,7 +42,7 @@ public class SearchService {
 
         List<SearchHistory> searchHistories = user.getSearchHistories();
         for (SearchHistory searchHistory : searchHistories) {
-            if (LocalDateTime.now().isAfter(searchHistory.getCreatedAt().plusDays(7))) {
+            if (LocalDateTime.now().isAfter(searchHistory.getCreatedAt().plusDays(2))) {
                 continue;
             }
 

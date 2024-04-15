@@ -57,7 +57,8 @@ const Gallery: React.FC<GalleryProps> = React.memo(({ items }) => {
                 controls: false,
                 showCloseIcon: true,
                 download: false,
-                rotate: false,
+                fullScreen: false,
+                rotate: true,
             }}
             onInit={onInit}
         >

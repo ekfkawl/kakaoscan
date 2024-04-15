@@ -96,7 +96,7 @@ const SearchHistoryPage = () => {
                                             </svg>
                                         </div>
                                         <p className="text-gray-900 dark:text-white">
-                                            만료일: {formatDate(addDays(history.createdAt, 7))}
+                                            만료일: {formatDate(addDays(history.createdAt, 2))}
                                         </p>
                                     </div>
                                     <div className="flex justify-end space-x-2">

@@ -8,26 +8,26 @@ const PolicyPage = () => {
                 <div className="break-all">
                     <div className="mb-10">
                         <h3 className="mb-4 flex items-center text-lg font-medium text-gray-900 dark:text-white">
-                            특정 대상을 처음 조회
+                            특정 대상을 최근 24시간 이내 처음 조회
                         </h3>
                         <p className="text-gray-500 dark:text-gray-400">
-                            특정 대상을 처음으로 조회하시는 경우 500P가 차감됩니다.
+                            특정 대상을 최근 24시간 이내 처음 조회하시는 경우 <strong>500P</strong>가 차감됩니다.
                         </p>
                     </div>
                     <div className="mb-10">
                         <h3 className="mb-4 flex items-center text-lg font-medium text-gray-900 dark:text-white">
-                            이전에 조회한 적이 있는 대상을 다시 조회
+                            이전에 조회한 적이 있는 대상을 24시간 이내 다시 조회
                         </h3>
                         <p className="text-gray-500 dark:text-gray-400">
-                            이전에 500P가 차감 된 시점으로부터 24시간 동안은 해당 대상의 조회 비용이 50% 할인됩니다.
+                            이전에 500P가 차감 된 시점으로부터 24시간 동안은 해당 대상의 조회 비용이 <strong>50%</strong> 할인됩니다.
                         </p>
                     </div>
                     <div className="mb-10">
                         <h3 className="mb-4 flex items-center text-lg font-medium text-gray-900 dark:text-white">
-                            조회 비용 지불 후 10분 이내 대상을 다시 조회
+                            조회 비용 지불 시점으로부터 10분 이내 대상을 다시 조회
                         </h3>
                         <p className="text-gray-500 dark:text-gray-400">
-                            이전에 포인트가 차감 된 시점으로부터 10분 동안은 해당 대상의 조회 비용이 무료입니다.
+                            이전에 포인트가 차감 된 시점으로부터 10분 동안은 해당 대상의 조회 비용이 <strong>무료</strong>입니다.
                         </p>
                     </div>
                     <div className="mb-10">
@@ -102,7 +102,7 @@ const PolicyPage = () => {
                             프로필 조회 시점 스냅샷 보관
                         </h3>
                         <p className="text-gray-500 dark:text-gray-400">
-                            프로필 조회 성공 시, 해당 시점의 스냅샷이 조회 내역에 일주일 동안 보관됩니다.
+                            프로필 조회 성공 시, 해당 시점의 스냅샷이 조회 내역에 48시간 동안 보관됩니다.
                         </p>
                     </div>
                     <div className="mb-10">

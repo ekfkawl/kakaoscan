@@ -133,7 +133,7 @@ const PaymentManagementPage = () => {
                                                     setEditConfirmPopup(true);
                                                 }}
                                             >
-                                                승인
+                                                {(product.productTransactionStatus === '대기' && '승인') || '조회'}
                                             </p>
                                         </Table.Cell>
                                     </Table.Row>
@@ -164,7 +164,7 @@ const PaymentManagementPage = () => {
                         setEditConfirmPopup(false);
                         setSelectedProduct(null);
                     }}
-                    title="거래 승인"
+                    title="트랜잭션 조회/승인"
                     description={
                         <>
                             <p>트랜잭션 아이디: {selectedProduct.id}</p>
@@ -174,7 +174,7 @@ const PaymentManagementPage = () => {
                             <br />
                             <p>이메일: {selectedProduct.email}</p>
                             <p>상품: {selectedProduct.productName}</p>
-                            <p>입금액: {selectedProduct.amount}원</p>
+                            <p>입금액: {new Intl.NumberFormat('ko-KR').format(selectedProduct.amount)}원</p>
                             <p>입금자: {selectedProduct.depositor}</p>
                         </>
                     }
