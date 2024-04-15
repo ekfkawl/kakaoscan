@@ -18,7 +18,7 @@ public class VerificationEmailEventHandler extends AbstractEventProcessor<Verifi
     @Override
     protected void handleEvent(VerificationEmailEvent event) {
         Map<String, Object> variables = Map.of(
-                "verificationLink", event.getVerificationEmail()
+                "verificationLink", event.getVerificationEmail().getVerificationLink()
         );
 
         emailPort.send(event.getVerificationEmail(), variables);
