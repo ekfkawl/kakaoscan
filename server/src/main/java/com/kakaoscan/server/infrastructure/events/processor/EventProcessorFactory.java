@@ -1,9 +1,7 @@
 package com.kakaoscan.server.infrastructure.events.processor;
 
-import com.kakaoscan.server.application.events.handlers.LoginSuccessEventHandler;
-import com.kakaoscan.server.application.events.handlers.SearchEventHandler;
-import com.kakaoscan.server.application.events.handlers.SearchNewPhoneNumberEventHandler;
-import com.kakaoscan.server.application.events.handlers.VerificationEmailEventHandler;
+import com.kakaoscan.server.application.events.handlers.*;
+import com.kakaoscan.server.domain.events.model.ProductTransactionCompletedEvent;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
@@ -23,6 +21,7 @@ public class EventProcessorFactory {
         registerProcessor("VerificationEmailEvent", applicationContext.getBean(VerificationEmailEventHandler.class));
         registerProcessor("LoginSuccessEvent", applicationContext.getBean(LoginSuccessEventHandler.class));
         registerProcessor("SearchNewPhoneNumberEvent", applicationContext.getBean(SearchNewPhoneNumberEventHandler.class));
+        registerProcessor("ProductTransactionCompletedEvent", applicationContext.getBean(ProductTransactionCompletedEventHandler.class));
     }
 
     public void registerProcessor(String eventType, EventProcessor eventProcessor) {

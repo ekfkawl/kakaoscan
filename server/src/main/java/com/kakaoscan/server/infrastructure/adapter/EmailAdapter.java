@@ -2,7 +2,6 @@ package com.kakaoscan.server.infrastructure.adapter;
 
 import com.kakaoscan.server.application.port.EmailPort;
 import com.kakaoscan.server.infrastructure.email.template.EmailTemplate;
-import com.kakaoscan.server.infrastructure.email.types.VerificationEmail;
 import com.kakaoscan.server.infrastructure.exception.EmailSendingException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
@@ -15,7 +14,6 @@ import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -28,7 +26,7 @@ public class EmailAdapter implements EmailPort {
     private static final String PERSONAL = "카카오스캔";
 
     @Override
-    public <T extends EmailTemplate> void send(T emailTemplate) {
+    public <T extends EmailTemplate> void send(T emailTemplate, Map<String, Object> variables) {
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
 
         try {
@@ -36,10 +34,6 @@ public class EmailAdapter implements EmailPort {
             mimeMessageHelper.setTo(emailTemplate.getReceiver());
             mimeMessageHelper.setSubject(emailTemplate.getSubject());
 
-            Map<String, Object> variables = new HashMap<>();
-            if (emailTemplate instanceof VerificationEmail verificationEmail) {
-                variables.put("verificationLink", verificationEmail.getVerificationLink());
-            }
             String content = setContext(emailTemplate.getHtml(), variables);
             mimeMessageHelper.setText(content, true);
 

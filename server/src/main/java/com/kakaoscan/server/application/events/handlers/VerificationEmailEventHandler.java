@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+
 @Component
 @RequiredArgsConstructor
 @Log4j2
@@ -15,7 +17,11 @@ public class VerificationEmailEventHandler extends AbstractEventProcessor<Verifi
 
     @Override
     protected void handleEvent(VerificationEmailEvent event) {
-        emailPort.send(event.getVerificationEmail());
+        Map<String, Object> variables = Map.of(
+                "verificationLink", event.getVerificationEmail()
+        );
+
+        emailPort.send(event.getVerificationEmail(), variables);
 
         log.info("send verification mail: {}", event.getVerificationEmail().getReceiver());
     }

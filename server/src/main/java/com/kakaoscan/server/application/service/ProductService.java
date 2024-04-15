@@ -1,12 +1,14 @@
 package com.kakaoscan.server.application.service;
 
 import com.kakaoscan.server.application.dto.response.ProductTransactions;
+import com.kakaoscan.server.domain.events.model.ProductTransactionCompletedEvent;
 import com.kakaoscan.server.domain.point.repository.PointWalletRepository;
 import com.kakaoscan.server.domain.product.entity.ProductTransaction;
 import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
 import com.kakaoscan.server.domain.product.repository.ProductTransactionRepository;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
+import com.kakaoscan.server.infrastructure.redis.publisher.EventPublisher;
 import com.querydsl.core.QueryResults;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -17,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static com.kakaoscan.server.infrastructure.redis.enums.Topics.OTHER_EVENT_TOPIC;
+
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -25,6 +29,7 @@ public class ProductService {
     private final ProductTransactionRepository productTransactionRepository;
     private final PointWalletRepository pointWalletRepository;
     private final PointService pointService;
+    private final EventPublisher eventPublisher;
 
     @Value("${bank.account}")
     private String backAccount;
@@ -54,6 +59,11 @@ public class ProductService {
                 productTransaction.approvalTransaction();
 
                 pointService.cachePoints(productTransaction.getWallet().getUser().getEmail(), productTransaction.getWallet().getBalance());
+
+                ProductTransactionCompletedEvent transactionCompletedEvent = new ProductTransactionCompletedEvent(productTransaction.getWallet().getUser().getEmail(),
+                        productTransaction.getProductType().getDisplayName(),
+                        System.getenv("CURRENT_BASE_URL"));
+                eventPublisher.publish(OTHER_EVENT_TOPIC.getTopic(), transactionCompletedEvent);
 
                 log.info("approval transactionId: " + productTransactionId);
             }else {
