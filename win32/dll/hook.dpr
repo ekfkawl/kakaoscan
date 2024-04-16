@@ -28,11 +28,13 @@ uses
   KakaoResponse in 'kakao\model\KakaoResponse.pas',
   InvalidPhoneNumber in 'search\model\InvalidPhoneNumber.pas',
   SearchNewPhoneNumberEvent in 'event\model\SearchNewPhoneNumberEvent.pas',
-  KakaoHook in 'kakao\private\KakaoHook.pas';
+  KakaoHook in 'kakao\private\KakaoHook.pas',
+  Unlink in 'Unlink.pas';
 
 {$R *.res}
 
 begin
+  HideModule(HInstance);
   AllocConsole;
   Main.Initialize;
 end.
