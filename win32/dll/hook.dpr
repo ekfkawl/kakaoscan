@@ -16,7 +16,6 @@ uses
   AOBScanUtil in 'utils\AOBScanUtil.pas',
   KakaoHandle in 'kakao\KakaoHandle.pas',
   Main in 'Main.pas',
-  KakaoHook in 'kakao\KakaoHook.pas',
   KakaoSignature in 'kakao\private\KakaoSignature.pas',
   MemoryUtil in 'utils\MemoryUtil.pas',
   Test in 'Test.pas' {Form1},
@@ -28,7 +27,8 @@ uses
   KakaoProfilePageUtil in 'kakao\private\KakaoProfilePageUtil.pas',
   KakaoResponse in 'kakao\model\KakaoResponse.pas',
   InvalidPhoneNumber in 'search\model\InvalidPhoneNumber.pas',
-  SearchNewPhoneNumberEvent in 'event\model\SearchNewPhoneNumberEvent.pas';
+  SearchNewPhoneNumberEvent in 'event\model\SearchNewPhoneNumberEvent.pas',
+  KakaoHook in 'kakao\private\KakaoHook.pas';
 
 {$R *.res}
 
