@@ -17,13 +17,13 @@ var
   KakaoCtrl: TKakaoCtrl;
   Redis: TRedis;
 
-procedure MergeFeeds(HasFeeds: Boolean; ScanType: Integer; var KakaoProfile: TKakaoProfile);
+procedure MergeFeeds(HasFeeds: Boolean; hViewFriendWindow: THandle; ScanType: Integer; var KakaoProfile: TKakaoProfile);
 var
   FeedsContainer: TFeedsContainer;
 begin
   if HasFeeds then
   begin
-    Guard(FeedsContainer, KakaoCtrl.Scan(ScanType).Value);
+    Guard(FeedsContainer, KakaoCtrl.Scan(hViewFriendWindow, ScanType).Value);
     if Assigned(FeedsContainer) then
     begin
       if ScanType = 0 then
@@ -132,10 +132,10 @@ begin
           KakaoProfile.Profile.ScreenBase64:= ViewFriendInfo.ScreenToBase64;
 
           SetEventStatusAndPublish(EVENT_PROCESSING, Format(FRIEND_PROFILE_SCANNING, [ViewFriendInfo.Name]));
-          MergeFeeds(HasProfile, 0, KakaoProfile);
+          MergeFeeds(HasProfile, ViewFriendInfo.Handle, 0, KakaoProfile);
 
           SetEventStatusAndPublish(EVENT_PROCESSING, Format(FRIEND_BACKGROUND_SCANNING, [ViewFriendInfo.Name]));
-          MergeFeeds(HasBackground, 1, KakaoProfile);
+          MergeFeeds(HasBackground, ViewFriendInfo.Handle, 1, KakaoProfile);
 
           SetEventStatusAndPublish(EVENT_SUCCESS, KakaoProfile.ToJSON);
         end;

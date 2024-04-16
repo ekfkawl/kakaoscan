@@ -64,12 +64,13 @@ begin
   KakaoCtrl.SynchronizationFriend;
 end;
 
-procedure TForm1.Button4Click(Sender: TObject);
 var
-  Future: IFuture<TViewFriendInfo>;
+  ViewFriendFuture: IFuture<TViewFriendInfo>;
+procedure TForm1.Button4Click(Sender: TObject);
 begin
-  Future:= KakaoCtrl.ViewFriend;
-  Writeln(Future.Value.Name);
+  ViewFriendFuture:= KakaoCtrl.ViewFriend;
+  Writeln(ViewFriendFuture.Value.Handle);
+  Writeln(ViewFriendFuture.Value.Name);
 //  Writeln(Future.Value.ScreenToBase64);
 end;
 
@@ -77,13 +78,17 @@ procedure TForm1.Button5Click(Sender: TObject);
 var
   FeedsContainer: TFeedsContainer;
 begin
-  Guard(FeedsContainer, KakaoCtrl.Scan(0).Value);
-  if Assigned(FeedsContainer) then
+  for var i:= 0 to 1 do
   begin
-    Writeln(FeedsContainer.ToJSON);
-  end else
-  begin
-    Writeln('ScanProfile failed');
+    Guard(FeedsContainer, KakaoCtrl.Scan(ViewFriendFuture.Value.Handle, 0).Value);
+    if Assigned(FeedsContainer) then
+    begin
+      Writeln(FeedsContainer.ToJSON);
+    end else
+    begin
+      Writeln('ScanProfile failed');
+    end;
+    Writeln('--------------------------');
   end;
 end;
 
