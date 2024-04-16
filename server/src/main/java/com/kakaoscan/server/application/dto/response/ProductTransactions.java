@@ -16,6 +16,7 @@ import java.util.List;
 public class ProductTransactions {
     private final List<ProductTransactionResponse> productTransactionList = new ArrayList<>();
     private long totalCount;
+    private long totalAmount;
     private String account;
 
     public ProductTransactions(String backAccount) {
@@ -29,7 +30,7 @@ public class ProductTransactions {
     public static ProductTransactions convertToProductTransactions(List<ProductTransaction> transactions, long totalCount, String account) {
         ProductTransactions productTransactions = new ProductTransactions(account);
 
-        transactions.forEach(transaction ->
+        transactions.forEach(transaction -> {
                 productTransactions.addTransaction(new ProductTransactionResponse(
                         transaction.getId(),
                         transaction.getWallet().getUser().getEmail(),
@@ -39,7 +40,10 @@ public class ProductTransactions {
                         transaction.getDepositor(),
                         transaction.getCreatedAt(),
                         transaction.getUpdatedAt()
-                )));
+                ));
+
+                productTransactions.totalAmount += transaction.getAmount();
+        });
 
         productTransactions.totalCount = totalCount;
 
