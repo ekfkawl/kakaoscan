@@ -36,7 +36,6 @@
         "sass": "^1.69.7",
         "sockjs-client": "^1.6.1",
         "stompjs": "^2.3.3",
-        "styled-components": "^6.1.1",
         "tailwindcss": "^3.3.5",
         "typescript": "^4.9.5",
         "uuid": "^9.0.1",
