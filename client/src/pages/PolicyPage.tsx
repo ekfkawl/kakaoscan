@@ -11,7 +11,7 @@ const PolicyPage = () => {
                             특정 대상을 최근 24시간 이내 처음 조회
                         </h3>
                         <p className="text-gray-500 dark:text-gray-400">
-                            특정 대상을 최근 24시간 이내 처음 조회하시는 경우 <strong>500P</strong>가 차감됩니다.
+                            특정 대상을 최근 24시간 이내 처음 조회하시는 경우 <strong>1,000P</strong>가 차감됩니다.
                         </p>
                     </div>
                     <div className="mb-10">
@@ -19,7 +19,7 @@ const PolicyPage = () => {
                             이전에 조회한 적이 있는 대상을 24시간 이내 다시 조회
                         </h3>
                         <p className="text-gray-500 dark:text-gray-400">
-                            이전에 500P가 차감 된 시점으로부터 24시간 동안은 해당 대상의 조회 비용이 <strong>50%</strong> 할인됩니다.
+                            이전에 1,000P가 차감 된 시점으로부터 24시간 동안은 해당 대상의 조회 비용이 <strong>50%</strong> 할인됩니다.
                         </p>
                     </div>
                     <div className="mb-10">

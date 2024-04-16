@@ -1,5 +1,7 @@
 package com.kakaoscan.server.domain.point.validation;
 
+import com.kakaoscan.server.application.dto.request.PointPaymentRequest;
+import com.kakaoscan.server.domain.product.enums.ProductType;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
@@ -7,6 +9,8 @@ public class PointPaymentAmountValidator implements ConstraintValidator<PointPay
 
     @Override
     public boolean isValid(Integer value, ConstraintValidatorContext context) {
-        return value != null && (value == 500 || value == 1000 || value == 5000);
+        ProductType productType = PointPaymentRequest.getProductType(value);
+
+        return productType != ProductType.UNKNOWN;
     }
 }

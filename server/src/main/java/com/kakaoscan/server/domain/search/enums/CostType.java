@@ -6,8 +6,8 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum CostType {
-    ORIGIN(500),
-    DISCOUNT(250),
+    ORIGIN(1000),
+    DISCOUNT(500),
     FREE(0);
 
     private final int cost;

@@ -119,7 +119,7 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                         !isLoading && searchCost?.success ? (
                             <div className="break-all">
                                 <p>
-                                    프로필 조회에 성공하면 <strong>{searchCost.data.cost} 포인트</strong>가 차감됩니다.
+                                    프로필 조회에 성공하면 <strong>{new Intl.NumberFormat('ko-KR').format(searchCost.data.cost)} 포인트</strong>가 차감됩니다.
                                     계속 진행하시겠어요?
                                 </p>
                                 {renderDiscountMessage(searchCost)}

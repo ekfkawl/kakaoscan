@@ -8,7 +8,9 @@ import lombok.Getter;
 public enum ProductType {
     P500("500 P"),
     P1000("1,000 P"),
+    P2000("2,000 P"),
     P5000("5,000 P"),
+    P10000("10,000 P"),
     UNKNOWN("Unknown");
 
     private final String displayName;
