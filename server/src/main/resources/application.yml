@@ -27,12 +27,16 @@ cors:
     - /api/login/**
     - /api/register
     - /api/refresh-token
+    - /api/webhook/**
     - /swagger-ui/**
     - /v3/api-docs/**
     - /index.html
     - /static/**
     - /favicon.png
     - /ws/**
+
+pay:
+  base-url: ${PAY_BASE_URL}
 
 ---
 
