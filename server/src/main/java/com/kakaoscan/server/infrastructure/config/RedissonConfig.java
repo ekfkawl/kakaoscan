@@ -22,6 +22,9 @@ public class RedissonConfig {
     @Value("${spring.data.redis.port}")
     private int redisPort;
 
+    public static final int LOCK_WAIT_TIME = 10;
+    public static final int LOCK_LEASE_TIME = 30;
+
     @Bean
     public RedissonClient redissonClient() {
         Config config = new Config();

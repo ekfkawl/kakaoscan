@@ -58,7 +58,7 @@ public class PointWallet {
         this.balance += balance;
     }
 
-    public void addTransaction(PointPaymentRequest paymentRequest, String depositor) {
+    public ProductTransaction addTransaction(PointPaymentRequest paymentRequest, String depositor) {
         ProductTransaction transaction = ProductTransaction.builder()
                 .amount(paymentRequest.getAmount())
                 .productType(paymentRequest.getProductType())
@@ -68,5 +68,7 @@ public class PointWallet {
                 .build();
 
         this.productTransaction.add(transaction);
+
+        return transaction;
     }
 }

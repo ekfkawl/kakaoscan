@@ -1,12 +1,14 @@
 package com.kakaoscan.server.application.service;
 
 import com.kakaoscan.server.application.dto.request.PointPaymentRequest;
+import com.kakaoscan.server.application.dto.request.WebhookProductOrderRequest;
 import com.kakaoscan.server.application.exception.PendingTransactionExistsException;
 import com.kakaoscan.server.application.port.CacheStorePort;
 import com.kakaoscan.server.domain.point.entity.PointWallet;
 import com.kakaoscan.server.domain.point.model.SearchCost;
 import com.kakaoscan.server.domain.product.entity.ProductTransaction;
 import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
+import com.kakaoscan.server.domain.product.model.ProductOrderClient;
 import com.kakaoscan.server.domain.product.repository.ProductTransactionRepository;
 import com.kakaoscan.server.domain.search.repository.SearchHistoryRepository;
 import com.kakaoscan.server.domain.user.entity.User;
@@ -29,6 +31,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import static com.kakaoscan.server.infrastructure.config.RedissonConfig.LOCK_LEASE_TIME;
+import static com.kakaoscan.server.infrastructure.config.RedissonConfig.LOCK_WAIT_TIME;
+
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -39,14 +44,14 @@ public class PointService {
     private final CacheStorePort<SearchCost> costCacheStorePort;
     private final SearchHistoryRepository searchHistoryRepository;
     private final ProductTransactionRepository productTransactionRepository;
+    private final ProductOrderClient productOrderClient;
     private final WordProperties wordProperties;
 
-    private static final String LOCK_KEY_PREFIX = "userPointsLock:";
+    private static final String LOCK_USER_POINTS_KEY_PREFIX = "userPointsLock:";
+    private static final String LOCK_PEND_POINTS_PAYMENT_KEY_PREFIX = "pendPointsPaymentLock:";
     private static final String POINT_CACHE_KEY_PREFIX = "pointCache:";
     private static final String TARGET_SEARCH_COST_KEY_PREFIX = "targetSearchCost:";
 
-    private static final int LOCK_WAIT_TIME = 10;
-    private static final int LOCK_LEASE_TIME = 30;
 
     public void cachePoints(String userId, int value) {
         integerCacheStorePort.put(POINT_CACHE_KEY_PREFIX + userId, value, 5, TimeUnit.MINUTES);
@@ -54,7 +59,7 @@ public class PointService {
 
     @Transactional(readOnly = true)
     public int getAndCachePoints(String userId) {
-        RLock lock = redissonClient.getLock(LOCK_KEY_PREFIX + userId);
+        RLock lock = redissonClient.getLock(LOCK_USER_POINTS_KEY_PREFIX + userId);
         if (lock.isLocked()) {
             throw new ConcurrentModificationException("points data is currently being modified");
         }
@@ -73,7 +78,7 @@ public class PointService {
 
     @Transactional
     public boolean deductPoints(String userId, int value) {
-        RLock lock = redissonClient.getLock(LOCK_KEY_PREFIX + userId);
+        RLock lock = redissonClient.getLock(LOCK_USER_POINTS_KEY_PREFIX + userId);
 
         try {
             if (!lock.tryLock(LOCK_WAIT_TIME, LOCK_LEASE_TIME, TimeUnit.SECONDS)) {
@@ -128,30 +133,49 @@ public class PointService {
     }
 
     @Transactional
-    public void pendPointPayment(String userId, PointPaymentRequest paymentRequest) {
-        User user = userRepository.findByEmailOrThrow(userId);
-
-        if (productTransactionRepository.existsPendingTransaction(user.getPointWallet())) {
-            throw new PendingTransactionExistsException("이미 결제 신청 내역이 존재합니다.");
-        }
-
-        List<ProductTransaction> pendingTransactions = productTransactionRepository.findByTransactionStatus(ProductTransactionStatus.PENDING);
-        Set<String> depositorSet = pendingTransactions.stream()
-                .map(ProductTransaction::getDepositor)
-                .collect(Collectors.toSet());
-
-        String combination;
-        int attempts = 0;
-        final int maxAttempts = 255;
-        do {
-            combination = wordProperties.combination();
-            if (++attempts > maxAttempts) {
-                log.error("depositor generate error");
-                throw new IllegalStateException("현재 결제 신청이 불가합니다.");
+    public boolean pendPointPayment(String userId, PointPaymentRequest paymentRequest) {
+        RLock lock = redissonClient.getLock(LOCK_PEND_POINTS_PAYMENT_KEY_PREFIX + userId);
+        try {
+            if (!lock.tryLock(LOCK_WAIT_TIME, LOCK_LEASE_TIME, TimeUnit.SECONDS)) {
+                return false;
             }
-        } while (depositorSet.contains(combination));
 
-        user.getPointWallet().addTransaction(paymentRequest, combination);
+            User user = userRepository.findByEmailOrThrow(userId);
+
+            if (productTransactionRepository.existsPendingTransaction(user.getPointWallet())) {
+                throw new PendingTransactionExistsException("이미 결제 신청 내역이 존재합니다.");
+            }
+
+            List<ProductTransaction> pendingTransactions = productTransactionRepository.findByTransactionStatus(ProductTransactionStatus.PENDING);
+            Set<String> depositorSet = pendingTransactions.stream()
+                    .map(ProductTransaction::getDepositor)
+                    .collect(Collectors.toSet());
+
+            String uniqueDepositor = wordProperties.generateUniqueDepositor(depositorSet);
+
+            ProductTransaction productTransaction = user.getPointWallet().addTransaction(paymentRequest, uniqueDepositor);
+            productTransaction = productTransactionRepository.save(productTransaction);
+
+            productOrderClient.createProductOrder(WebhookProductOrderRequest.builder()
+                    .orderNumber(productTransaction.getId().toString())
+                    .orderAmount(paymentRequest.getAmount())
+                    .ordererName(uniqueDepositor)
+                    .billingName(uniqueDepositor)
+                    .build());
+
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+                @Override
+                public void afterCommit() {
+                    lock.unlock();
+                }
+            });
+
+            return true;
+
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("lock acquisition interrupted");
+        }
     }
 
     @Transactional

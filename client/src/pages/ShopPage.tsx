@@ -1,10 +1,10 @@
-import {Button, Tabs} from 'flowbite-react';
-import React, {useEffect, useState} from 'react';
+import { Button, Tabs } from 'flowbite-react';
+import React, { useEffect, useState } from 'react';
 import LearnMore from '../components/LearnMore';
-import {useHttp} from '../hooks/useHttp';
+import { useHttp } from '../hooks/useHttp';
 import MessagePopup from '../components/Popup/MessagePopup';
-import {ApiResponse} from '../types/apiResponse';
-import {useNavigate} from 'react-router-dom';
+import { ApiResponse } from '../types/apiResponse';
+import { useNavigate } from 'react-router-dom';
 
 const ShopPage = () => {
     const navigate = useNavigate();
@@ -14,7 +14,11 @@ const ShopPage = () => {
     const [showPaymentMessage, setShowPaymentMessage] = useState(false);
 
     const pointPayment = async () => {
-        const amounts = [1000, 2000, 10000];
+        if (isLoading) {
+            return;
+        }
+
+        const amounts = [1000, 2000, 5000];
         const amount = amounts[activeTab];
 
         await sendRequest({
@@ -46,7 +50,7 @@ const ShopPage = () => {
                         <Tabs.Item title="2,000 P">
                             <AboutPoint />
                         </Tabs.Item>
-                        <Tabs.Item title="10,000 P">
+                        <Tabs.Item title="5,000 P">
                             <AboutPoint />
                         </Tabs.Item>
                     </Tabs>
@@ -64,7 +68,7 @@ const ShopPage = () => {
                     </div>
                     <div className={`self-center w-full ${activeTab === 2 ? '' : 'hidden'}`}>
                         <div className="text-gray-500 dark:text-gray-400">가격</div>
-                        <div className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white">10,000원</div>
+                        <div className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white">5,000원</div>
                         <BuyPoint pointPayment={pointPayment} />
                     </div>
                 </div>
@@ -98,10 +102,8 @@ const BuyPoint: React.FC<{ pointPayment: () => Promise<void> }> = ({ pointPaymen
         <Button fullSized color="blue" className="my-4 inline-flex" onClick={() => pointPayment()}>
             지금 구매
         </Button>
-        <p className="text-sm text-gray-500 dark:text-gray-400 break-all">구매는 계좌이체로만 가능합니다.</p>
         <p className="text-sm text-gray-500 dark:text-gray-400 break-all">
-            관리자의 수작업으로 처리되므로 시간이 다소 걸릴 수도 있는 점 양해부탁드립니다. 늦어도 24시간 이내
-            처리됩니다.
+            계좌이체를 통해서만 구매가 가능합니다. 입금 완료 후 1분 이내에 주문이 자동으로 처리됩니다.
         </p>
     </div>
 );

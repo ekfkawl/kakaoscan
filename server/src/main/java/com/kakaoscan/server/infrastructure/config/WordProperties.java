@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 @Data
 @Configuration
@@ -21,5 +22,20 @@ public class WordProperties {
         String adjective = adjectives.get(random.nextInt(adjectives.size()));
         String noun = nouns.get(random.nextInt(nouns.size()));
         return adjective + noun;
+    }
+
+    public String generateUniqueDepositor(Set<String> existingDepositors) {
+        String combination;
+
+        int attempts = 0;
+        final int maxAttempts = 255;
+        do {
+            combination = this.combination();
+            if (++attempts > maxAttempts) {
+                throw new IllegalStateException("현재 결제 신청이 불가합니다.");
+            }
+        } while (existingDepositors.contains(combination));
+
+        return combination;
     }
 }

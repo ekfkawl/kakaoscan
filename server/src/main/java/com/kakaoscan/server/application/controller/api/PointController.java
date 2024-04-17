@@ -37,9 +37,11 @@ public class PointController extends ApiEndpointPrefix {
 
     @PostMapping("/payment")
     public ResponseEntity<ApiResponse<Void>> pendPointPayment(@RequestBody @Valid PointPaymentRequest paymentRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        pointService.pendPointPayment(userDetails.getEmail(), paymentRequest);
+        if (pointService.pendPointPayment(userDetails.getEmail(), paymentRequest)){
+            return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
+        }
 
-        return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
+        return new ResponseEntity<>(ApiResponse.failure("이미 결제 진행 중 입니다."), HttpStatus.OK);
     }
 
     @PutMapping("/payment")
