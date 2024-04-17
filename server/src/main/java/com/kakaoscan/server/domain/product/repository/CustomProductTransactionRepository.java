@@ -11,4 +11,6 @@ public interface CustomProductTransactionRepository {
     boolean existsPendingTransaction(PointWallet pointWallet);
 
     QueryResults<ProductTransaction> findAndFilterTransactions(LocalDateTime startDate, LocalDateTime endDate, ProductTransactionStatus status, String keyword, int page, int pageSize);
+
+    long cancelOldPendingTransactions();
 }

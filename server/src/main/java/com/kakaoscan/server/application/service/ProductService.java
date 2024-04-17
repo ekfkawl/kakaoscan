@@ -13,6 +13,7 @@ import com.querydsl.core.QueryResults;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -70,5 +71,13 @@ public class ProductService {
                 log.info("already approved transactionId: " + productTransactionId);
             }
         });
+    }
+
+    @Scheduled(fixedRate = 1000 * 60 * 60)
+    @Transactional
+    public void cancelOldPendingTransactions() {
+        long cancelledCount = productTransactionRepository.cancelOldPendingTransactions();
+
+        log.info("old product transaction cancelled count: {}", cancelledCount);
     }
 }

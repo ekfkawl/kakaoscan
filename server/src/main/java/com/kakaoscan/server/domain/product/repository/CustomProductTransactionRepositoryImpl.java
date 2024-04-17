@@ -54,4 +54,16 @@ public class CustomProductTransactionRepositoryImpl implements CustomProductTran
                 .limit(pageSize)
                 .fetchResults();
     }
+
+    @Override
+    public long cancelOldPendingTransactions() {
+        QProductTransaction productTransaction = QProductTransaction.productTransaction;
+
+        return factory
+                .update(productTransaction)
+                .set(productTransaction.transactionStatus, ProductTransactionStatus.CANCELLED)
+                .where(productTransaction.transactionStatus.eq(ProductTransactionStatus.PENDING)
+                        .and(productTransaction.createdAt.before(LocalDateTime.now().minusHours(48))))
+                .execute();
+    }
 }
