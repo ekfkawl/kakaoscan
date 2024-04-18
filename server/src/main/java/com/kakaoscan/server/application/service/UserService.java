@@ -37,7 +37,7 @@ public class UserService {
 
     @Transactional
     public ApiResponse<Void> register(RegisterRequest request) {
-        Optional<User> existingUser = userRepository.findByEmail(request.getEmail());
+        Optional<User> existingUser = userRepository.findByEmail(request.getEmail().toLowerCase());
 
         if (existingUser.isPresent()) {
             User user = existingUser.get();
@@ -50,7 +50,7 @@ public class UserService {
         }
 
         User newUser = User.builder()
-                .email(request.getEmail())
+                .email(request.getEmail().toLowerCase())
                 .password(PasswordEncoderSingleton.getInstance().encode(request.getPassword()))
                 .role(Role.USER)
                 .authenticationType(AuthenticationType.LOCAL)

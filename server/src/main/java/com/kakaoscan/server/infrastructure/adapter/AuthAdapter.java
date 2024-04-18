@@ -21,7 +21,7 @@ public class AuthAdapter implements AuthPort {
 
     @Override
     public LoginResponse authenticate(LoginRequest request) throws BadCredentialsException, EmailNotVerifiedException {
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail().toLowerCase(), request.getPassword()));
 
         return authService.createJwtToken(authentication);
     }
