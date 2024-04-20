@@ -77,7 +77,7 @@ const SearchHistoryPage = () => {
                                             <FaCoins className="h-3 w-3 text-gray-600 dark:text-gray-500 lg:h-4 lg:w-4" />
                                         </div>
                                         <p className="text-gray-900 dark:text-white">
-                                            {new Intl.NumberFormat('ko-KR').format(history.cost)} P
+                                            -{new Intl.NumberFormat('ko-KR').format(history.cost)} P
                                         </p>
                                     </div>
                                     <div className="flex justify-start items-center mb-2">

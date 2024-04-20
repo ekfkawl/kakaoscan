@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.kakaoscan.server.infrastructure.redis.enums.Topics.OTHER_EVENT_TOPIC;
 
@@ -55,7 +56,7 @@ public class ProductService {
     @Transactional
     public void approvalTransaction(Long productTransactionId) {
         productTransactionRepository.findById(productTransactionId).ifPresent(productTransaction -> {
-            if (productTransaction.getTransactionStatus().equals(ProductTransactionStatus.PENDING)) {
+            if (ProductTransactionStatus.PENDING.equals(productTransaction.getTransactionStatus())) {
                 productTransaction.getWallet().addBalance(productTransaction.getAmount());
                 productTransaction.approvalTransaction();
 
@@ -69,6 +70,22 @@ public class ProductService {
                 log.info("approval transactionId: " + productTransactionId);
             }else {
                 log.info("already approved transactionId: " + productTransactionId);
+            }
+        });
+    }
+
+    @Transactional
+    public void cancelTransaction(Long productTransactionId) {
+        productTransactionRepository.findById(productTransactionId).ifPresent(productTransaction -> {
+            if (ProductTransactionStatus.EARNED.equals(productTransaction.getTransactionStatus())) {
+                if (productTransaction.getWallet().getBalance() >= productTransaction.getAmount()) {
+                    productTransaction.getWallet().deductBalance(productTransaction.getAmount());
+                    productTransaction.cancelTransaction();
+
+                    pointService.cachePoints(productTransaction.getWallet().getUser().getEmail(), productTransaction.getWallet().getBalance());
+
+                    log.info("cancel transactionId: " + productTransactionId);
+                }
             }
         });
     }

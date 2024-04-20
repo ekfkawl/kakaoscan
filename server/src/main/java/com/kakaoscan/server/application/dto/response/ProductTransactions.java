@@ -38,6 +38,7 @@ public class ProductTransactions {
                         transaction.getProductType().getDisplayName(),
                         transaction.getAmount(),
                         transaction.getDepositor(),
+                        transaction.getWallet().getBalance(),
                         transaction.getCreatedAt(),
                         transaction.getUpdatedAt()
                 ));
@@ -59,6 +60,7 @@ public class ProductTransactions {
         private String productName;
         private int amount;
         private String depositor;
+        private int currentBalance;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
     }

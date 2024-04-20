@@ -67,6 +67,8 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
 
     private void processEndEvent(SearchEvent event, EventStatus status) {
         if (SEARCH_INVALID_PHONE_NUMBER.equals(status.getMessage())) {
+            status.setMessage(SEARCH_INVALID_PHONE_NUMBER_EX);
+
             Bucket bucket = rateLimitService.resolveBucket(event.getEmail(), 5, Duration.ofHours(2));
             if (!bucket.tryConsume(1)) {
                 log.info("too many invalid phone number search: {}", event.getEmail());

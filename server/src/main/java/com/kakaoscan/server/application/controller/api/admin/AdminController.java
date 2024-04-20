@@ -51,6 +51,14 @@ public class AdminController extends ApiEndpointPrefix {
     }
 
     @AdminRole
+    @PutMapping("/admin/product/cancel")
+    public ResponseEntity<ApiResponse<Void>> cancelTransaction(@RequestBody Map<String, Long> payload) {
+        productService.cancelTransaction(payload.get("transactionId"));
+
+        return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
+    }
+
+    @AdminRole
     @GetMapping("/admin/log")
     public ResponseEntity<ApiResponse<AppLogs>> findAndFilterLogs(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

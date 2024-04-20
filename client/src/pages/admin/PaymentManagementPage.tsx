@@ -36,6 +36,8 @@ const PaymentManagementPage = () => {
     const [showEditConfirmPopup, setEditConfirmPopup] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<any>(null);
 
+    const [showCancelConfirmPopup, setCancelConfirmPopup] = useState(false);
+
     const { sendRequest, data, isLoading: sendIsLoading, error } = useHttp<ApiResponse>();
     const approvalTransaction = async (transactionId: number): Promise<void> => {
         try {
@@ -47,6 +49,25 @@ const PaymentManagementPage = () => {
                 },
             });
             setRefreshFlag(!refreshFlag);
+            setEditConfirmPopup(false);
+            setSelectedProduct(null);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const cancelTransaction = async (transactionId: number): Promise<void> => {
+        try {
+            await sendRequest({
+                url: '/api/admin/product/cancel',
+                method: 'PUT',
+                data: {
+                    transactionId: transactionId,
+                },
+            });
+            setRefreshFlag(!refreshFlag);
+            setEditConfirmPopup(false);
+            setSelectedProduct(null);
         } catch (error) {
             console.error(error);
         }
@@ -176,6 +197,20 @@ const PaymentManagementPage = () => {
                             <p>상품: {selectedProduct.productName}</p>
                             <p>입금액: {new Intl.NumberFormat('ko-KR').format(selectedProduct.amount)}원</p>
                             <p>입금자: {selectedProduct.depositor}</p>
+                            <br />
+                            <p>잔액: {new Intl.NumberFormat('ko-KR').format(selectedProduct.currentBalance)} P</p>
+
+                            {selectedProduct.productTransactionStatus === '완료' &&
+                                selectedProduct.currentBalance >= selectedProduct.amount && (
+                                    <a
+                                        className="font-medium text-primary-600 hover:underline dark:text-primary-500 cursor-pointer"
+                                        onClick={() => {
+                                            setCancelConfirmPopup(true);
+                                        }}
+                                    >
+                                        거래 취소
+                                    </a>
+                                )}
                         </>
                     }
                     onConfirm={() => {
@@ -183,6 +218,15 @@ const PaymentManagementPage = () => {
                             approvalTransaction(selectedProduct.id);
                         }
                     }}
+                />
+            )}
+            {showCancelConfirmPopup && (
+                <ConfirmPopup
+                    show={showCancelConfirmPopup}
+                    onClose={() => setCancelConfirmPopup(false)}
+                    title="알림"
+                    description={<p>완료된 거래를 취소하시겠어요?</p>}
+                    onConfirm={() => cancelTransaction(selectedProduct.id)}
                 />
             )}
         </div>
