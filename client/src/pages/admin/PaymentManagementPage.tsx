@@ -120,7 +120,7 @@ const PaymentManagementPage = () => {
                                         </Table.Cell>
                                         <Table.Cell>{product.productName}</Table.Cell>
                                         <Table.Cell>{product.depositor}</Table.Cell>
-                                        <Table.Cell>{formatDate(new Date(product.createdAt)).slice(2)}</Table.Cell>
+                                        <Table.Cell>{formatDate(new Date(product.createdAt)).slice(5)}</Table.Cell>
                                         <Table.Cell>
                                             <p
                                                 className={`cursor-pointer font-medium hover:underline ${

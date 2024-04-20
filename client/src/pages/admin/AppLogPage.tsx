@@ -76,7 +76,7 @@ const AppLogPage = () => {
                                 {logsData.data.appLogList.map((log: any) => (
                                     <Table.Row key={log.id} className="bg-white dark:border-gray-700 dark:bg-gray-800">
                                         <Table.Cell className="whitespace-nowrap">
-                                            {formatDate(new Date(log.date)).slice(2)}
+                                            {formatDate(new Date(log.date)).slice(5)}
                                         </Table.Cell>
                                         <Table.Cell className="whitespace-nowrap">{log.level}</Table.Cell>
                                         <Table.Cell className="whitespace-nowrap">{log.threadName}</Table.Cell>
