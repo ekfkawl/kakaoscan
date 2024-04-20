@@ -8,6 +8,7 @@ import { useHttp } from '../hooks/useHttp';
 import { ApiResponse } from '../types/apiResponse';
 import MessagePopup from '../components/Popup/MessagePopup';
 import ConfirmPopup from '../components/Popup/ConfirmPopup';
+import CopyButton from '../components/CopyButton';
 
 const PaymentHistory = () => {
     const { start, end, setStart, setEnd } = useDateRangePicker();
@@ -96,9 +97,15 @@ const PaymentHistory = () => {
                                                 </span>
                                             </h4>
                                             <DepositorInfo depositor={product.depositor} />
-                                            <p className="mt-3 text-base font-normal text-gray-800 dark:text-white">
-                                                {transactionsData.data.account}
-                                            </p>
+                                            <div className="mt-3 text-base font-normal text-gray-800 dark:text-white">
+                                                <CopyButton
+                                                    displayText={transactionsData.data.account}
+                                                    textToCopy={transactionsData.data.account
+                                                        .split(' ')[1]
+                                                        .replace(/-/g, '')}
+                                                />
+                                            </div>
+
                                             <p className="mt-3 text-sm font-normal text-gray-500 dark:text-gray-400">
                                                 <strong>* 중요:</strong> 입금 시, 입금자명을{' '}
                                                 <span className="font-semibold">{product.depositor}</span> (으)로 정확히
