@@ -12,6 +12,7 @@ import { ApiResponse } from '../../types/apiResponse';
 const PaymentManagementPage = () => {
     const { start, end, setStart, setEnd } = useDateRangePicker();
     const [status, setStatus] = useState<string>('');
+    const [pageItemCount, setPageItemCount] = useState<number>(10);
     const [keyword, setKeyword] = useState<string>('');
     const debouncedKeyword = useDebounce(keyword, 500);
 
@@ -27,6 +28,10 @@ const PaymentManagementPage = () => {
 
     const handleStatusChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
         setStatus(event.target.value);
+    };
+
+    const handlePageItemCountChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+        setPageItemCount(Number(event.target.value));
     };
 
     const handleKeywordChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,9 +85,9 @@ const PaymentManagementPage = () => {
             status: status,
             keyword: debouncedKeyword,
             page: currentPage,
-            pageSize: 10,
+            pageSize: pageItemCount,
         });
-    }, [start, end, status, debouncedKeyword, fetchData, refreshFlag, currentPage]);
+    }, [start, end, status, debouncedKeyword, fetchData, refreshFlag, currentPage, pageItemCount]);
 
     return (
         <div className="mx-auto max-w-screen-lg">
@@ -95,6 +100,15 @@ const PaymentManagementPage = () => {
                         value={keyword}
                     />
                     <div></div>
+                    <Select onChange={handlePageItemCountChange} value={pageItemCount}>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="30">30</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="10000000">전체</option>
+                    </Select>
+                    <div></div>
                     <Select onChange={handleStatusChange} value={status}>
                         <option value="">전체</option>
                         <option value="PENDING">대기</option>
@@ -104,7 +118,7 @@ const PaymentManagementPage = () => {
                 </div>
 
                 <div className="flex justify-end items-center space-x-2">
-                    <DateRangePicker start={start} setStart={setStart} end={end} setEnd={setEnd} />
+                    <DateRangePicker start={start} setStart={setStart} end={end} setEnd={setEnd}/>
                 </div>
             </div>
 
@@ -169,7 +183,7 @@ const PaymentManagementPage = () => {
                 <div className="flex overflow-x-auto justify-center mt-2">
                     <Pagination
                         currentPage={currentPage}
-                        totalPages={Math.ceil(transactionsData?.data?.totalCount / 10)}
+                        totalPages={Math.ceil(transactionsData?.data?.totalCount / pageItemCount)}
                         onPageChange={onPageChange}
                         showIcons
                         previousLabel=""
