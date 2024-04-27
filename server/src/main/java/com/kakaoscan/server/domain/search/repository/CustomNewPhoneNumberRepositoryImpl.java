@@ -15,7 +15,7 @@ public class CustomNewPhoneNumberRepositoryImpl implements CustomNewPhoneNumberR
     private final JPAQueryFactory factory;
 
     @Override
-    public List<NewPhoneNumber> findNewPhoneNumbersByDate(User user, LocalDate localDate) {
+    public List<NewPhoneNumber> findNewPhoneNumbersByDate(LocalDate localDate) {
         QNewPhoneNumber newPhoneNumber = QNewPhoneNumber.newPhoneNumber;
 
         LocalDateTime startOfDay = localDate.atStartOfDay();
@@ -23,8 +23,7 @@ public class CustomNewPhoneNumberRepositoryImpl implements CustomNewPhoneNumberR
 
         return factory
                 .selectFrom(newPhoneNumber)
-                .where(newPhoneNumber.user.eq(user)
-                        .and(newPhoneNumber.createdAt.between(startOfDay, endOfDay)))
+                .where(newPhoneNumber.createdAt.between(startOfDay, endOfDay))
                 .fetch();
     }
 }

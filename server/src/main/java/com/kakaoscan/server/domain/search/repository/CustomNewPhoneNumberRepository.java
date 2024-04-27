@@ -7,5 +7,5 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface CustomNewPhoneNumberRepository {
-    List<NewPhoneNumber> findNewPhoneNumbersByDate(User user, LocalDate localDate);
+    List<NewPhoneNumber> findNewPhoneNumbersByDate(LocalDate localDate);
 }

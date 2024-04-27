@@ -1,12 +1,13 @@
 package com.kakaoscan.server.application.service.websocket.search;
 
 import com.kakaoscan.server.application.service.PointService;
-import com.kakaoscan.server.application.service.SearchService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
 import com.kakaoscan.server.common.validation.ValidationPatterns;
 import com.kakaoscan.server.domain.point.model.SearchCost;
+import com.kakaoscan.server.domain.search.entity.NewPhoneNumber;
 import com.kakaoscan.server.domain.search.model.NewNumberSearch;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
+import com.kakaoscan.server.domain.search.repository.NewPhoneNumberRepository;
 import com.kakaoscan.server.infrastructure.exception.UserNotVerifiedException;
 import com.kakaoscan.server.infrastructure.websocket.queue.SearchInMemoryQueue;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +17,8 @@ import java.security.Principal;
 import java.time.LocalDate;
 import java.util.ConcurrentModificationException;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
-import java.util.Queue;
 
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.CONCURRENT_MODIFICATION_POINTS;
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEARCH_NOT_PHONE_NUMBER_FORMAT;
@@ -27,8 +28,8 @@ import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEA
 public class SearchMessageService {
     private final StompMessageDispatcher messageDispatcher;
     private final PointService pointService;
-    private final SearchService searchService;
     private final SearchInMemoryQueue queue;
+    private final NewPhoneNumberRepository newPhoneNumberRepository;
 
     public SearchMessage createSearchMessage(Principal principal, SearchMessage.OriginMessage originMessage) {
         if (principal != null) {
@@ -69,11 +70,12 @@ public class SearchMessageService {
     }
 
     public boolean canAttemptNumberSearch(SearchMessage message) {
-        NewNumberSearch newNumberSearch = searchService.getAndCacheNewNumberSearch(message.getEmail(), LocalDate.now());
-        if (newNumberSearch.getCount() <= 5) {
+        List<NewPhoneNumber> newPhoneNumbers = newPhoneNumberRepository.findNewPhoneNumbersByDate(LocalDate.now());
+        if (newPhoneNumbers.size() < 50) {
             return true;
         }
 
-        return newNumberSearch.getNumbers().contains(message.getContent());
+        Optional<NewPhoneNumber> targetPhoneNumberOptional = newPhoneNumberRepository.findByTargetPhoneNumber(message.getContent());
+        return targetPhoneNumberOptional.isPresent();
     }
 }

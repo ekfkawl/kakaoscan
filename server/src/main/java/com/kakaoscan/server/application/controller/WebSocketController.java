@@ -53,13 +53,13 @@ public class WebSocketController {
             return;
         }
 
-        if (!searchMessageService.validatePoints(message)) {
-            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), NOT_ENOUGH_POINTS, false));
+        if (!searchMessageService.canAttemptNumberSearch(message)) {
+            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), MAX_DAILY_NEW_NUMBER_SEARCH, false));
             return;
         }
 
-        if (!searchMessageService.canAttemptNumberSearch(message)) {
-            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), MAX_DAILY_NEW_NUMBER_SEARCH, false));
+        if (!searchMessageService.validatePoints(message)) {
+            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), NOT_ENOUGH_POINTS, false));
             return;
         }
 
