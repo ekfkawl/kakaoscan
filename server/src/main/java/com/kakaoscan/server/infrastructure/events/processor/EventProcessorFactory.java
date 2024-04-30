@@ -1,12 +1,12 @@
 package com.kakaoscan.server.infrastructure.events.processor;
 
-import com.kakaoscan.server.application.events.handlers.*;
-import com.kakaoscan.server.domain.events.model.ProductTransactionCompletedEvent;
+import org.reflections.Reflections;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 public class EventProcessorFactory {
@@ -14,18 +14,21 @@ public class EventProcessorFactory {
 
     public EventProcessorFactory(ApplicationContext applicationContext) {
         if (applicationContext == null) {
-            return;
+            throw new NullPointerException("application context is null");
         }
 
-        registerProcessor("SearchEvent", applicationContext.getBean(SearchEventHandler.class));
-        registerProcessor("VerificationEmailEvent", applicationContext.getBean(VerificationEmailEventHandler.class));
-        registerProcessor("LoginSuccessEvent", applicationContext.getBean(LoginSuccessEventHandler.class));
-        registerProcessor("SearchNewPhoneNumberEvent", applicationContext.getBean(SearchNewPhoneNumberEventHandler.class));
-        registerProcessor("ProductTransactionCompletedEvent", applicationContext.getBean(ProductTransactionCompletedEventHandler.class));
-    }
+        Reflections reflections = new Reflections("com.kakaoscan.server.application.events.handlers");
+        Set<Class<? extends EventProcessor>> classes = reflections.getSubTypesOf(EventProcessor.class);
 
-    public void registerProcessor(String eventType, EventProcessor eventProcessor) {
-        processorMap.put(eventType, eventProcessor);
+        for (Class<? extends EventProcessor> clazz : classes) {
+            if (clazz.equals(AbstractEventProcessor.class)) {
+                continue;
+            }
+
+            String eventType = clazz.getSimpleName().replaceAll("Handler$", "");
+            EventProcessor processor = applicationContext.getBean(clazz);
+            processorMap.put(eventType, processor);
+        }
     }
 
     public EventProcessor getProcessor(String eventType) {
