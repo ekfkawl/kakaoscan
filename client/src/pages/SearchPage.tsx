@@ -228,8 +228,8 @@ const renderDiscountMessage = (searchCostResponse: SearchCostResponse): React.Re
 
     const formattedDate = formatDate(new Date(searchCostResponse.data.expiredAtDiscount));
     const messages: { [key: string]: string } = {
-        DISCOUNT: `* ${formattedDate}까지,\n해당 번호의 프로필 조회 비용이 50% 할인됩니다!`,
-        FREE: `* ${formattedDate}까지,\n해당 번호의 프로필 조회 비용이 무료입니다!`,
+        DISCOUNT: `* ${formattedDate}까지,\n해당 대상의 프로필 조회 비용이 50% 할인됩니다!`,
+        FREE: `* ${formattedDate}까지,\n해당 대상의 프로필 조회 비용이 무료입니다!`,
     };
 
     return <p className="mt-4">{messages[searchCostResponse.data.costType]}</p>;
