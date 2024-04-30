@@ -57,7 +57,7 @@ const ProfileThumbPopup: FC<ProfileThumbPopupProps> = ({
                                         })
                                     }
                                 >
-                                    {isCopied ? <MdCheck /> : '번호 복사'}
+                                    {isCopied ? <MdCheck /> : '번호/아이디 복사'}
                                 </Button>
                             )}
                             {storyUrl && <Button onClick={() => window.open(storyUrl, '_blank')}>카카오스토리</Button>}

@@ -119,14 +119,14 @@ const SearchHistoryPage = () => {
                                                 outline
                                                 onClick={() =>
                                                     navigator.clipboard
-                                                        .writeText(formatPhoneNumber(history.targetPhoneNumber))
+                                                        .writeText(history.targetPhoneNumber)
                                                         .then(() => {
                                                             setIsCopied(true);
                                                             setTimeout(() => setIsCopied(false), 500);
                                                         })
                                                 }
                                             >
-                                                {isCopied ? <MdCheck /> : '번호 복사'}
+                                                {isCopied ? <MdCheck /> : '번호/아이디 복사'}
                                             </Button>
                                         )}
                                     </div>
