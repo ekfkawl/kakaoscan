@@ -58,6 +58,7 @@ const HeaderWithUser = () => {
                 </Link>
                 <div className="flex items-center gap-1 lg:order-2 lg:gap-3">
                     <DarkThemeToggle
+                        className="hidden 380px:block"
                         iconDark={FaGithub}
                         iconLight={FaGithub}
                         onClick={(e) => {
