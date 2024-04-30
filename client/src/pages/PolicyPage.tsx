@@ -71,14 +71,6 @@ const PolicyPage = () => {
                 <div className="break-all">
                     <div className="mb-10">
                         <h3 className="mb-4 flex items-center text-lg font-medium text-gray-900 dark:text-white">
-                            신규번호 일일 조회 가능 횟수
-                        </h3>
-                        <p className="text-gray-500 dark:text-gray-400">
-                            이전에 조회 한 적 없던 신규번호 프로필 조회는 일일 최대 5번 가능합니다.
-                        </p>
-                    </div>
-                    <div className="mb-10">
-                        <h3 className="mb-4 flex items-center text-lg font-medium text-gray-900 dark:text-white">
                             대상의 프로필과 배경이 100장을 초과하는 경우
                         </h3>
                         <p className="text-gray-500 dark:text-gray-400">

@@ -52,7 +52,9 @@ const SearchHistoryPage = () => {
                                             </svg>
                                         </div>
                                         <p className="text-gray-900 dark:text-white">
-                                            {formatPhoneNumber(history.targetPhoneNumber)}
+                                            {history.targetPhoneNumber.startsWith('@')
+                                                ? history.targetPhoneNumber
+                                                : formatPhoneNumber(history.targetPhoneNumber)}
                                         </p>
                                     </div>
                                     <div className="flex justify-start items-center mb-2">

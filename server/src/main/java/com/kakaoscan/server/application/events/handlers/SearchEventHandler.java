@@ -79,6 +79,10 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
     }
 
     private void processSuccessEvent(SearchEvent event, String responseMessage) {
+        if (event.isId()) {
+            event.setPhoneNumber("@".concat(event.getPhoneNumber()));
+        }
+
         SearchCost searchCost = searchService.getTargetSearchCost(event.getEmail(), event.getPhoneNumber());
         if (deductPoints(event.getEmail(), searchCost.getCost())) {
             SearchResult searchResult = deserialize(responseMessage, SearchResult.class);

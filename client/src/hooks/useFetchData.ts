@@ -2,13 +2,14 @@ import { useCallback, useEffect, useState } from 'react';
 import axiosInstance from '../utils/api/axiosInstance';
 
 export const useFetchData = <T>(endpoint: string, initialState: T, autoFetch = true) => {
-    const [data, setData] = useState<T>(initialState);
+    const [data, setData] = useState<T | null>(initialState);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
 
     const fetchData = useCallback(
         async (queryParameters?: Record<string, string | number>) => {
             setIsLoading(true);
+            setData(null);
             try {
                 const query = queryParameters ? `?${new URLSearchParams(queryParameters as any).toString()}` : '';
                 const response = await axiosInstance.get(`${endpoint}${query}`);

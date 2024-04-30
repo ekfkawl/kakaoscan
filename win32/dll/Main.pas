@@ -4,11 +4,11 @@ interface
 
 uses
   Winapi.Windows, System.Threading, System.Classes, System.SysUtils,
-  KakaoHandle, KakaoCtrl, KakaoResponse, KakaoStatus, KakaoHook, KakaoProfile, RedisUtil, SearchEvent, EventStatus, Test, GuardObjectUtil,
-  InvalidPhoneNumber, SearchNewPhoneNumberEvent, RedisConfig;
+  KakaoHandle, KakaoCtrl, KakaoResponse, KakaoStatus, KakaoId, KakaoHook, KakaoProfile, RedisUtil, SearchEvent, EventStatus, Test, GuardObjectUtil,
+  InvalidPhoneNumber, SearchNewPhoneNumberEvent, RedisConfig, KakaoEnumCallback;
 
 procedure Initialize;
-procedure RunEvent(const EventId, Email, PhoneNumber: string);
+procedure RunEvent(const EventId, Email, PhoneNumber: string; IsId: boolean);
 
 implementation
 
@@ -36,10 +36,12 @@ begin
   end;
 end;
 
-procedure RunEvent(const EventId, Email, PhoneNumber: string);
+procedure RunEvent(const EventId, Email, PhoneNumber: string; IsId: boolean);
 var
   KakaoResponse: TKakaoResponse;
   KakaoStatus: TKakaoStatus;
+  KakaoQueryResult: TKakaoQueryResult;
+  OpenIdResult: TOpenIdResult;
   SearchNewNumberEvent: TSearchNewPhoneNumberEvent;
   SearchEvent: TSearchEvent;
   KakaoProfile: TKakaoProfile;
@@ -50,7 +52,7 @@ begin
   const SetEventStatusAndPublish: TProc<string, string> = procedure(EventStatus, ResponseMessage: string)
   begin
     Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EventStatus, ResponseMessage));
-    Guard(SearchEvent, TSearchEvent.Create(EventId, Email, PhoneNumber));
+    Guard(SearchEvent, TSearchEvent.Create(EventId, Email, PhoneNumber, IsId));
     Redis.Publish(EVENT_TRACE_TOPIC, SearchEvent.ToEventJSON);
   end;
 
@@ -63,6 +65,8 @@ begin
   TTask.Run(
     procedure
     begin
+      EnumWindows(@CloseDialogWindow, 0);
+
       const StartTick = GetTickCount64;
       try
         const Tick = GetTickCount64 + 1000;
@@ -74,9 +78,15 @@ begin
           Sleep(1);
         end;
 
-        if not KakaoCtrl.SearchFriend(PhoneNumber).Value then
+        if (not IsId) and (not KakaoCtrl.SearchFriend(PhoneNumber).Value) then
         begin
-          KakaoResponse:= KakaoCtrl.AddFriend(PhoneNumber).Value;
+          KakaoResponse:= KakaoCtrl.AddFriend(PhoneNumber, rtNumber).Value;
+          if KakaoResponse.ResponseType <> rtFriend then
+          begin
+            SetEventStatusAndPublish(EVENT_FAILURE, FAILURE_ADD_FRIEND);
+            Exit;
+          end;
+
           KakaoCtrl.SynchronizationFriend;
 
           Guard(KakaoStatus, TKakaoStatus.Create(KakaoResponse.Json));
@@ -93,8 +103,8 @@ begin
             end;
 
             Exit;
-          end else
-          if KakaoStatus.Status = STATUS_OK then
+          end
+          else if KakaoStatus.Status = STATUS_OK then
           begin
             Guard(SearchNewNumberEvent, TSearchNewPhoneNumberEvent.Create(Email, PhoneNumber));
             Redis.Publish(OTHER_EVENT_TOPIC, SearchNewNumberEvent.ToEventJSON);
@@ -105,16 +115,44 @@ begin
               SetEventStatusAndPublish(EVENT_FAILURE, DELAYED_FRIEND_SYNC);
               Exit;
             end;
-          end else
-          if KakaoResponse.ResponseType <> rtFriend then
+          end;
+        end
+        else if IsId then
+        begin
+          KakaoResponse:= KakaoCtrl.AddFriend(PhoneNumber, rtId).Value;
+          if KakaoResponse.ResponseType <> rtQuery then
           begin
             SetEventStatusAndPublish(EVENT_FAILURE, FAILURE_ADD_FRIEND);
             Exit;
           end;
+
+          Guard(KakaoQueryResult, TKakaoQueryResult.Create(KakaoResponse.Json));
+          if not KakaoQueryResult.IsPresent then
+          begin
+            SetEventStatusAndPublish(EVENT_FAILURE, INVALID_KAKAO_ID);
+            Redis.CacheInvalidPhoneNumber(PhoneNumber, TInvalidPhoneNumber.CreateInstance(Email));
+            Writeln(#9'isInvalid: TRUE');
+            Exit;
+          end;
+
+          OpenIdResult:= KakaoCtrl.OpenId.Value;
+
+          if not OpenIdResult.IsOpened then
+          begin
+            SetEventStatusAndPublish(EVENT_FAILURE, FAILURE_ADD_FRIEND);
+            Exit;
+          end;
+
+          if not OpenIdResult.HasFriendId then
+          begin
+            Guard(SearchNewNumberEvent, TSearchNewPhoneNumberEvent.Create(Email, '@' + PhoneNumber));
+            Redis.Publish(OTHER_EVENT_TOPIC, SearchNewNumberEvent.ToEventJSON);
+            Writeln(#9'isNewKakaoId: TRUE');
+          end;
         end;
 
         SetEventStatusAndPublish(EVENT_PROCESSING, FRIEND_PROFILE_SCAN_START);
-        ViewFriendInfo:= KakaoCtrl.ViewFriend.Value;
+        ViewFriendInfo:= KakaoCtrl.ViewFriend(Byte(IsId)).Value;
         if ViewFriendInfo.Name = '' then
         begin
           SetEventStatusAndPublish(EVENT_FAILURE, FAILURE_ADD_FRIEND);

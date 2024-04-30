@@ -5,7 +5,6 @@ import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher
 import com.kakaoscan.server.common.validation.ValidationPatterns;
 import com.kakaoscan.server.domain.point.model.SearchCost;
 import com.kakaoscan.server.domain.search.entity.NewPhoneNumber;
-import com.kakaoscan.server.domain.search.model.NewNumberSearch;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.domain.search.repository.NewPhoneNumberRepository;
 import com.kakaoscan.server.infrastructure.exception.UserNotVerifiedException;
@@ -20,8 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.CONCURRENT_MODIFICATION_POINTS;
-import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEARCH_NOT_PHONE_NUMBER_FORMAT;
+import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.*;
 
 @Service
 @RequiredArgsConstructor
@@ -32,16 +30,23 @@ public class SearchMessageService {
     private final NewPhoneNumberRepository newPhoneNumberRepository;
 
     public SearchMessage createSearchMessage(Principal principal, SearchMessage.OriginMessage originMessage) {
-        if (principal != null) {
-            final String phoneNumber = originMessage.getContent().trim().replace("-", "");
-            if (phoneNumber.matches(ValidationPatterns.PHONE_NUMBER)) {
-                return new SearchMessage(principal.getName(), phoneNumber);
-            }else {
-                messageDispatcher.sendToUser(new SearchMessage(principal.getName(), SEARCH_NOT_PHONE_NUMBER_FORMAT, false));
-                throw new IllegalArgumentException("message content is not a phone number format: " + phoneNumber);
-            }
-        }else {
+        if (principal == null) {
             throw new UserNotVerifiedException("websocket principal is empty");
+        }
+
+        final String phoneNumber = originMessage.getContent().trim().replace("-", "");
+
+        SearchMessage searchMessage = new SearchMessage(principal.getName(), phoneNumber);
+        searchMessage.setId(originMessage.isId());
+
+        String validationPattern = originMessage.isId() ? ValidationPatterns.KAKAO_ID : ValidationPatterns.PHONE_NUMBER;
+        String errorMessage = originMessage.isId() ? SEARCH_NOT_KAKAO_ID_FORMAT : SEARCH_NOT_PHONE_NUMBER_FORMAT;
+
+        if (phoneNumber.matches(validationPattern)) {
+            return searchMessage;
+        } else {
+            messageDispatcher.sendToUser(new SearchMessage(principal.getName(), errorMessage, false));
+            throw new IllegalArgumentException("message content is not in the expected format: " + phoneNumber);
         }
     }
 

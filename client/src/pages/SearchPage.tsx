@@ -1,7 +1,7 @@
 import React, { PropsWithChildren, useCallback, useEffect, useRef, useState } from 'react';
 import SearchBar from '../components/SearchBar/SearchBar';
 import Faq from '../components/Faq';
-import { Tabs, TabsRef, Toast } from 'flowbite-react';
+import { Label, Radio, Tabs, TabsRef, Toast } from 'flowbite-react';
 import { MdInfo } from 'react-icons/md';
 import { StompProfile } from '../types/stomp/stompProfile';
 import { HiClipboardList, HiPhotograph, HiUserCircle } from 'react-icons/hi';
@@ -19,8 +19,8 @@ import { useSendMessage } from '../hooks/websocket/useSendMessage';
 import { useFetchData } from '../hooks/useFetchData';
 import { SearchCostResponse } from '../types/searchCost';
 import { formatDate } from '../utils/format/format';
+import MessagePopup from '../components/Popup/MessagePopup';
 
-const HYPHEN_PHONE_NUMBER_LENGTH: number = 13;
 const TOAST_DEFAULT_MESSAGE: string = '전화번호 입력 후 엔터 키를 누르면 프로필 조회를 시작합니다.';
 const TOAST_SUCCESS_MESSAGE: string = '프로필 조회가 완료되었습니다!';
 
@@ -29,7 +29,9 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     const [stompProfileResponse, setStompProfileResponse] = useState<StompProfile | null>(null);
 
     const [showSearchConfirmPopup, setShowSearchConfirmPopup] = useState(false);
-    const [phoneNumber, setFormattedPhoneNumber, handlePhoneNumberChange] = usePhoneNumberFormat();
+    const [showSearchConfigPopup, setShowSearchConfigPopup] = useState(false);
+    const [isSearchId, setIsSearchId] = useState(false);
+    const [phoneNumber, setPhoneNumber, , handleChangeForNumber, handleChangeForId] = usePhoneNumberFormat();
     const tabsRef = useRef<TabsRef>(null);
     const [, setActiveTab] = useState(0);
     const {
@@ -57,14 +59,6 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     const { isVisible: isVisibleScrollToTop } = useScrollToComponent(scrollTopRef);
 
     useSubscription<StompProfile>('/user/queue/message/search', setStompProfileResponse);
-    const searchProfile = useCallback(
-        (content: string) => {
-            if (content.length === 13) {
-                sendMessage('/pub/search', { content: content });
-            }
-        },
-        [sendMessage],
-    );
 
     useEffect(() => {
         if (stompProfileResponse && stompProfileResponse.jsonContent && stompProfileResponse.content) {
@@ -74,9 +68,9 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     }, [stompProfileResponse]);
 
     const handleConfirmSendMessage = useCallback(() => {
-        searchProfile(phoneNumber);
+        sendMessage('/pub/search', { content: phoneNumber, isId: isSearchId });
         setShowSearchConfirmPopup(false);
-    }, [searchProfile, phoneNumber]);
+    }, [isSearchId, phoneNumber, sendMessage]);
 
     const {
         data: searchCost,
@@ -85,31 +79,51 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
         fetchData,
     } = useFetchData<SearchCostResponse | null>('/api/search-cost', null, false);
     const handleOnSearch = (targetPhoneNumber: string) => {
-        fetchData({ targetPhoneNumber: targetPhoneNumber });
+        fetchData({ targetPhoneNumber: targetPhoneNumber, isId: isSearchId.toString() });
         setShowSearchConfirmPopup(true);
     };
 
-    const handleSearchBarKeyPress = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    const handleSearchBarKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         const trimmedValue = e.currentTarget.value.trim();
-        if (e.key === 'Enter' && trimmedValue.length === HYPHEN_PHONE_NUMBER_LENGTH) {
-            handleOnSearch(trimmedValue);
+        if (e.key === 'Enter') {
+            if ((isSearchId && trimmedValue.length >= 2) || (!isSearchId && trimmedValue.length === 13)) {
+                handleOnSearch(trimmedValue);
+            }
         }
-    }, []);
+    };
 
     const [showProfileThumbPopup, setProfileThumbPopup] = useState(false);
 
     return (
         <div className="relative">
             <SearchBar
+                placeholder={isSearchId ? '아이디 입력' : '전화번호 입력'}
+                maxLength={isSearchId ? 20 : 13}
                 value={phoneNumber}
-                onChange={handlePhoneNumberChange}
+                onChange={isSearchId ? handleChangeForId : handleChangeForNumber}
                 onKeyPress={handleSearchBarKeyPress}
                 onSearchClick={() => {
-                    if (phoneNumber.length === HYPHEN_PHONE_NUMBER_LENGTH) {
-                        handleOnSearch(phoneNumber);
-                    }
+                    handleOnSearch(phoneNumber);
+                }}
+                onMenuClick={() => {
+                    setShowSearchConfigPopup(true);
                 }}
             />
+            {showSearchConfigPopup && (
+                <MessagePopup
+                    show={showSearchConfigPopup}
+                    onClose={() => setShowSearchConfigPopup(false)}
+                    title="설정"
+                    description={
+                        <SearchConfig
+                            isSearchId={isSearchId}
+                            setIsSearchId={setIsSearchId}
+                            setPhoneNumber={setPhoneNumber}
+                        />
+                    }
+                    onConfirm={() => {}}
+                />
+            )}
             {showSearchConfirmPopup && (
                 <ConfirmPopup
                     show={showSearchConfirmPopup}
@@ -119,13 +133,16 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                         !isLoading && searchCost?.success ? (
                             <div className="break-all">
                                 <p>
-                                    프로필 조회에 성공하면 <strong>{new Intl.NumberFormat('ko-KR').format(searchCost.data.cost)} 포인트</strong>가 차감됩니다.
-                                    계속 진행하시겠어요?
+                                    프로필 조회에 성공하면{' '}
+                                    <strong>
+                                        {new Intl.NumberFormat('ko-KR').format(searchCost.data.cost)} 포인트
+                                    </strong>
+                                    가 차감됩니다. 계속 진행하시겠어요?
                                 </p>
                                 {renderDiscountMessage(searchCost)}
                             </div>
                         ) : (
-                            <p>프로필 조회 비용을 불러올 수 없습니다. 나중에 다시 시도해주세요.</p>
+                            <p>프로필 조회 비용을 불러올 수 없습니다. 올바른 번호 형식이 아닙니다.</p>
                         )
                     }
                     onConfirm={handleConfirmSendMessage}
@@ -216,6 +233,46 @@ const renderDiscountMessage = (searchCostResponse: SearchCostResponse): React.Re
     };
 
     return <p className="mt-4">{messages[searchCostResponse.data.costType]}</p>;
+};
+
+interface SearchOptionsProps {
+    isSearchId: boolean;
+    setIsSearchId: (value: boolean) => void;
+    setPhoneNumber: (value: string) => void;
+}
+
+const SearchConfig: React.FC<SearchOptionsProps> = ({ isSearchId, setIsSearchId, setPhoneNumber }) => {
+    return (
+        <fieldset className="flex max-w-md flex-col gap-4">
+            <legend className="mb-4">조회 옵션을 선택해주세요.</legend>
+            <div className="flex items-center gap-2">
+                <Radio
+                    id="search-number"
+                    name="search-option"
+                    value="Number"
+                    checked={!isSearchId}
+                    onChange={() => {
+                        setIsSearchId(false);
+                        setPhoneNumber('');
+                    }}
+                />
+                <Label htmlFor="search-number">전화번호</Label>
+            </div>
+            <div className="flex items-center gap-2">
+                <Radio
+                    id="search-id"
+                    name="search-option"
+                    value="Id"
+                    checked={isSearchId}
+                    onChange={() => {
+                        setIsSearchId(true);
+                        setPhoneNumber('');
+                    }}
+                />
+                <Label htmlFor="search-id">아이디</Label>
+            </div>
+        </fieldset>
+    );
 };
 
 export default SearchPage;

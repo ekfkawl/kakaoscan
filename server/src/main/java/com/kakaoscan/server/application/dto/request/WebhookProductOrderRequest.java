@@ -13,13 +13,13 @@ import java.time.format.DateTimeFormatter;
 @Getter
 public class WebhookProductOrderRequest {
     @JsonProperty("apikey")
-    private final String apiKey;
+    private final String apiKey = System.getenv("PAY_API_KEY");
 
     @JsonProperty("secretkey")
-    private final String secretKey;
+    private final String secretKey = System.getenv("PAY_SECRET_KEY");
 
     @JsonProperty("mall_id")
-    private final String mallId;
+    private final String mallId = System.getenv("PAY_MALL_ID");
 
     @JsonProperty("order_number")
     private String orderNumber;
@@ -42,11 +42,12 @@ public class WebhookProductOrderRequest {
     @JsonProperty("billing_name")
     private String billingName;
 
+    public WebhookProductOrderRequest(String orderNumber) {
+        this.orderNumber = orderNumber;
+    }
+
     @Builder
     public WebhookProductOrderRequest(String orderNumber, int orderAmount, String ordererName, String ordererEmail, String billingName) {
-        this.apiKey = System.getenv("PAY_API_KEY");
-        this.secretKey = System.getenv("PAY_SECRET_KEY");
-        this.mallId = System.getenv("PAY_MALL_ID");
         this.orderNumber = orderNumber;
         this.orderAmount = orderAmount;
         this.orderDate = OffsetDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);

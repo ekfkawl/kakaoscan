@@ -122,7 +122,7 @@ public class WebSocketController {
     public String handleSearchProfileHeartbeat() {
         queue.peek().ifPresent(searchMessage -> {
             if (searchMessage.getEventStartedAt() == null) {
-                handleSearchProfile(new SimplePrincipal(searchMessage.getEmail()), new SearchMessage.OriginMessage(searchMessage.getContent()));
+                handleSearchProfile(new SimplePrincipal(searchMessage.getEmail()), new SearchMessage.OriginMessage(searchMessage.getContent(), searchMessage.isId()));
             }else {
                 searchEventManagerService.removeTimeoutEventAndNotify(searchMessage);
             }

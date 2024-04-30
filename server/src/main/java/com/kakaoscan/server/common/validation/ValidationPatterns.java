@@ -5,4 +5,5 @@ public class ValidationPatterns {
     public static final String PASSWORD = "^[A-Za-z\\d~!@#$%^&*()_+]{8,16}$";
     public static final String ONLY_NUMBER = "\\d+";
     public static final String PHONE_NUMBER = "010\\d{8}";
+    public static final String KAKAO_ID = "^[a-zA-Z0-9]{2,20}$" ;
 }

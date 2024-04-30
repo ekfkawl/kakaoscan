@@ -1,22 +1,24 @@
 package com.kakaoscan.server.domain.events.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.*;
 
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class SearchEvent extends EventMetadata {
     private String email;
+    @Setter
     private String phoneNumber;
+    @JsonProperty("isId")
+    private boolean isId;
 
     @Builder
-    public SearchEvent(String eventId, String email, String phoneNumber) {
+    public SearchEvent(String eventId, String email, String phoneNumber, boolean isId) {
         super();
         this.eventId = eventId;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.isId = isId;
     }
 }

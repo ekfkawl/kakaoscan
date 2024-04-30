@@ -2,7 +2,7 @@ object Form1: TForm1
   Left = 0
   Top = 0
   Caption = 'Test'
-  ClientHeight = 202
+  ClientHeight = 252
   ClientWidth = 588
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
@@ -59,7 +59,7 @@ object Form1: TForm1
   end
   object CheckBox1: TCheckBox
     Left = 8
-    Top = 144
+    Top = 168
     Width = 97
     Height = 17
     Caption = 'ProfilePage'
@@ -83,6 +83,15 @@ object Form1: TForm1
     Caption = 'Pub SearchNewNumberEvent'
     TabOrder = 7
     OnClick = Button6Click
+  end
+  object Button7: TButton
+    Left = 8
+    Top = 119
+    Width = 129
+    Height = 34
+    Caption = 'OpenId'
+    TabOrder = 8
+    OnClick = Button7Click
   end
   object Timer1: TTimer
     Enabled = False

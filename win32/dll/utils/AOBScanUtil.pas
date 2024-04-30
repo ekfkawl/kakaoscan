@@ -120,8 +120,10 @@ begin
   try
     if (Index < Results.Count) then
       Result:= ('0x' + Results[Index]).ToInteger
-    else
+    else begin
+      MessageBoxW(0, PWideChar('scan failed: ' + Val), '', $10);
       Result:= 0;
+    end;
   finally
     Results.Free;
   end;

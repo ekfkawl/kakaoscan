@@ -2,6 +2,8 @@ import React from 'react';
 import './SearchBar.css';
 
 interface SearchBarProps {
+    placeholder?: string;
+    maxLength?: number;
     onKeyPress?: React.KeyboardEventHandler<HTMLInputElement>;
     value?: string;
     onChange?: React.ChangeEventHandler<HTMLInputElement>;
@@ -10,7 +12,7 @@ interface SearchBarProps {
 }
 
 const SearchBar: React.FC<SearchBarProps> = React.memo(
-    ({ onKeyPress, value, onChange, onMenuClick, onSearchClick }) => {
+    ({ placeholder, maxLength, onKeyPress, value, onChange, onMenuClick, onSearchClick }) => {
         return (
             <div className="search_area dark:bg-gray-900">
                 <div className="search_group_inner flex justify-between">
@@ -36,8 +38,8 @@ const SearchBar: React.FC<SearchBarProps> = React.memo(
 
                     <input
                         type="text"
-                        placeholder="전화번호 입력"
-                        maxLength={13}
+                        placeholder={placeholder}
+                        maxLength={maxLength}
                         className="search_input_box flex-1 py-2 px-3 border-none bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:outline-none focus:ring-0 focus:border-none text-lg md:text-xl font-semibold"
                         value={value}
                         onChange={onChange}

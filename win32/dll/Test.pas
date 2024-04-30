@@ -6,7 +6,7 @@ uses
   Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, KakaoCtrl, System.Threading, KakaoHook,
   KakaoResponse, Vcl.ExtCtrls, KakaoProfilePageUtil, KakaoProfile, GuardObjectUtil, RedisUtil, RedisConfig,
-  SearchNewPhoneNumberEvent;
+  SearchNewPhoneNumberEvent, KakaoId;
 
 type
   TForm1 = class(TForm)
@@ -19,6 +19,7 @@ type
     CheckBox1: TCheckBox;
     Button5: TButton;
     Button6: TButton;
+    Button7: TButton;
     procedure FormCreate(Sender: TObject);
     procedure Button1Click(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -29,6 +30,7 @@ type
     procedure Button5Click(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
     procedure Button6Click(Sender: TObject);
+    procedure Button7Click(Sender: TObject);
   private
     { Private declarations }
   public
@@ -56,7 +58,7 @@ procedure TForm1.Button2Click(Sender: TObject);
 var
   Future: IFuture<TKakaoResponse>;
 begin
-  Future:= KakaoCtrl.AddFriend(Edit1.Text);
+  Future:= KakaoCtrl.AddFriend(Edit1.Text, rtNumber);
 end;
 
 procedure TForm1.Button3Click(Sender: TObject);
@@ -68,7 +70,7 @@ var
   ViewFriendFuture: IFuture<TViewFriendInfo>;
 procedure TForm1.Button4Click(Sender: TObject);
 begin
-  ViewFriendFuture:= KakaoCtrl.ViewFriend;
+  ViewFriendFuture:= KakaoCtrl.ViewFriend(0);
   Writeln(ViewFriendFuture.Value.Handle);
   Writeln(ViewFriendFuture.Value.Name);
 //  Writeln(Future.Value.ScreenToBase64);
@@ -102,6 +104,13 @@ begin
 
   Writeln(SearchNewNumberEvent.ToEventJSON);
   Redis.Publish(OTHER_EVENT_TOPIC, SearchNewNumberEvent.ToEventJSON);
+end;
+
+procedure TForm1.Button7Click(Sender: TObject);
+var
+  Future: IFuture<TOpenIdResult>;
+begin
+  Future:= KakaoCtrl.OpenId;
 end;
 
 procedure TForm1.CheckBox1Click(Sender: TObject);

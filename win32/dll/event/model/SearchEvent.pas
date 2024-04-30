@@ -10,11 +10,13 @@ type
   private
     FEmail: string;
     FPhoneNumber: string;
+    FIsId: boolean;
   public
     property Email: string read FEmail write FEmail;
     property PhoneNumber: string read FPhoneNumber write FPhoneNumber;
+    property IsId: boolean read FIsId write FIsId;
     constructor Create; overload;
-    constructor Create(const EventId, Email, PhoneNumber: string); overload;
+    constructor Create(const EventId, Email, PhoneNumber: string; IsId: boolean); overload;
     constructor Create(const JSONString: string); overload;
     function ToJSON: string;
     function ToEventJSON: string;
@@ -29,11 +31,12 @@ begin
   inherited Create;
 end;
 
-constructor TSearchEvent.Create(const EventId, Email, PhoneNumber: string);
+constructor TSearchEvent.Create(const EventId, Email, PhoneNumber: string; IsId: boolean);
 begin
   inherited Create(EventId);
   FEmail:= Email;
   FPhoneNumber:= PhoneNumber;
+  FIsId:= IsId;
 end;
 
 constructor TSearchEvent.Create(const JSONString: string);

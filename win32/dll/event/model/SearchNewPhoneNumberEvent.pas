@@ -26,7 +26,7 @@ end;
 
 constructor TSearchNewPhoneNumberEvent.Create(const Email, PhoneNumber: string);
 begin
-  inherited Create('', Email, PhoneNumber);
+  inherited Create('', Email, PhoneNumber, False);
 end;
 
 function TSearchNewPhoneNumberEvent.ToJSON: string;

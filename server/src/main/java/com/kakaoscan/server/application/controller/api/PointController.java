@@ -25,13 +25,17 @@ public class PointController extends ApiEndpointPrefix {
     private final PointService pointService;
 
     @GetMapping("/search-cost")
-    public ResponseEntity<ApiResponse<TargetSearchCost>> getTargetSearchCost(@RequestParam String targetPhoneNumber, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    public ResponseEntity<ApiResponse<TargetSearchCost>> getTargetSearchCost(@RequestParam String targetPhoneNumber, @RequestParam Boolean isId, @AuthenticationPrincipal CustomUserDetails userDetails) {
         String replaceTargetPhoneNumber = targetPhoneNumber.trim().replace("-", "");
-        if (!replaceTargetPhoneNumber.matches(ValidationPatterns.PHONE_NUMBER)) {
+        if (!isId && !replaceTargetPhoneNumber.matches(ValidationPatterns.PHONE_NUMBER)) {
             return new ResponseEntity<>(ApiResponse.failure("message content is not a phone number format"), HttpStatus.BAD_REQUEST);
         }
 
-        SearchCost searchCost = pointService.getAndCacheTargetSearchCost(userDetails.getEmail(), replaceTargetPhoneNumber);
+        if (isId && !replaceTargetPhoneNumber.matches(ValidationPatterns.KAKAO_ID)) {
+            return new ResponseEntity<>(ApiResponse.failure("message content is not a kakao id format"), HttpStatus.BAD_REQUEST);
+        }
+
+        SearchCost searchCost = pointService.getAndCacheTargetSearchCost(userDetails.getEmail(), isId ? "@".concat(replaceTargetPhoneNumber) : replaceTargetPhoneNumber);
         return new ResponseEntity<>(ApiResponse.success(searchCost.convertToTargetSearchCost()), HttpStatus.OK);
     }
 

@@ -29,7 +29,8 @@ uses
   InvalidPhoneNumber in 'search\model\InvalidPhoneNumber.pas',
   SearchNewPhoneNumberEvent in 'event\model\SearchNewPhoneNumberEvent.pas',
   KakaoHook in 'kakao\private\KakaoHook.pas',
-  Unlink in 'Unlink.pas';
+  Unlink in 'Unlink.pas',
+  KakaoId in 'kakao\private\KakaoId.pas';
 
 {$R *.res}
 
