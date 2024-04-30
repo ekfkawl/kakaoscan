@@ -1,6 +1,24 @@
-import React, { PropsWithChildren } from 'react';
+import React, { PropsWithChildren, useEffect } from 'react';
+import useAuth from '../hooks/auth/useAuth';
+import { Navigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { refreshToken } from '../utils/jwt/refreshToken';
+import { setInitialized } from '../redux/slices/authSlice';
 
 const AuthPage: React.FC<PropsWithChildren<{}>> = ({ children }) => {
+    const dispatch = useDispatch();
+    const { isAuthenticated, isInitialized } = useAuth();
+
+    useEffect(() => {
+        refreshToken().finally(() => {
+            dispatch(setInitialized());
+        });
+    }, [dispatch]);
+
+    if (isAuthenticated) {
+        return <Navigate to="/" replace />;
+    }
+
     return (
         <div className="grid lg:h-screen lg:grid-cols-2 min-h-screen">
             <div className="flex items-center justify-center bg-[#1E283C] px-4 py-6 sm:px-0 lg:py-0">
@@ -13,14 +31,11 @@ const AuthPage: React.FC<PropsWithChildren<{}>> = ({ children }) => {
                         View and download kakaotalk profiles
                     </h1>
                     <p className="mb-4 text-[#CCCCCC] lg:mb-8">
-                        카카오스캔은 클라우드 인스턴스 환경에서 카카오톡 프로필을 대신
-                        조회해주는 서비스입니다.
+                        카카오스캔은 클라우드 인스턴스 환경에서 카카오톡 프로필을 대신 조회해주는 서비스입니다.
                     </p>
                 </div>
             </div>
-            <div className="flex items-center justify-center px-4 py-6 sm:px-0 lg:py-0">
-                {children}
-            </div>
+            <div className="flex items-center justify-center px-4 py-6 sm:px-0 lg:py-0">{children}</div>
         </div>
     );
 };
