@@ -1,10 +1,12 @@
 package com.kakaoscan.server.application.service;
 
+import com.kakaoscan.server.application.dto.request.WebhookProductOrderRequest;
 import com.kakaoscan.server.application.dto.response.ProductTransactions;
 import com.kakaoscan.server.domain.events.model.ProductTransactionCompletedEvent;
 import com.kakaoscan.server.domain.point.repository.PointWalletRepository;
 import com.kakaoscan.server.domain.product.entity.ProductTransaction;
 import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
+import com.kakaoscan.server.domain.product.model.ProductOrderClient;
 import com.kakaoscan.server.domain.product.repository.ProductTransactionRepository;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
@@ -32,6 +34,7 @@ public class ProductService {
     private final PointWalletRepository pointWalletRepository;
     private final PointService pointService;
     private final EventPublisher eventPublisher;
+    private final ProductOrderClient productOrderClient;
 
     @Value("${bank.account}")
     private String backAccount;
@@ -93,8 +96,12 @@ public class ProductService {
     @Scheduled(fixedRate = 1000 * 60 * 60)
     @Transactional
     public void cancelOldPendingTransactions() {
-        long cancelledCount = productTransactionRepository.cancelOldPendingTransactions();
+        List<ProductTransaction> oldPendingTransactions = productTransactionRepository.findOldPendingTransactions();
+        for (ProductTransaction transaction : oldPendingTransactions) {
+            transaction.cancelTransaction();
+            productOrderClient.cancelProductOrder(new WebhookProductOrderRequest(transaction.getId().toString()));
+        }
 
-        log.info("old product transaction cancelled count: {}", cancelledCount);
+        log.info("old product transaction cancelled count: {}", oldPendingTransactions.size());
     }
 }

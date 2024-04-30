@@ -6,11 +6,12 @@ import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
 import com.querydsl.core.QueryResults;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface CustomProductTransactionRepository {
     boolean existsPendingTransaction(PointWallet pointWallet);
 
     QueryResults<ProductTransaction> findAndFilterTransactions(LocalDateTime startDate, LocalDateTime endDate, ProductTransactionStatus status, String keyword, int page, int pageSize);
 
-    long cancelOldPendingTransactions();
+    List<ProductTransaction> findOldPendingTransactions();
 }

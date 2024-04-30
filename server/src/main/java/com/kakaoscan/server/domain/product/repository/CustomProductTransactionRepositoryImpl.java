@@ -12,6 +12,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class CustomProductTransactionRepositoryImpl implements CustomProductTransactionRepository {
@@ -56,14 +57,13 @@ public class CustomProductTransactionRepositoryImpl implements CustomProductTran
     }
 
     @Override
-    public long cancelOldPendingTransactions() {
+    public List<ProductTransaction> findOldPendingTransactions() {
         QProductTransaction productTransaction = QProductTransaction.productTransaction;
 
         return factory
-                .update(productTransaction)
-                .set(productTransaction.transactionStatus, ProductTransactionStatus.CANCELLED)
+                .selectFrom(productTransaction)
                 .where(productTransaction.transactionStatus.eq(ProductTransactionStatus.PENDING)
                         .and(productTransaction.createdAt.before(LocalDateTime.now().minusHours(24))))
-                .execute();
+                .fetch();
     }
 }
