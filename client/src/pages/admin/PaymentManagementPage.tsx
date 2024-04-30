@@ -95,12 +95,12 @@ const PaymentManagementPage = () => {
                 <div className="flex w-full space-x-2">
                     <TextInput
                         placeholder="이메일 또는 입금자명"
-                        className="flex-grow"
+                        className="flex-grow w-full"
                         onChange={handleKeywordChange}
                         value={keyword}
                     />
                     <div></div>
-                    <Select onChange={handlePageItemCountChange} value={pageItemCount}>
+                    <Select onChange={handlePageItemCountChange} value={pageItemCount} className="w-1/2 md:w-[128px]">
                         <option value="10">10</option>
                         <option value="20">20</option>
                         <option value="30">30</option>
@@ -109,7 +109,7 @@ const PaymentManagementPage = () => {
                         <option value="10000000">전체</option>
                     </Select>
                     <div></div>
-                    <Select onChange={handleStatusChange} value={status}>
+                    <Select onChange={handleStatusChange} value={status} className="w-1/2 md:w-[128px]">
                         <option value="">전체</option>
                         <option value="PENDING">대기</option>
                         <option value="EARNED">완료</option>
