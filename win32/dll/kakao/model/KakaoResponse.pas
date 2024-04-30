@@ -3,10 +3,10 @@ unit KakaoResponse;
 interface
 
 uses
-  KakaoProfile, KakaoStatus;
+  KakaoProfile, KakaoFriend;
 
 type
-  TResponseType = (rtProfile, rtStatus, rtQuery, rtFeeds, rtFriend, rtUnknown);
+  TResponseType = (rtProfile, rtStatus, rtFeeds, rtFriend, rtUnknown);
 
   TKakaoResponse = record
     ResponseType: TResponseType;

@@ -21,7 +21,6 @@ uses
   Test in 'Test.pas' {Form1},
   KakaoCtrl in 'kakao\KakaoCtrl.pas',
   KakaoProfile in 'kakao\private\model\KakaoProfile.pas',
-  KakaoStatus in 'kakao\private\model\KakaoStatus.pas',
   KakaoEnumCallback in 'kakao\private\KakaoEnumCallback.pas',
   BitmapUtil in 'utils\BitmapUtil.pas',
   KakaoProfilePageUtil in 'kakao\private\KakaoProfilePageUtil.pas',
@@ -30,7 +29,9 @@ uses
   SearchNewPhoneNumberEvent in 'event\model\SearchNewPhoneNumberEvent.pas',
   KakaoHook in 'kakao\private\KakaoHook.pas',
   Unlink in 'Unlink.pas',
-  KakaoId in 'kakao\private\KakaoId.pas';
+  KakaoParent in 'kakao\private\model\KakaoParent.pas',
+  KakaoId in 'kakao\private\model\KakaoId.pas',
+  KakaoFriend in 'kakao\private\model\KakaoFriend.pas';
 
 {$R *.res}
 

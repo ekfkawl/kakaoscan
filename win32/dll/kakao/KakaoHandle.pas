@@ -16,6 +16,7 @@ type
 
     constructor Create;
   public
+    property Kakao: THandle read FKakao write FKakao;
     class function GetInstance: TKakaoHandle;
   end;
 
