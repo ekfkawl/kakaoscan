@@ -60,6 +60,9 @@ module.exports = {
                 '2xs': '16rem',
                 '8xl': '90rem',
             },
+            screens: {
+                '380px': '380px',
+            },
         },
     },
     plugins: [require('flowbite/plugin')],
