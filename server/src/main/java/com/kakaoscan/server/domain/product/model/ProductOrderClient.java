@@ -9,4 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface ProductOrderClient {
     @PostMapping("/order")
     void createProductOrder(@RequestBody WebhookProductOrderRequest order);
+
+    @PostMapping("/order-exclude")
+    void cancelProductOrder(@RequestBody WebhookProductOrderRequest order);
 }
