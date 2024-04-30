@@ -63,7 +63,7 @@ public class CustomProductTransactionRepositoryImpl implements CustomProductTran
                 .update(productTransaction)
                 .set(productTransaction.transactionStatus, ProductTransactionStatus.CANCELLED)
                 .where(productTransaction.transactionStatus.eq(ProductTransactionStatus.PENDING)
-                        .and(productTransaction.createdAt.before(LocalDateTime.now().minusHours(48))))
+                        .and(productTransaction.createdAt.before(LocalDateTime.now().minusHours(24))))
                 .execute();
     }
 }
