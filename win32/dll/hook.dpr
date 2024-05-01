@@ -19,7 +19,6 @@ uses
   KakaoSignature in 'kakao\private\KakaoSignature.pas',
   MemoryUtil in 'utils\MemoryUtil.pas',
   Test in 'Test.pas' {Form1},
-  KakaoCtrl in 'kakao\KakaoCtrl.pas',
   KakaoProfile in 'kakao\private\model\KakaoProfile.pas',
   KakaoEnumCallback in 'kakao\private\KakaoEnumCallback.pas',
   BitmapUtil in 'utils\BitmapUtil.pas',
@@ -31,7 +30,8 @@ uses
   Unlink in 'Unlink.pas',
   KakaoParent in 'kakao\private\model\KakaoParent.pas',
   KakaoId in 'kakao\private\model\KakaoId.pas',
-  KakaoFriend in 'kakao\private\model\KakaoFriend.pas';
+  KakaoFriend in 'kakao\private\model\KakaoFriend.pas',
+  KakaoCtrl in 'kakao\private\KakaoCtrl.pas';
 
 {$R *.res}
 
