@@ -17,16 +17,16 @@ var
   KakaoCtrl: TKakaoCtrl;
   Redis: TRedis;
 
-procedure MergeFeeds(HasFeeds: Boolean; hViewFriendWindow: THandle; ScanType: Integer; var KakaoProfile: TKakaoProfile);
+procedure MergeFeeds(HasFeeds: Boolean; hViewFriendWindow: THandle; ImageViewerType: TProfileImageViewerType; var KakaoProfile: TKakaoProfile);
 var
   FeedsContainer: TFeedsContainer;
 begin
   if HasFeeds then
   begin
-    Guard(FeedsContainer, KakaoCtrl.Scan(hViewFriendWindow, ScanType).Value);
+    Guard(FeedsContainer, KakaoCtrl.Scan(hViewFriendWindow).Value);
     if Assigned(FeedsContainer) then
     begin
-      if ScanType = 0 then
+      if ImageViewerType = rtViewTypeProfile then
         KakaoProfile.Profile.ProfileFeeds.Merge(FeedsContainer)
       else
         KakaoProfile.Profile.BackgroundFeeds.Merge(FeedsContainer);
@@ -169,10 +169,12 @@ begin
           KakaoProfile.Profile.ScreenBase64:= ViewFriendInfo.ScreenToBase64;
 
           SetEventStatusAndPublish(EVENT_PROCESSING, Format(FRIEND_PROFILE_SCANNING, [ViewFriendInfo.Name]));
-          MergeFeeds(HasProfile, ViewFriendInfo.Handle, 0, KakaoProfile);
+          SetProfileImageViewerType(rtViewTypeProfile);
+          MergeFeeds(HasProfile, ViewFriendInfo.Handle, rtViewTypeProfile, KakaoProfile);
 
           SetEventStatusAndPublish(EVENT_PROCESSING, Format(FRIEND_BACKGROUND_SCANNING, [ViewFriendInfo.Name]));
-          MergeFeeds(HasBackground, ViewFriendInfo.Handle, 1, KakaoProfile);
+          SetProfileImageViewerType(rtViewTypeBackground);
+          MergeFeeds(HasBackground, ViewFriendInfo.Handle, rtViewTypeBackground, KakaoProfile);
 
           SetEventStatusAndPublish(EVENT_SUCCESS, KakaoProfile.ToJSON);
         end;

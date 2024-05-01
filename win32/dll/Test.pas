@@ -80,18 +80,16 @@ procedure TForm1.Button5Click(Sender: TObject);
 var
   FeedsContainer: TFeedsContainer;
 begin
-  for var i:= 0 to 1 do
+  SetProfileImageViewerType(rtViewTypeProfile);
+  Guard(FeedsContainer, KakaoCtrl.Scan(ViewFriendFuture.Value.Handle).Value);
+  if Assigned(FeedsContainer) then
   begin
-    Guard(FeedsContainer, KakaoCtrl.Scan(ViewFriendFuture.Value.Handle, 0).Value);
-    if Assigned(FeedsContainer) then
-    begin
-      Writeln(FeedsContainer.ToJSON);
-    end else
-    begin
-      Writeln('ScanProfile failed');
-    end;
-    Writeln('--------------------------');
+    Writeln(FeedsContainer.ToJSON);
+  end else
+  begin
+    Writeln('ScanProfile failed');
   end;
+  Writeln('--------------------------');
 end;
 
 procedure TForm1.Button6Click(Sender: TObject);
