@@ -130,19 +130,23 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
                     onClose={() => setShowSearchConfirmPopup(false)}
                     title="포인트 차감 안내"
                     description={
-                        !isLoading && searchCost?.success ? (
-                            <div className="break-all">
-                                <p>
-                                    프로필 조회에 성공하면{' '}
-                                    <strong>
-                                        {new Intl.NumberFormat('ko-KR').format(searchCost.data.cost)} 포인트
-                                    </strong>
-                                    가 차감됩니다. 계속 진행하시겠어요?
-                                </p>
-                                {renderDiscountMessage(searchCost)}
-                            </div>
+                        !isLoading ? (
+                            searchCost?.success ? (
+                                <div className="break-all">
+                                    <p>
+                                        프로필 조회에 성공하면{' '}
+                                        <strong>
+                                            {new Intl.NumberFormat('ko-KR').format(searchCost.data.cost)} 포인트
+                                        </strong>
+                                        가 차감됩니다. 계속 진행하시겠어요?
+                                    </p>
+                                    {renderDiscountMessage(searchCost)}
+                                </div>
+                            ) : (
+                                <p>프로필 조회 비용을 불러올 수 없습니다. 올바른 번호 형식이 아닙니다.</p>
+                            )
                         ) : (
-                            <p>프로필 조회 비용을 불러올 수 없습니다. 올바른 번호 형식이 아닙니다.</p>
+                            <p>로딩 중..</p>
                         )
                     }
                     onConfirm={handleConfirmSendMessage}
