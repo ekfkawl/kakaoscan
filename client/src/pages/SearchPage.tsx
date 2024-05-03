@@ -78,17 +78,24 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
         error,
         fetchData,
     } = useFetchData<SearchCostResponse | null>('/api/search-cost', null, false);
+
+    const MIN_LENGTH_ID = 2;
+    const LENGTH_PHONE = 13;
+    const isValidInput = (input: string, isSearchById: boolean): boolean => {
+        return (isSearchById && input.length >= MIN_LENGTH_ID) || (!isSearchById && input.length === LENGTH_PHONE);
+    };
+
     const handleOnSearch = (targetPhoneNumber: string) => {
-        fetchData({ targetPhoneNumber: targetPhoneNumber, isId: isSearchId.toString() });
-        setShowSearchConfirmPopup(true);
+        if (isValidInput(targetPhoneNumber, isSearchId)) {
+            fetchData({targetPhoneNumber: targetPhoneNumber, isId: isSearchId.toString()});
+            setShowSearchConfirmPopup(true);
+        }
     };
 
     const handleSearchBarKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
         const trimmedValue = e.currentTarget.value.trim();
-        if (e.key === 'Enter') {
-            if ((isSearchId && trimmedValue.length >= 2) || (!isSearchId && trimmedValue.length === 13)) {
-                handleOnSearch(trimmedValue);
-            }
+        if (e.key === 'Enter' && isValidInput(trimmedValue, isSearchId)) {
+            handleOnSearch(trimmedValue);
         }
     };
 
