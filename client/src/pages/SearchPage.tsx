@@ -21,9 +21,6 @@ import { SearchCostResponse } from '../types/searchCost';
 import { formatDate } from '../utils/format/format';
 import MessagePopup from '../components/Popup/MessagePopup';
 
-const TOAST_DEFAULT_MESSAGE: string = '전화번호 입력 후 엔터 키를 누르면 프로필 조회를 시작합니다.';
-const TOAST_SUCCESS_MESSAGE: string = '프로필 조회가 완료되었습니다!';
-
 const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     const sendMessage = useSendMessage();
     const [stompProfileResponse, setStompProfileResponse] = useState<StompProfile | null>(null);
@@ -79,9 +76,10 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
         fetchData,
     } = useFetchData<SearchCostResponse | null>('/api/search-cost', null, false);
 
-    const MIN_LENGTH_ID = 2;
-    const LENGTH_PHONE = 13;
+
     const isValidInput = (input: string, isSearchById: boolean): boolean => {
+        const MIN_LENGTH_ID = 2;
+        const LENGTH_PHONE = 13;
         return (isSearchById && input.length >= MIN_LENGTH_ID) || (!isSearchById && input.length === LENGTH_PHONE);
     };
 
@@ -100,6 +98,9 @@ const SearchPage: React.FC<PropsWithChildren<{}>> = () => {
     };
 
     const [showProfileThumbPopup, setProfileThumbPopup] = useState(false);
+
+    const TOAST_DEFAULT_MESSAGE: string = `${isSearchId ? '아이디 입력' : '전화번호 입력'} 후 엔터 키를 누르면 프로필 조회를 시작합니다.`;
+    const TOAST_SUCCESS_MESSAGE: string = '프로필 조회가 완료되었습니다!';
 
     return (
         <div className="relative">
