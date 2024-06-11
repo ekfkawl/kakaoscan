@@ -4,6 +4,9 @@ import com.kakaoscan.server.application.dto.request.RegisterRequest;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.common.utils.PasswordEncoderSingleton;
 import com.kakaoscan.server.domain.events.model.VerificationEmailEvent;
+import com.kakaoscan.server.domain.point.entity.PointWallet;
+import com.kakaoscan.server.domain.product.repository.ProductTransactionRepository;
+import com.kakaoscan.server.domain.search.repository.SearchHistoryRepository;
 import com.kakaoscan.server.domain.user.entity.EmailVerificationToken;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.enums.AuthenticationType;
@@ -25,6 +28,8 @@ import static com.kakaoscan.server.infrastructure.redis.enums.Topics.OTHER_EVENT
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final SearchHistoryRepository searchHistoryRepository;
+    private final ProductTransactionRepository productTransactionRepository;
     private final EmailTokenRepository emailTokenRepository;
     private final EventPublisher eventPublisher;
 
@@ -44,6 +49,9 @@ public class UserService {
             if (user.isEmailVerified()) {
                 return ApiResponse.failure(ALREADY_REGISTERED_EMAIL);
             }else {
+                user.setDeleted(false);
+                user.setPassword(PasswordEncoderSingleton.getInstance().encode(request.getPassword()));
+
                 sendVerificationEmail(user);
                 return ApiResponse.success();
             }
@@ -54,6 +62,7 @@ public class UserService {
                 .password(PasswordEncoderSingleton.getInstance().encode(request.getPassword()))
                 .role(Role.USER)
                 .authenticationType(AuthenticationType.LOCAL)
+                .isDeleted(false)
                 .build();
 
         newUser.initializePoint();
@@ -117,5 +126,22 @@ public class UserService {
         User user = userRepository.findByEmailOrThrow(userId);
 
         user.setPassword(PasswordEncoderSingleton.getInstance().encode(password));
+    }
+
+    @Transactional
+    public void delete(String userId) {
+        User user = userRepository.findByEmailOrThrow(userId);
+
+        searchHistoryRepository.deleteByUser(user);
+
+        PointWallet pointWallet = user.getPointWallet();
+        if (pointWallet != null) {
+            productTransactionRepository.deleteByWallet(pointWallet);
+        }
+
+        if (user.getAuthenticationType() == AuthenticationType.LOCAL) {
+            user.setEmailVerified(false);
+            user.setDeleted(true);
+        }
     }
 }

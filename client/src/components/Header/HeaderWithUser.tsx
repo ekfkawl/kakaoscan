@@ -82,9 +82,7 @@ const HeaderWithUser = () => {
                         >
                             <Dropdown.Item
                                 onClick={() => {
-                                    if (user?.authenticationType === 'LOCAL') {
-                                        navigate('/my-page');
-                                    }
+                                    navigate('/my-page');
                                 }}
                             >
                                 <strong className="block text-sm">

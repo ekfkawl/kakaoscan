@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button } from 'flowbite-react';
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 const E404Page = () => {
     const navigate = useNavigate();
@@ -16,8 +16,8 @@ const E404Page = () => {
                         요청하신 페이지를 찾을 수 없습니다.
                     </p>
                     <p className="mb-4 text-lg text-gray-500 dark:text-gray-400">
-                        방문하시려는 페이지의 주소가 잘못 입력되었거나,
-                        페이지의 주소가 변경 혹은 삭제되어 요청하신 페이지를 찾을 수 없습니다.
+                        방문하시려는 페이지의 주소가 잘못 입력되었거나, 페이지의 주소가 변경 혹은 삭제되어 요청하신
+                        페이지를 찾을 수 없습니다.
                     </p>
                     <Button color="info" className="my-4 inline-flex" onClick={() => navigate('/')}>
                         곱게 돌아가기

@@ -2,6 +2,7 @@ package com.kakaoscan.server.application.controller.exception;
 
 import com.kakaoscan.server.application.dto.request.RegisterRequest;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
+import com.kakaoscan.server.application.exception.DeletedUserException;
 import com.kakaoscan.server.application.exception.EmailNotVerifiedException;
 import com.kakaoscan.server.application.exception.PendingTransactionExistsException;
 import com.kakaoscan.server.infrastructure.exception.DataNotFoundException;
@@ -46,6 +47,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(EmailNotVerifiedException.class)
     public ResponseEntity<ApiResponse<Void>> handleEmailNotVerifiedException() {
         return new ResponseEntity<>(ApiResponse.failure("이메일 인증을 완료해 주세요."), HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler(DeletedUserException.class)
+    public ResponseEntity<ApiResponse<Void>> handleDeletedUserException() {
+        return new ResponseEntity<>(ApiResponse.failure("탈퇴 처리된 계정입니다."), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(PendingTransactionExistsException.class)

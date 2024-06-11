@@ -1,5 +1,6 @@
 package com.kakaoscan.server.infrastructure.security;
 
+import com.kakaoscan.server.application.exception.DeletedUserException;
 import com.kakaoscan.server.application.exception.EmailNotVerifiedException;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.model.CustomUserDetails;
@@ -18,6 +19,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByEmailOrThrow(username);
+
+        if (user.isDeleted()) {
+            throw new DeletedUserException("deleted user: " + username);
+        }
 
         if (!user.isEmailVerified()) {
             throw new EmailNotVerifiedException("email is not verified for: " + username);

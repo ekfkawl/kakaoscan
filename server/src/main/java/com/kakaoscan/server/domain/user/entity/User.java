@@ -44,6 +44,7 @@ public class User {
     private String password;
 
     @Column(nullable = false)
+    @Setter
     private boolean isEmailVerified;
 
     @Column(nullable = false)
@@ -61,6 +62,10 @@ public class User {
     @CreationTimestamp
     @Column(nullable = false, columnDefinition = "DATETIME(6)")
     private LocalDateTime createdAt;
+
+    @Column(nullable = false)
+    @Setter
+    private boolean isDeleted = false;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
     private PointWallet pointWallet;

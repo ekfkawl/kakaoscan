@@ -63,4 +63,11 @@ public class UserController extends ApiEndpointPrefix {
             return apiResponse.getMessage();
         }
     }
+
+    @DeleteMapping("/user")
+    public ResponseEntity<ApiResponse<Void>> delete(@AuthenticationPrincipal CustomUserDetails userDetails) {
+        userService.delete(userDetails.getEmail());
+
+        return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
+    }
 }
