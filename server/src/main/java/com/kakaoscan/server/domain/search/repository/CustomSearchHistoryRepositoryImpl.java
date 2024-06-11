@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class CustomSearchHistoryRepositoryImpl implements CustomSearchHistoryRepository {
@@ -47,5 +48,16 @@ public class CustomSearchHistoryRepositoryImpl implements CustomSearchHistoryRep
         }
 
         return new SearchCost(costType, costType.getCost(), expiredAtDiscount);
+    }
+
+    @Override
+    public List<SearchHistory> findRecentSearchHistories(User user, LocalDateTime threshold) {
+        QSearchHistory searchHistory = QSearchHistory.searchHistory;
+
+        return factory.selectFrom(searchHistory)
+                .where(searchHistory.user.eq(user)
+                        .and(searchHistory.createdAt.after(threshold)))
+                .orderBy(searchHistory.createdAt.desc())
+                .fetch();
     }
 }

@@ -31,12 +31,10 @@ public class SearchService {
 
         SearchHistories result = new SearchHistories();
 
-        List<SearchHistory> searchHistories = user.getSearchHistories();
-        for (SearchHistory searchHistory : searchHistories) {
-            if (LocalDateTime.now().isAfter(searchHistory.getCreatedAt().plusDays(2))) {
-                continue;
-            }
+        LocalDateTime threshold = LocalDateTime.now().minusDays(2);
+        List<SearchHistory> searchHistories = searchHistoryRepository.findRecentSearchHistories(user, threshold);
 
+        for (SearchHistory searchHistory : searchHistories) {
             SearchResult searchResult = JsonDeserialize.deserialize(searchHistory.getData(), SearchResult.class);
             result.addHistory(searchResult, searchHistory.getTargetPhoneNumber(), searchHistory.getCostType().getCost(), searchHistory.getCreatedAt());
         }
