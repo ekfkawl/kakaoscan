@@ -25,7 +25,13 @@ export const timeSince = (dateString: string): string => {
     }
     interval = seconds / 86400;
     if (interval > 1) {
-        return Math.floor(interval) + '일 전';
+        const days = Math.floor(interval);
+        const remainingSeconds = seconds % 86400;
+        const hours = Math.floor(remainingSeconds / 3600);
+        if (hours > 0) {
+            return `${days}일 ${hours}시간 전`;
+        }
+        return `${days}일 전`;
     }
     interval = seconds / 3600;
     if (interval > 1) {
