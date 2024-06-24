@@ -6,6 +6,7 @@ import com.kakaoscan.server.application.exception.DeletedUserException;
 import com.kakaoscan.server.application.exception.EmailNotVerifiedException;
 import com.kakaoscan.server.application.exception.PendingTransactionExistsException;
 import com.kakaoscan.server.infrastructure.exception.DataNotFoundException;
+import com.kakaoscan.server.infrastructure.exception.UserNotFoundException;
 import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,8 +40,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ApiResponse.failure(message), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<ApiResponse<Void>> handleUsernameNotFoundException() {
+    @ExceptionHandler({BadCredentialsException.class, UserNotFoundException.class})
+    public ResponseEntity<ApiResponse<Void>> handleBadCredentialsOrUserNotFoundException() {
         return new ResponseEntity<>(ApiResponse.failure("아이디 또는 비밀번호 오류입니다."), HttpStatus.UNAUTHORIZED);
     }
 

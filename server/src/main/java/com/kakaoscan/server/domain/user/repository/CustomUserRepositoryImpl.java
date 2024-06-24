@@ -2,6 +2,7 @@ package com.kakaoscan.server.domain.user.repository;
 
 import com.kakaoscan.server.domain.user.entity.QUser;
 import com.kakaoscan.server.domain.user.entity.User;
+import com.kakaoscan.server.infrastructure.exception.UserNotFoundException;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 
@@ -17,7 +18,7 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
                 .fetchOne();
 
         if (result == null) {
-            throw new IllegalArgumentException("user email not found: " + email);
+            throw new UserNotFoundException("user email not found: " + email);
         }
 
         return result;
