@@ -89,6 +89,10 @@ const PaymentManagementPage = () => {
         });
     }, [start, end, status, debouncedKeyword, fetchData, refreshFlag, currentPage, pageItemCount]);
 
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [start, end]);
+
     return (
         <div className="mx-auto max-w-screen-lg">
             <div className="flex flex-col md:flex-row justify-end items-center space-y-4 md:space-y-0 md:space-x-4 mb-4">
