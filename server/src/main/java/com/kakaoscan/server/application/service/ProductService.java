@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static com.kakaoscan.server.infrastructure.redis.enums.Topics.OTHER_EVENT_TOPIC;
 
@@ -70,6 +69,8 @@ public class ProductService {
                         System.getenv("CURRENT_BASE_URL"));
                 eventPublisher.publish(OTHER_EVENT_TOPIC.getTopic(), transactionCompletedEvent);
 
+                productOrderClient.excludeProductOrder(new WebhookProductOrderRequest(productTransaction.getId().toString()));
+
                 log.info("approval transactionId: " + productTransactionId);
             }else {
                 log.info("already approved transactionId: " + productTransactionId);
@@ -99,7 +100,7 @@ public class ProductService {
         List<ProductTransaction> oldPendingTransactions = productTransactionRepository.findOldPendingTransactions();
         for (ProductTransaction transaction : oldPendingTransactions) {
             transaction.cancelTransaction();
-            productOrderClient.cancelProductOrder(new WebhookProductOrderRequest(transaction.getId().toString()));
+            productOrderClient.excludeProductOrder(new WebhookProductOrderRequest(transaction.getId().toString()));
         }
 
         log.info("old product transaction cancelled count: {}", oldPendingTransactions.size());

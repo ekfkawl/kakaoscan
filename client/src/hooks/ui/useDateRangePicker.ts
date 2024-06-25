@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { simpleFormatDate } from '../../utils/format/format';
 
 function useDateRangePicker() {
@@ -7,6 +7,12 @@ function useDateRangePicker() {
 
     const [start, setStart] = useState<string>(simpleFormatDate(sevenDaysAgo));
     const [end, setEnd] = useState<string>(simpleFormatDate(today));
+
+    useEffect(() => {
+        if (new Date(start) > new Date(end)) {
+            setStart(end);
+        }
+    }, [start, end]);
 
     return {
         start,

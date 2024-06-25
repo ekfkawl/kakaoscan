@@ -11,5 +11,5 @@ public interface ProductOrderClient {
     void createProductOrder(@RequestBody WebhookProductOrderRequest order);
 
     @PostMapping("/order-exclude")
-    void cancelProductOrder(@RequestBody WebhookProductOrderRequest order);
+    void excludeProductOrder(@RequestBody WebhookProductOrderRequest order);
 }
