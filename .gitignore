@@ -7,3 +7,4 @@ __recovery/
 docker-compose.yml
 .env*
 *.dproj
+.DS_Store
