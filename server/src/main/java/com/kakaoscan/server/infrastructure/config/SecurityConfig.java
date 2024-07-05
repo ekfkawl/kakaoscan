@@ -1,10 +1,7 @@
 package com.kakaoscan.server.infrastructure.config;
 
 import com.kakaoscan.server.common.utils.PasswordEncoderSingleton;
-import com.kakaoscan.server.infrastructure.security.JwtAccessDeniedHandler;
-import com.kakaoscan.server.infrastructure.security.JwtAuthenticationEntryPoint;
-import com.kakaoscan.server.infrastructure.security.JwtAuthenticationFilter;
-import com.kakaoscan.server.infrastructure.security.JwtTokenProvider;
+import com.kakaoscan.server.infrastructure.security.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,6 +26,7 @@ public class SecurityConfig {
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final UserDetailsService userDetailsService;
+    private final CustomAuthenticationProvider customAuthenticationProvider;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -58,6 +56,7 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
         authenticationManagerBuilder
+                .authenticationProvider(customAuthenticationProvider)
                 .userDetailsService(userDetailsService)
                 .passwordEncoder(PasswordEncoderSingleton.getInstance());
         return authenticationManagerBuilder.build();
