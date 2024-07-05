@@ -2,7 +2,7 @@ package com.kakaoscan.server.application.service;
 
 import com.kakaoscan.server.application.dto.request.WebhookProductOrderRequest;
 import com.kakaoscan.server.application.dto.response.ProductTransactions;
-import com.kakaoscan.server.domain.events.model.ProductTransactionCompletedEvent;
+import com.kakaoscan.server.domain.events.model.ProductPurchaseCompleteEvent;
 import com.kakaoscan.server.domain.point.repository.PointWalletRepository;
 import com.kakaoscan.server.domain.product.entity.ProductTransaction;
 import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
@@ -64,7 +64,7 @@ public class ProductService {
 
                 pointService.cachePoints(productTransaction.getWallet().getUser().getEmail(), productTransaction.getWallet().getBalance());
 
-                ProductTransactionCompletedEvent transactionCompletedEvent = new ProductTransactionCompletedEvent(productTransaction.getWallet().getUser().getEmail(),
+                ProductPurchaseCompleteEvent transactionCompletedEvent = new ProductPurchaseCompleteEvent(productTransaction.getWallet().getUser().getEmail(),
                         productTransaction.getProductType().getDisplayName(),
                         System.getenv("CURRENT_BASE_URL"));
                 eventPublisher.publish(OTHER_EVENT_TOPIC.getTopic(), transactionCompletedEvent);
