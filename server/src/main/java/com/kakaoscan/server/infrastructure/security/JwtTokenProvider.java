@@ -80,7 +80,7 @@ public class JwtTokenProvider {
         Map<String, Object> attributes = claims.get("attributes", HashMap.class);
 
         CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
-        CustomUserDetails customUserDetails = new CustomUserDetails(userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthenticationType(), userDetails.getAuthorities(), attributes);
+        CustomUserDetails customUserDetails = new CustomUserDetails(userDetails.getId(), userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthenticationType(), userDetails.getAuthorities(), attributes);
 
         return new UsernamePasswordAuthenticationToken(customUserDetails, null, userDetails.getAuthorities());
     }

@@ -14,13 +14,15 @@ import java.util.Map;
 
 @Getter
 public class CustomUserDetails implements UserDetails {
+    private final Long id;
     private final String email;
     private final String password;
-    private AuthenticationType authenticationType;
+    private final AuthenticationType authenticationType;
     private final Collection<GrantedAuthority> authorities;
     private final Map<String, Object> attributes;
 
-    public CustomUserDetails(String email, String password, AuthenticationType authenticationType, Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes) {
+    public CustomUserDetails(Long id, String email, String password, AuthenticationType authenticationType, Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes) {
+        this.id = id;
         this.email = email;
         this.password = password;
         this.authenticationType = authenticationType;

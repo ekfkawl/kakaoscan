@@ -19,12 +19,12 @@ public class GoogleOAuth2User implements OAuth2UserCommon, OAuth2User {
     }
 
     public CustomUserDetails convertToCustomUserDetails() {
-        return new CustomUserDetails(this.getEmail(), null, AuthenticationType.GOOGLE, this.getAuthorities(), this.attributes);
+        return new CustomUserDetails(this.getId(), this.getEmail(), null, AuthenticationType.GOOGLE, this.getAuthorities(), this.attributes);
     }
 
     @Override
-    public String getId() {
-        return (String) attributes.get("sub");
+    public Long getId() {
+        return (Long) attributes.get("id");
     }
 
     @Override

@@ -28,6 +28,6 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new EmailNotVerifiedException("email is not verified for: " + username);
         }
 
-        return new CustomUserDetails(user.getEmail(), user.getPassword(), user.getAuthenticationType(), user.getAuthorities(), null);
+        return new CustomUserDetails(user.getId(), user.getEmail(), user.getPassword(), user.getAuthenticationType(), user.getAuthorities(), null);
     }
 }
