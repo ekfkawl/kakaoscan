@@ -19,6 +19,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -30,6 +31,7 @@ import java.util.Map;
 
 import static com.kakaoscan.server.infrastructure.redis.enums.Topics.OTHER_EVENT_TOPIC;
 
+@Log4j2
 @RequiredArgsConstructor
 @RestController
 @Tag(name = "Authenticate", description = "Authenticate API")
@@ -87,12 +89,7 @@ public class AuthController extends ApiEndpointPrefix {
             throw new JwtException("invalid refresh token");
         }
 
-        Authentication authentication;
-        try {
-            authentication = jwtTokenProvider.getAuthentication(refreshToken);
-        } catch (JwtException e) {
-            throw new JwtException("failed to authenticate using the provided refresh token");
-        }
+        Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
 
         String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
         UserData userData = ((CustomUserDetails) authentication.getPrincipal()).convertToUserData();

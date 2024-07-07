@@ -2,7 +2,6 @@ package com.kakaoscan.server.infrastructure.adapter;
 
 import com.kakaoscan.server.application.port.EmailPort;
 import com.kakaoscan.server.infrastructure.email.template.EmailTemplate;
-import com.kakaoscan.server.infrastructure.exception.EmailSendingException;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -15,6 +14,8 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+
+import static com.kakaoscan.server.common.utils.ExceptionHandler.handleException;
 
 @Service
 @RequiredArgsConstructor
@@ -40,7 +41,7 @@ public class EmailAdapter implements EmailPort {
             mimeMessageHelper.setFrom(new InternetAddress(ADDRESS, PERSONAL));
             javaMailSender.send(mimeMessage);
         } catch (MessagingException | UnsupportedEncodingException e) {
-            throw new EmailSendingException("error sending email", e);
+            handleException("error sending email", e);
         }
     }
 

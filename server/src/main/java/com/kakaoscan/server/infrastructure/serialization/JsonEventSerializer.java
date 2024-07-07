@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.kakaoscan.server.common.utils.ObjectMapperSingleton;
 import com.kakaoscan.server.domain.events.model.EventMetadata;
 
+import static com.kakaoscan.server.common.utils.ExceptionHandler.handleException;
+
 public class JsonEventSerializer {
     private static final ObjectMapper objectMapper = ObjectMapperSingleton.getInstance();
 
@@ -16,7 +18,8 @@ public class JsonEventSerializer {
 
             return rootNode.toString();
         } catch (Exception e) {
-            throw new RuntimeException("serialization error", e);
+            handleException("serialization error", e);
+            return null;
         }
     }
 }

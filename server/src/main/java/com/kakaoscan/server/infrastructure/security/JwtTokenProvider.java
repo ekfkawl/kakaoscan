@@ -15,6 +15,8 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.*;
 
+import static com.kakaoscan.server.common.utils.ExceptionHandler.handleException;
+
 @RequiredArgsConstructor
 @Component
 public class JwtTokenProvider {
@@ -61,7 +63,8 @@ public class JwtTokenProvider {
             String tokenType = claims.getBody().get("token_type", String.class);
             return expectedTokenType.equals(tokenType);
         } catch (JwtException | IllegalArgumentException e) {
-            throw new JwtException("expired or invalid jwt token");
+            handleException("expired or invalid jwt token", e);
+            return false;
         }
     }
 
@@ -75,13 +78,19 @@ public class JwtTokenProvider {
 
     @SuppressWarnings("unchecked")
     public Authentication getAuthentication(String token) {
-        Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody();
-        String username = claims.getSubject();
-        Map<String, Object> attributes = claims.get("attributes", HashMap.class);
+        try {
+            Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(token).getBody();
+            String username = claims.getSubject();
+            Map<String, Object> attributes = claims.get("attributes", HashMap.class);
 
-        CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
-        CustomUserDetails customUserDetails = new CustomUserDetails(userDetails.getId(), userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthenticationType(), userDetails.getAuthorities(), attributes);
+            CustomUserDetails userDetails = (CustomUserDetails) userDetailsService.loadUserByUsername(username);
+            CustomUserDetails customUserDetails = new CustomUserDetails(userDetails.getId(), userDetails.getUsername(), userDetails.getPassword(), userDetails.getAuthenticationType(), userDetails.getAuthorities(), attributes);
 
-        return new UsernamePasswordAuthenticationToken(customUserDetails, null, userDetails.getAuthorities());
+            return new UsernamePasswordAuthenticationToken(customUserDetails, null, userDetails.getAuthorities());
+        } catch (JwtException e) {
+            handleException("failed to authenticate using the provided refresh token", e);
+            return null;
+        }
     }
+
 }
