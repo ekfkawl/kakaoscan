@@ -24,7 +24,7 @@ public class WebhookController extends ApiEndpointPrefix {
     public ResponseEntity<ApiResponse<Void>> handlePaymentNotification(@RequestBody WebhookProductPaymentRequest paymentRequest) {
         log.info("payment notification for order: {}", paymentRequest.getOrderNumber());
 
-        productService.approveProductTransaction(Long.valueOf(paymentRequest.getOrderNumber()));
+        productService.approve(Long.valueOf(paymentRequest.getOrderNumber()));
 
         return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
     }

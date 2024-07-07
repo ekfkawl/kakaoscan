@@ -18,15 +18,10 @@ import static com.kakaoscan.server.infrastructure.redis.enums.Topics.OTHER_EVENT
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class PointTransactionProcessor extends ProductTransactionProcessor {
+public class PointTransactionProcessor extends ProductTransactionProcessor<ProductTransaction> {
     private final PointService pointService;
     private final EventPublisher eventPublisher;
     private final ProductOrderClient productOrderClient;
-
-    @Override
-    public ProductType getProductType() {
-        return null;
-    }
 
     @Override
     public List<ProductType> getProductTypes() {

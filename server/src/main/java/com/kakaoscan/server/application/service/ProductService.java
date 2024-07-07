@@ -2,8 +2,8 @@ package com.kakaoscan.server.application.service;
 
 import com.kakaoscan.server.application.dto.request.WebhookProductOrderRequest;
 import com.kakaoscan.server.application.dto.response.ProductTransactions;
-import com.kakaoscan.server.application.service.strategy.ProductTransactionProcessor;
 import com.kakaoscan.server.application.service.strategy.ProductTransactionFactory;
+import com.kakaoscan.server.application.service.strategy.ProductTransactionProcessor;
 import com.kakaoscan.server.domain.point.repository.PointWalletRepository;
 import com.kakaoscan.server.domain.product.entity.ProductTransaction;
 import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 @Log4j2
 @Service
 @RequiredArgsConstructor
-public class ProductService {
+public class ProductService extends ProductTransactionProcessor<Long> {
     private final UserRepository userRepository;
     private final ProductTransactionRepository productTransactionRepository;
     private final PointWalletRepository pointWalletRepository;
@@ -36,6 +36,58 @@ public class ProductService {
 
     @Value("${bank.account}")
     private String backAccount;
+
+    @Transactional
+    @Override
+    public void request(Long productTransactionId) {
+
+    }
+
+    @Transactional
+    @Override
+    public void cancelRequest(Long productTransactionId) {
+
+    }
+
+    @Transactional
+    @Override
+    public void approve(Long productTransactionId) {
+        processProductTransaction(productTransactionId, (processor, transaction) -> {
+            processor.approve(transaction);
+            transaction.approve();
+
+            log.info("approval transactionId: " + productTransactionId);
+        }, transaction -> {
+            if (!ProductTransactionStatus.PENDING.equals(transaction.getTransactionStatus())) {
+                throw new IllegalStateException(String.format("transaction status must be PENDING to approve (%d)", productTransactionId));
+            }
+        });
+    }
+
+    @Transactional
+    @Override
+    public void cancelApproval(Long productTransactionId) {
+        processProductTransaction(productTransactionId, (processor, transaction) -> {
+            processor.cancelApproval(transaction);
+            transaction.cancel();
+
+            log.info("cancel transactionId: " + productTransactionId);
+        }, transaction -> {
+            if (!ProductTransactionStatus.EARNED.equals(transaction.getTransactionStatus())) {
+                throw new IllegalStateException(String.format("transaction status must be EARNED to cancel (%d)", productTransactionId));
+            }
+        });
+    }
+
+    protected void processProductTransaction(Long productTransactionId, BiConsumer<ProductTransactionProcessor<ProductTransaction>, ProductTransaction> transactionCommandConsumer, Consumer<ProductTransaction> supports) {
+        ProductTransaction transaction = productTransactionRepository.findById(productTransactionId)
+                .orElseThrow(() -> new IllegalArgumentException("transaction not found"));
+
+        supports.accept(transaction);
+
+        ProductTransactionProcessor<ProductTransaction> processor = productTransactionFactory.getProcessor(transaction.getProductType());
+        transactionCommandConsumer.accept(processor, transaction);
+    }
 
     @Transactional(readOnly = true)
     public ProductTransactions findProductTransactionsByPointWallet(String userId, LocalDateTime startDate, LocalDateTime endDate) {
@@ -52,44 +104,6 @@ public class ProductService {
         List<ProductTransaction> filteredTransactions = transactionQueryResults.getResults();
 
         return ProductTransactions.convertToProductTransactions(filteredTransactions, transactionQueryResults.getTotal(), null);
-    }
-
-    @Transactional
-    public void approveProductTransaction(Long productTransactionId) {
-        processProductTransaction(productTransactionId, (processor, transaction) -> {
-            processor.approve(transaction);
-            transaction.approve();
-
-            log.info("approval transactionId: " + productTransactionId);
-        }, transaction -> {
-            if (!ProductTransactionStatus.PENDING.equals(transaction.getTransactionStatus())) {
-                throw new IllegalStateException(String.format("transaction status must be PENDING to approve (%d)", productTransactionId));
-            }
-        });
-    }
-
-    @Transactional
-    public void cancelProductTransaction(Long productTransactionId) {
-        processProductTransaction(productTransactionId, (processor, transaction) -> {
-            processor.cancelApproval(transaction);
-            transaction.cancel();
-
-            log.info("cancel transactionId: " + productTransactionId);
-        }, transaction -> {
-            if (!ProductTransactionStatus.EARNED.equals(transaction.getTransactionStatus())) {
-                throw new IllegalStateException(String.format("transaction status must be EARNED to cancel (%d)", productTransactionId));
-            }
-        });
-    }
-
-    protected void processProductTransaction(Long productTransactionId, BiConsumer<ProductTransactionProcessor, ProductTransaction> transactionCommandConsumer, Consumer<ProductTransaction> supports) {
-        ProductTransaction transaction = productTransactionRepository.findById(productTransactionId)
-                .orElseThrow(() -> new IllegalArgumentException("transaction not found"));
-
-        supports.accept(transaction);
-
-        ProductTransactionProcessor processor = productTransactionFactory.getProcessor(transaction.getProductType());
-        transactionCommandConsumer.accept(processor, transaction);
     }
 
     @Scheduled(fixedRate = 1000 * 60 * 60)
