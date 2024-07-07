@@ -110,7 +110,7 @@ public class WebSocketController {
     @MessageMapping("/points")
     public void handlePointBalance(Principal principal) {
         try {
-            int points = pointService.getAndCachePoints(principal.getName());
+            int points = pointService.getPoints(principal.getName());
             messageDispatcher.sendToUser(new PointMessage(principal.getName(), points));
         } catch (ConcurrentModificationException e) {
             messageDispatcher.sendToUser(new PointMessage(principal.getName(), -1, LOADING_POINTS_BALANCE));

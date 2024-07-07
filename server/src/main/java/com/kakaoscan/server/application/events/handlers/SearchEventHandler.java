@@ -94,7 +94,7 @@ public class SearchEventHandler extends AbstractEventProcessor<SearchEvent> {
     }
 
     private boolean deductPoints(String userId, int cost) {
-        int cachePoints = pointService.getAndCachePoints(userId);
+        int cachePoints = pointService.getPoints(userId);
         pointService.cachePoints(userId, cachePoints - cost);
 
         try {

@@ -15,6 +15,7 @@ import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
 import com.kakaoscan.server.infrastructure.config.WordProperties;
 import com.kakaoscan.server.infrastructure.exception.DataNotFoundException;
+import com.kakaoscan.server.infrastructure.redis.utils.RedisCacheUtil;
 import com.kakaoscan.server.infrastructure.redis.utils.RedissonLockUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -54,22 +56,18 @@ public class PointService {
     }
 
     @Transactional(readOnly = true)
-    public int getAndCachePoints(String userId) {
+    public int getPoints(String userId) {
         RLock lock = redissonClient.getLock(LOCK_USER_POINTS_KEY_PREFIX + userId);
         if (lock.isLocked()) {
             throw new ConcurrentModificationException("points data is currently being modified");
         }
 
-        Integer points = integerCacheStorePort.get(POINT_CACHE_KEY_PREFIX + userId, Integer.class);
-        if (points != null) {
-            return points;
-        }
-
-        User user = userRepository.findByEmailOrThrow(userId);
-
-        cachePoints(userId, user.getPointWallet().getBalance());
-
-        return user.getPointWallet().getBalance();
+        final String key = POINT_CACHE_KEY_PREFIX + userId;
+        Supplier<Integer> supplier = () -> {
+            User user = userRepository.findByEmailOrThrow(userId);
+            return user.getPointWallet().getBalance();
+        };
+        return RedisCacheUtil.getFromCacheOrSupplier(integerCacheStorePort, key, Integer.class, supplier, 5, TimeUnit.MINUTES);
     }
 
     @Transactional
@@ -90,25 +88,17 @@ public class PointService {
 
     public void cacheTargetSearchCost(String userId, String targetPhoneNumber, SearchCost searchCost) {
         final String key = TARGET_SEARCH_COST_KEY_PREFIX + userId + targetPhoneNumber;
-
         costCacheStorePort.put(key, searchCost, 1, TimeUnit.MINUTES);
     }
 
     @Transactional(readOnly = true)
-    public SearchCost getAndCacheTargetSearchCost(String userId, String targetPhoneNumber) {
+    public SearchCost getTargetSearchCost(String userId, String targetPhoneNumber) {
         final String key = TARGET_SEARCH_COST_KEY_PREFIX + userId + targetPhoneNumber;
-
-        SearchCost searchCost = costCacheStorePort.get(key, SearchCost.class);
-        if (searchCost != null) {
-            return searchCost;
-        }
-
-        User user = userRepository.findByEmailOrThrow(userId);
-
-        searchCost = searchHistoryRepository.getTargetSearchCost(user, targetPhoneNumber);
-        cacheTargetSearchCost(userId, targetPhoneNumber, searchCost);
-
-        return searchCost;
+        Supplier<SearchCost> supplier = () -> {
+            User user = userRepository.findByEmailOrThrow(userId);
+            return searchHistoryRepository.getTargetSearchCost(user, targetPhoneNumber);
+        };
+        return RedisCacheUtil.getFromCacheOrSupplier(costCacheStorePort, key, SearchCost.class, supplier, 1, TimeUnit.MINUTES);
     }
 
     @Transactional

@@ -63,9 +63,9 @@ public class SearchMessageService {
 
     public boolean validatePoints(SearchMessage message) {
         try {
-            int points = pointService.getAndCachePoints(message.getEmail());
+            int points = pointService.getPoints(message.getEmail());
 
-            SearchCost searchCost = pointService.getAndCacheTargetSearchCost(message.getEmail(), message.getContent());
+            SearchCost searchCost = pointService.getTargetSearchCost(message.getEmail(), message.getContent());
             return points >= searchCost.getCost();
 
         } catch (ConcurrentModificationException e) {

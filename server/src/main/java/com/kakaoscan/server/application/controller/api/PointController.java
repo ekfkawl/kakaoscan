@@ -35,7 +35,7 @@ public class PointController extends ApiEndpointPrefix {
             return new ResponseEntity<>(ApiResponse.failure("message content is not a kakao id format"), HttpStatus.BAD_REQUEST);
         }
 
-        SearchCost searchCost = pointService.getAndCacheTargetSearchCost(userDetails.getEmail(), isId ? "@".concat(replaceTargetPhoneNumber) : replaceTargetPhoneNumber);
+        SearchCost searchCost = pointService.getTargetSearchCost(userDetails.getEmail(), isId ? "@".concat(replaceTargetPhoneNumber) : replaceTargetPhoneNumber);
         return new ResponseEntity<>(ApiResponse.success(searchCost.convertToTargetSearchCost()), HttpStatus.OK);
     }
 
