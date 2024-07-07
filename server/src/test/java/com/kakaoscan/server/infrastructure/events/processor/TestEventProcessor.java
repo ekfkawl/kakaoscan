@@ -11,8 +11,7 @@ public class TestEventProcessor implements EventProcessor {
         System.out.println("---------------------------------------------");
         try {
             Thread.sleep(1500L);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+        } catch (InterruptedException ignored) {
         }
     }
 

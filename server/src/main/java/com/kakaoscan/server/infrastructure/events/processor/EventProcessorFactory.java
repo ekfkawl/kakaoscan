@@ -38,4 +38,8 @@ public class EventProcessorFactory {
         }
         return processor;
     }
+
+    public void registerProcessor(String eventType, EventProcessor processor) {
+        processorMap.put(eventType, processor);
+    }
 }
