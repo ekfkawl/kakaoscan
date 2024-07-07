@@ -15,14 +15,13 @@ import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
 import com.kakaoscan.server.infrastructure.config.WordProperties;
 import com.kakaoscan.server.infrastructure.exception.DataNotFoundException;
+import com.kakaoscan.server.infrastructure.redis.utils.RedissonLockUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.support.TransactionSynchronization;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.ConcurrentModificationException;
 import java.util.List;
@@ -30,9 +29,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
-import static com.kakaoscan.server.infrastructure.config.RedissonConfig.LOCK_LEASE_TIME;
-import static com.kakaoscan.server.infrastructure.config.RedissonConfig.LOCK_WAIT_TIME;
 
 @Log4j2
 @Service
@@ -80,11 +76,7 @@ public class PointService {
     public boolean deductPoints(String userId, int value) {
         RLock lock = redissonClient.getLock(LOCK_USER_POINTS_KEY_PREFIX + userId);
 
-        try {
-            if (!lock.tryLock(LOCK_WAIT_TIME, LOCK_LEASE_TIME, TimeUnit.SECONDS)) {
-                return false;
-            }
-
+        return RedissonLockUtil.withLock(lock, () -> {
             User user = userRepository.findByEmailOrThrow(userId);
 
             PointWallet pointWallet = user.getPointWallet();
@@ -93,20 +85,7 @@ public class PointService {
             }
 
             pointWallet.deductBalance(value);
-
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override
-                public void afterCommit() {
-                    lock.unlock();
-                }
-            });
-
-            return true;
-
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("lock acquisition interrupted");
-        }
+        });
     }
 
     public void cacheTargetSearchCost(String userId, String targetPhoneNumber, SearchCost searchCost) {
@@ -135,11 +114,8 @@ public class PointService {
     @Transactional
     public boolean pendPointPayment(String userId, PointPaymentRequest paymentRequest) {
         RLock lock = redissonClient.getLock(LOCK_PEND_POINTS_PAYMENT_KEY_PREFIX + userId);
-        try {
-            if (!lock.tryLock(LOCK_WAIT_TIME, LOCK_LEASE_TIME, TimeUnit.SECONDS)) {
-                return false;
-            }
 
+        return RedissonLockUtil.withLock(lock, () -> {
             User user = userRepository.findByEmailOrThrow(userId);
 
             if (productTransactionRepository.existsPendingTransaction(user.getPointWallet())) {
@@ -162,20 +138,7 @@ public class PointService {
                     .ordererName(uniqueDepositor)
                     .billingName(uniqueDepositor)
                     .build());
-
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
-                @Override
-                public void afterCommit() {
-                    lock.unlock();
-                }
-            });
-
-            return true;
-
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new IllegalStateException("lock acquisition interrupted");
-        }
+        });
     }
 
     @Transactional

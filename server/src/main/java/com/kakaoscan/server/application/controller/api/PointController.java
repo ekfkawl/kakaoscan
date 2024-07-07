@@ -40,8 +40,8 @@ public class PointController extends ApiEndpointPrefix {
     }
 
     @PostMapping("/payment")
-    public ResponseEntity<ApiResponse<Void>> pendPointPayment(@RequestBody @Valid PointPaymentRequest paymentRequest, @AuthenticationPrincipal CustomUserDetails userDetails) {
-        if (pointService.pendPointPayment(userDetails.getEmail(), paymentRequest)){
+    public ResponseEntity<ApiResponse<Void>> pendPointPayment(@RequestBody @Valid PointPaymentRequest paymentRequest, @AuthenticationPrincipal CustomUserDetails userDetails) throws InterruptedException {
+        if (pointService.pendPointPayment(userDetails.getEmail(), paymentRequest)) {
             return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
         }
 
