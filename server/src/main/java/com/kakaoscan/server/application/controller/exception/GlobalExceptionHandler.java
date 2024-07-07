@@ -40,9 +40,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ApiResponse.failure(message), HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler({BadCredentialsException.class, UserNotFoundException.class})
-    public ResponseEntity<ApiResponse<Void>> handleBadCredentialsOrUserNotFoundException() {
-        return new ResponseEntity<>(ApiResponse.failure("아이디 또는 비밀번호 오류입니다."), HttpStatus.UNAUTHORIZED);
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleUserNotFoundException() {
+        return new ResponseEntity<>(ApiResponse.failure("존재하지 않는 아이디입니다."), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiResponse<Void>> handleBadCredentialsException() {
+        return new ResponseEntity<>(ApiResponse.failure("비밀번호 오류입니다."), HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler(EmailNotVerifiedException.class)
