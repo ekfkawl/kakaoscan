@@ -56,11 +56,11 @@ public class ProductTransaction {
     protected ProductTransaction() {
     }
 
-    public void cancelTransaction() {
+    public void cancel() {
         this.transactionStatus = ProductTransactionStatus.CANCELLED;
     }
 
-    public void approvalTransaction() {
+    public void approve() {
         this.transactionStatus = ProductTransactionStatus.EARNED;
     }
 }

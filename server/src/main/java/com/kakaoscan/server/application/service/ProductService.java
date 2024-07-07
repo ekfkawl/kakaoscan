@@ -2,7 +2,8 @@ package com.kakaoscan.server.application.service;
 
 import com.kakaoscan.server.application.dto.request.WebhookProductOrderRequest;
 import com.kakaoscan.server.application.dto.response.ProductTransactions;
-import com.kakaoscan.server.domain.events.model.ProductPurchaseCompleteEvent;
+import com.kakaoscan.server.application.service.strategy.ProductTransactionProcessor;
+import com.kakaoscan.server.application.service.strategy.ProductTransactionFactory;
 import com.kakaoscan.server.domain.point.repository.PointWalletRepository;
 import com.kakaoscan.server.domain.product.entity.ProductTransaction;
 import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
@@ -10,7 +11,6 @@ import com.kakaoscan.server.domain.product.model.ProductOrderClient;
 import com.kakaoscan.server.domain.product.repository.ProductTransactionRepository;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
-import com.kakaoscan.server.infrastructure.redis.publisher.EventPublisher;
 import com.querydsl.core.QueryResults;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -21,8 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
-import static com.kakaoscan.server.infrastructure.redis.enums.Topics.OTHER_EVENT_TOPIC;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 @Log4j2
 @Service
@@ -31,9 +31,8 @@ public class ProductService {
     private final UserRepository userRepository;
     private final ProductTransactionRepository productTransactionRepository;
     private final PointWalletRepository pointWalletRepository;
-    private final PointService pointService;
-    private final EventPublisher eventPublisher;
     private final ProductOrderClient productOrderClient;
+    private final ProductTransactionFactory productTransactionFactory;
 
     @Value("${bank.account}")
     private String backAccount;
@@ -56,42 +55,41 @@ public class ProductService {
     }
 
     @Transactional
-    public void approvalTransaction(Long productTransactionId) {
-        productTransactionRepository.findById(productTransactionId).ifPresent(productTransaction -> {
-            if (ProductTransactionStatus.PENDING.equals(productTransaction.getTransactionStatus())) {
-                productTransaction.getWallet().addBalance(productTransaction.getAmount());
-                productTransaction.approvalTransaction();
+    public void approveProductTransaction(Long productTransactionId) {
+        processProductTransaction(productTransactionId, (processor, transaction) -> {
+            processor.approve(transaction);
+            transaction.approve();
 
-                pointService.cachePoints(productTransaction.getWallet().getUser().getEmail(), productTransaction.getWallet().getBalance());
-
-                ProductPurchaseCompleteEvent transactionCompletedEvent = new ProductPurchaseCompleteEvent(productTransaction.getWallet().getUser().getEmail(),
-                        productTransaction.getProductType().getDisplayName(),
-                        System.getenv("CURRENT_BASE_URL"));
-                eventPublisher.publish(OTHER_EVENT_TOPIC.getTopic(), transactionCompletedEvent);
-
-                productOrderClient.excludeProductOrder(new WebhookProductOrderRequest(productTransaction.getId().toString()));
-
-                log.info("approval transactionId: " + productTransactionId);
-            }else {
-                log.info("already approved transactionId: " + productTransactionId);
+            log.info("approval transactionId: " + productTransactionId);
+        }, transaction -> {
+            if (!ProductTransactionStatus.PENDING.equals(transaction.getTransactionStatus())) {
+                throw new IllegalStateException(String.format("transaction status must be PENDING to approve (%d)", productTransactionId));
             }
         });
     }
 
     @Transactional
-    public void cancelTransaction(Long productTransactionId) {
-        productTransactionRepository.findById(productTransactionId).ifPresent(productTransaction -> {
-            if (ProductTransactionStatus.EARNED.equals(productTransaction.getTransactionStatus())) {
-                if (productTransaction.getWallet().getBalance() >= productTransaction.getAmount()) {
-                    productTransaction.getWallet().deductBalance(productTransaction.getAmount());
-                    productTransaction.cancelTransaction();
+    public void cancelProductTransaction(Long productTransactionId) {
+        processProductTransaction(productTransactionId, (processor, transaction) -> {
+            processor.cancelApproval(transaction);
+            transaction.cancel();
 
-                    pointService.cachePoints(productTransaction.getWallet().getUser().getEmail(), productTransaction.getWallet().getBalance());
-
-                    log.info("cancel transactionId: " + productTransactionId);
-                }
+            log.info("cancel transactionId: " + productTransactionId);
+        }, transaction -> {
+            if (!ProductTransactionStatus.EARNED.equals(transaction.getTransactionStatus())) {
+                throw new IllegalStateException(String.format("transaction status must be EARNED to cancel (%d)", productTransactionId));
             }
         });
+    }
+
+    protected void processProductTransaction(Long productTransactionId, BiConsumer<ProductTransactionProcessor, ProductTransaction> transactionCommandConsumer, Consumer<ProductTransaction> supports) {
+        ProductTransaction transaction = productTransactionRepository.findById(productTransactionId)
+                .orElseThrow(() -> new IllegalArgumentException("transaction not found"));
+
+        supports.accept(transaction);
+
+        ProductTransactionProcessor processor = productTransactionFactory.getProcessor(transaction.getProductType());
+        transactionCommandConsumer.accept(processor, transaction);
     }
 
     @Scheduled(fixedRate = 1000 * 60 * 60)
@@ -99,7 +97,7 @@ public class ProductService {
     public void cancelOldPendingTransactions() {
         List<ProductTransaction> oldPendingTransactions = productTransactionRepository.findOldPendingTransactions();
         for (ProductTransaction transaction : oldPendingTransactions) {
-            transaction.cancelTransaction();
+            transaction.cancel();
             productOrderClient.excludeProductOrder(new WebhookProductOrderRequest(transaction.getId().toString()));
         }
 

@@ -45,7 +45,7 @@ public class AdminController extends ApiEndpointPrefix {
     @AdminRole
     @PutMapping("/admin/product/approval")
     public ResponseEntity<ApiResponse<Void>> approvalTransaction(@RequestBody Map<String, Long> payload) {
-        productService.approvalTransaction(payload.get("transactionId"));
+        productService.approveProductTransaction(payload.get("transactionId"));
 
         return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
     }
@@ -53,7 +53,7 @@ public class AdminController extends ApiEndpointPrefix {
     @AdminRole
     @PutMapping("/admin/product/cancel")
     public ResponseEntity<ApiResponse<Void>> cancelTransaction(@RequestBody Map<String, Long> payload) {
-        productService.cancelTransaction(payload.get("transactionId"));
+        productService.cancelProductTransaction(payload.get("transactionId"));
 
         return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
     }

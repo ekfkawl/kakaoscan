@@ -189,7 +189,7 @@ public class PointService {
 
         switch (optionalProductTransaction.get().getTransactionStatus()) {
             case PENDING -> {
-                optionalProductTransaction.get().cancelTransaction();
+                optionalProductTransaction.get().cancel();
                 productOrderClient.excludeProductOrder(new WebhookProductOrderRequest(optionalProductTransaction.get().getId().toString()));
             }
             case EARNED -> throw new IllegalStateException("이미 결제가 완료된 내역입니다. 결제 취소가 불가능합니다.");
