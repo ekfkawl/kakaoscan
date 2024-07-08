@@ -25,6 +25,7 @@
   - Win32 API
   - Dynamic Link Library
   - Hooking
+  - Redis
  
  ## 데모 시작하기
 서버 `docker-compose.yml`에 알맞은 환경 변수를 설정해주세요.
