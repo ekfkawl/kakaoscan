@@ -4,7 +4,6 @@ import com.kakaoscan.server.application.dto.request.RegisterRequest;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.common.utils.PasswordEncoderSingleton;
 import com.kakaoscan.server.domain.events.model.VerificationEmailEvent;
-import com.kakaoscan.server.domain.point.entity.PointWallet;
 import com.kakaoscan.server.domain.product.repository.ProductTransactionRepository;
 import com.kakaoscan.server.domain.search.repository.SearchHistoryRepository;
 import com.kakaoscan.server.domain.user.entity.EmailVerificationToken;
@@ -134,10 +133,10 @@ public class UserService {
 
         searchHistoryRepository.deleteByUser(user);
 
-        PointWallet pointWallet = user.getPointWallet();
-        if (pointWallet != null) {
-            productTransactionRepository.deleteByWallet(pointWallet);
-        }
+//        PointWallet pointWallet = user.getPointWallet();
+//        if (pointWallet != null) {
+//            productTransactionRepository.deleteByWallet(pointWallet);
+//        }
 
         if (user.getAuthenticationType() == AuthenticationType.LOCAL) {
             user.setEmailVerified(false);
