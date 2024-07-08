@@ -1,5 +1,6 @@
 package com.kakaoscan.server.infrastructure.config;
 
+import com.kakaoscan.server.application.exception.TransactionIllegalStateException;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
@@ -32,7 +33,7 @@ public class WordProperties {
         do {
             combination = this.combination();
             if (++attempts > maxAttempts) {
-                throw new IllegalStateException("현재 결제 신청이 불가합니다.");
+                throw new TransactionIllegalStateException("현재 결제 신청이 불가합니다.");
             }
         } while (existingDepositors.contains(combination));
 

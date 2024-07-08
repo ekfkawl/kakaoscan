@@ -2,15 +2,18 @@ package com.kakaoscan.server.application.service;
 
 import com.kakaoscan.server.application.dto.request.WebhookProductOrderRequest;
 import com.kakaoscan.server.application.dto.response.ProductTransactions;
+import com.kakaoscan.server.application.exception.TransactionIllegalStateException;
 import com.kakaoscan.server.application.service.strategy.ProductTransactionFactory;
 import com.kakaoscan.server.application.service.strategy.ProductTransactionProcessor;
 import com.kakaoscan.server.domain.point.repository.PointWalletRepository;
 import com.kakaoscan.server.domain.product.entity.ProductTransaction;
 import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
+import com.kakaoscan.server.domain.product.model.PaymentRequest;
 import com.kakaoscan.server.domain.product.model.ProductOrderClient;
 import com.kakaoscan.server.domain.product.repository.ProductTransactionRepository;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
+import com.kakaoscan.server.infrastructure.service.AuthenticationService;
 import com.querydsl.core.QueryResults;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -24,6 +27,9 @@ import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+import static com.kakaoscan.server.domain.product.enums.ProductTransactionStatus.CANCELLED;
+import static com.kakaoscan.server.domain.product.enums.ProductTransactionStatus.EARNED;
+
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -33,20 +39,38 @@ public class ProductService extends ProductTransactionProcessor<Long> {
     private final PointWalletRepository pointWalletRepository;
     private final ProductOrderClient productOrderClient;
     private final ProductTransactionFactory productTransactionFactory;
+    private final AuthenticationService authenticationService;
 
     @Value("${bank.account}")
     private String backAccount;
 
     @Transactional
     @Override
-    public void request(Long productTransactionId) {
-
+    public void request(Long id, PaymentRequest request) {
+        ProductTransactionProcessor<?> processor = productTransactionFactory.getProcessor(request.getProductType());
+        processor.request(id, request);
     }
 
     @Transactional
     @Override
     public void cancelRequest(Long productTransactionId) {
+        processProductTransaction(productTransactionId, (processor, transaction) -> {
+            processor.cancelRequest(transaction);
+            transaction.cancel();
 
+            log.info("cancel transactionId: " + productTransactionId);
+        }, transaction -> {
+            Long localId = authenticationService.getCurrentUserDetails().getId();
+            if (!localId.equals(transaction.getWallet().getUser().getId())) {
+                throw new IllegalStateException(String.format("trying to cancel another user transaction (%d, %d)", localId, productTransactionId));
+            }
+            if (EARNED.equals(transaction.getTransactionStatus())) {
+                throw new TransactionIllegalStateException("이미 결제가 완료된 내역입니다. 결제 취소가 불가능합니다.");
+            }
+            if (CANCELLED.equals(transaction.getTransactionStatus())) {
+                throw new TransactionIllegalStateException("이미 취소된 거래입니다.");
+            }
+        });
     }
 
     @Transactional
@@ -73,7 +97,7 @@ public class ProductService extends ProductTransactionProcessor<Long> {
 
             log.info("cancel transactionId: " + productTransactionId);
         }, transaction -> {
-            if (!ProductTransactionStatus.EARNED.equals(transaction.getTransactionStatus())) {
+            if (!EARNED.equals(transaction.getTransactionStatus())) {
                 throw new IllegalStateException(String.format("transaction status must be EARNED to cancel (%d)", productTransactionId));
             }
         });

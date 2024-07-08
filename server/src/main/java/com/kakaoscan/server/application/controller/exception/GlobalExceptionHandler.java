@@ -5,6 +5,7 @@ import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.application.exception.DeletedUserException;
 import com.kakaoscan.server.application.exception.EmailNotVerifiedException;
 import com.kakaoscan.server.application.exception.PendingTransactionExistsException;
+import com.kakaoscan.server.application.exception.TransactionIllegalStateException;
 import com.kakaoscan.server.infrastructure.exception.DataNotFoundException;
 import com.kakaoscan.server.infrastructure.exception.UserNotFoundException;
 import io.jsonwebtoken.JwtException;
@@ -70,8 +71,18 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ApiResponse.failure(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(TransactionIllegalStateException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTransactionIllegalStateException(TransactionIllegalStateException e) {
+        return new ResponseEntity<>(ApiResponse.failure(e.getMessage()), HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ApiResponse<Void>> handleIllegalStateException(IllegalStateException e) {
-        return new ResponseEntity<>(ApiResponse.failure(e.getMessage()), HttpStatus.CONFLICT);
+        return new ResponseEntity<>(ApiResponse.failure(e.getMessage()), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException e) {
+        return new ResponseEntity<>(ApiResponse.failure(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 }

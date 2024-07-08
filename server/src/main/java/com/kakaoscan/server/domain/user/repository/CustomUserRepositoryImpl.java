@@ -23,4 +23,18 @@ public class CustomUserRepositoryImpl implements CustomUserRepository {
 
         return result;
     }
+
+    @Override
+    public User findByIdOrThrow(Long id) {
+        QUser user = QUser.user;
+        User result = factory.selectFrom(user)
+                .where(user.id.eq(id))
+                .fetchOne();
+
+        if (result == null) {
+            throw new UserNotFoundException("user id not found: " + id);
+        }
+
+        return result;
+    }
 }

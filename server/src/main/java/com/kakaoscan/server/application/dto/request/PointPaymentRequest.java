@@ -1,15 +1,18 @@
 package com.kakaoscan.server.application.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import com.kakaoscan.server.domain.point.validation.PointPaymentAmount;
 import com.kakaoscan.server.domain.product.enums.ProductType;
+import com.kakaoscan.server.domain.product.model.PaymentRequest;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+@JsonTypeName("pointPayment")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class PointPaymentRequest  {
+public class PointPaymentRequest implements PaymentRequest {
 
     @PointPaymentAmount
     private int amount;

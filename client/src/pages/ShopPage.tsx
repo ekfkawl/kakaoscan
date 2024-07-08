@@ -25,6 +25,7 @@ const ShopPage = () => {
             url: '/api/payment',
             method: 'POST',
             data: JSON.stringify({
+                type: 'pointPayment',
                 amount,
             }),
         });
