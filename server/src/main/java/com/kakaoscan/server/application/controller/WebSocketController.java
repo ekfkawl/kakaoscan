@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import static com.kakaoscan.server.infrastructure.constants.RedisKeyPrefixes.INVALID_PHONE_NUMBER_KEY_PREFIX;
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.*;
@@ -51,24 +52,26 @@ public class WebSocketController {
     public void handleSearchProfile(Principal principal, SearchMessage.OriginMessage originMessage) {
         SearchMessage message = searchMessageService.createSearchMessage(principal, originMessage);
 
+        Consumer<String> sendToUser = msg -> messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), msg, false));
+
         boolean isInvalidPhoneNumberCached = cacheStorePort.containsKey(INVALID_PHONE_NUMBER_KEY_PREFIX + message.getContent(), InvalidPhoneNumber.class);
         if (isInvalidPhoneNumberCached) {
-            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), SEARCH_INVALID_PHONE_NUMBER, false));
+            sendToUser.accept(SEARCH_INVALID_PHONE_NUMBER);
             return;
         }
 
         if (!searchMessageService.canAttemptNumberSearch(message)) {
-            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), MAX_DAILY_NEW_NUMBER_SEARCH, false));
+            sendToUser.accept(MAX_DAILY_NEW_NUMBER_SEARCH);
             return;
         }
 
         if (!searchMessageService.validatePoints(message)) {
-            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), NOT_ENOUGH_POINTS, false));
+            sendToUser.accept(NOT_ENOUGH_POINTS);
             return;
         }
 
         if (rateLimitService.isBucketFull(message.getEmail())) {
-            messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), SEARCH_TOO_MANY_INVALID_PHONE_NUMBER, false));
+            sendToUser.accept(SEARCH_TOO_MANY_INVALID_PHONE_NUMBER);
             return;
         }
 
