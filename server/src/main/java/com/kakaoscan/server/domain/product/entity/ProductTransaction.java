@@ -17,9 +17,9 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @Table(name = "products_transaction", indexes = {
-        @Index(name = "idx_transaction_status", columnList = "transactionStatus"),
-        @Index(name = "idx_created_at", columnList = "createdAt"),
-        @Index(name = "idx_status_created_at", columnList = "transactionStatus, createdAt"),
+        @Index(name = "idx_transaction_status", columnList = "transaction_status"),
+        @Index(name = "idx_created_at", columnList = "created_at"),
+        @Index(name = "idx_status_created_at", columnList = "transaction_status, created_at"),
         @Index(name = "idx_depositor", columnList = "depositor")
 })
 public class ProductTransaction {

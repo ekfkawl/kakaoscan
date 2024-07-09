@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
 @Getter
 @Entity
 @Table(name = "search_history", indexes = {
-        @Index(name = "idx_phone_cost_created", columnList = "targetPhoneNumber,costType,createdAt DESC"),
-        @Index(name = "idx_user_created", columnList = "user_id,createdAt DESC")
+        @Index(name = "idx_phone_cost_created", columnList = "target_phone_number, cost_type, created_at DESC"),
+        @Index(name = "idx_user_created", columnList = "user_id, created_at DESC")
 })
 public class SearchHistory {
     @Id
