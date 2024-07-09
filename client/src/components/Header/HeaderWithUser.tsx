@@ -35,14 +35,8 @@ const HeaderWithUser = () => {
     }, [sendMessage]);
 
     useEffect(() => {
-        let intervalId = setInterval(() => {
-            handleSendPoint();
-        }, 500);
-
-        return () => {
-            clearInterval(intervalId);
-        };
-    }, [handleSendPoint, sendMessage]);
+        handleSendPoint();
+    }, [handleSendPoint]);
 
     const isActive = (path: string) => location.pathname === path;
 

@@ -10,12 +10,13 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import static com.kakaoscan.server.infrastructure.constants.RedisKeyPrefixes.EVENT_KEY_PREFIX;
+
 @Service
 @RequiredArgsConstructor
 public class RedisEventStatusAdapter implements EventStatusPort {
     private final CacheStorePort<EventStatus> cacheStorePort;
 
-    private static final String EVENT_KEY_PREFIX = "eventStatus:";
 
     @Override
     public void setEventStatus(String eventId, EventStatus status) {

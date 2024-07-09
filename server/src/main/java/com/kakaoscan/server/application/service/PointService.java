@@ -3,12 +3,10 @@ package com.kakaoscan.server.application.service;
 import com.kakaoscan.server.application.port.CacheStorePort;
 import com.kakaoscan.server.domain.point.entity.PointWallet;
 import com.kakaoscan.server.domain.point.model.SearchCost;
-import com.kakaoscan.server.domain.product.model.ProductOrderClient;
-import com.kakaoscan.server.domain.product.repository.ProductTransactionRepository;
 import com.kakaoscan.server.domain.search.repository.SearchHistoryRepository;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
-import com.kakaoscan.server.infrastructure.config.WordProperties;
+import com.kakaoscan.server.infrastructure.cache.CacheUpdateObserver;
 import com.kakaoscan.server.infrastructure.redis.utils.RedisCacheUtil;
 import com.kakaoscan.server.infrastructure.redis.utils.RedissonLockUtil;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +20,8 @@ import java.util.ConcurrentModificationException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 
+import static com.kakaoscan.server.infrastructure.constants.RedisKeyPrefixes.*;
+
 @Log4j2
 @Service
 @RequiredArgsConstructor
@@ -31,14 +31,7 @@ public class PointService {
     private final CacheStorePort<Integer> integerCacheStorePort;
     private final CacheStorePort<SearchCost> costCacheStorePort;
     private final SearchHistoryRepository searchHistoryRepository;
-
-    private static final String LOCK_USER_POINTS_KEY_PREFIX = "userPointsLock:";
-    private static final String POINT_CACHE_KEY_PREFIX = "pointCache:";
-    private static final String TARGET_SEARCH_COST_KEY_PREFIX = "targetSearchCost:";
-
-    public void cachePoints(String userId, int value) {
-        integerCacheStorePort.put(POINT_CACHE_KEY_PREFIX + userId, value, 5, TimeUnit.MINUTES);
-    }
+    private final CacheUpdateObserver cacheUpdateObserver;
 
     @Transactional(readOnly = true)
     public int getPoints(String userId) {
@@ -68,6 +61,7 @@ public class PointService {
             }
 
             pointWallet.deductBalance(value);
+            cacheUpdateObserver.update(userId, pointWallet.getBalance());
         });
     }
 

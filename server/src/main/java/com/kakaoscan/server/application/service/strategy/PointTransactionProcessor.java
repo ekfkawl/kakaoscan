@@ -2,7 +2,6 @@ package com.kakaoscan.server.application.service.strategy;
 
 import com.kakaoscan.server.application.dto.request.WebhookProductOrderRequest;
 import com.kakaoscan.server.application.exception.PendingTransactionExistsException;
-import com.kakaoscan.server.application.service.PointService;
 import com.kakaoscan.server.domain.events.model.ProductPurchaseCompleteEvent;
 import com.kakaoscan.server.domain.product.entity.ProductTransaction;
 import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
@@ -12,6 +11,7 @@ import com.kakaoscan.server.domain.product.model.ProductOrderClient;
 import com.kakaoscan.server.domain.product.repository.ProductTransactionRepository;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
+import com.kakaoscan.server.infrastructure.cache.CacheUpdateObserver;
 import com.kakaoscan.server.infrastructure.config.WordProperties;
 import com.kakaoscan.server.infrastructure.redis.publisher.EventPublisher;
 import com.kakaoscan.server.infrastructure.redis.utils.RedissonLockUtil;
@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.kakaoscan.server.infrastructure.constants.RedisKeyPrefixes.LOCK_PEND_POINTS_PAYMENT_KEY_PREFIX;
 import static com.kakaoscan.server.infrastructure.redis.enums.Topics.OTHER_EVENT_TOPIC;
 
 @Log4j2
@@ -32,13 +33,11 @@ import static com.kakaoscan.server.infrastructure.redis.enums.Topics.OTHER_EVENT
 public class PointTransactionProcessor extends ProductTransactionProcessor<ProductTransaction> {
     private final UserRepository userRepository;
     private final RedissonClient redissonClient;
-    private final PointService pointService;
     private final EventPublisher eventPublisher;
     private final ProductOrderClient productOrderClient;
     private final ProductTransactionRepository productTransactionRepository;
     private final WordProperties wordProperties;
-
-    private static final String LOCK_PEND_POINTS_PAYMENT_KEY_PREFIX = "pendPointsPaymentLock:";
+    private final CacheUpdateObserver cacheUpdateObserver;
 
     @Override
     public List<ProductType> getProductTypes() {
@@ -85,7 +84,7 @@ public class PointTransactionProcessor extends ProductTransactionProcessor<Produ
     @Override
     public void approve(ProductTransaction transaction) {
         transaction.getWallet().addBalance(transaction.getAmount());
-        pointService.cachePoints(transaction.getWallet().getUser().getEmail(), transaction.getWallet().getBalance());
+        cacheUpdateObserver.update(transaction.getWallet().getUser().getEmail(), transaction.getWallet().getBalance());
 
         ProductPurchaseCompleteEvent transactionCompletedEvent = new ProductPurchaseCompleteEvent(transaction.getWallet().getUser().getEmail(),
                 transaction.getProductType().getDisplayName(),
@@ -102,6 +101,6 @@ public class PointTransactionProcessor extends ProductTransactionProcessor<Produ
         }
 
         transaction.getWallet().deductBalance(transaction.getAmount());
-        pointService.cachePoints(transaction.getWallet().getUser().getEmail(), transaction.getWallet().getBalance());
+        cacheUpdateObserver.update(transaction.getWallet().getUser().getEmail(), transaction.getWallet().getBalance());
     }
 }

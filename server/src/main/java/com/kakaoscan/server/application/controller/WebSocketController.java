@@ -8,9 +8,9 @@ import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher
 import com.kakaoscan.server.application.service.websocket.search.SearchEventManagerService;
 import com.kakaoscan.server.application.service.websocket.search.SearchMessageService;
 import com.kakaoscan.server.domain.events.model.EventStatus;
-import com.kakaoscan.server.domain.point.model.PointMessage;
 import com.kakaoscan.server.domain.search.model.InvalidPhoneNumber;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
+import com.kakaoscan.server.infrastructure.cache.CacheUpdateObserver;
 import com.kakaoscan.server.infrastructure.security.model.SimplePrincipal;
 import com.kakaoscan.server.infrastructure.service.RateLimitService;
 import com.kakaoscan.server.infrastructure.websocket.queue.SearchInMemoryQueue;
@@ -23,9 +23,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
 import java.security.Principal;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.kakaoscan.server.infrastructure.constants.RedisKeyPrefixes.INVALID_PHONE_NUMBER_KEY_PREFIX;
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.*;
 
 @Controller
@@ -37,11 +41,11 @@ public class WebSocketController {
     private final StompMessageDispatcher messageDispatcher;
     private final RateLimitService rateLimitService;
     private final EventStatusPort eventStatusPort;
-    private final PointService pointService;
     private final SearchInMemoryQueue queue;
+    private final CacheUpdateObserver cacheUpdateObserver;
+    private final PointService pointService;
 
     private static final Map<String, Set<String>> sessionSubscriptions = new ConcurrentHashMap<>();
-    private static final String INVALID_PHONE_NUMBER_KEY_PREFIX = "invalidPhoneNumber:";
 
     @MessageMapping("/search")
     public void handleSearchProfile(Principal principal, SearchMessage.OriginMessage originMessage) {
@@ -109,12 +113,7 @@ public class WebSocketController {
 
     @MessageMapping("/points")
     public void handlePointBalance(Principal principal) {
-        try {
-            int points = pointService.getPoints(principal.getName());
-            messageDispatcher.sendToUser(new PointMessage(principal.getName(), points));
-        } catch (ConcurrentModificationException e) {
-            messageDispatcher.sendToUser(new PointMessage(principal.getName(), -1, LOADING_POINTS_BALANCE));
-        }
+        cacheUpdateObserver.update(principal.getName(), pointService.getPoints(principal.getName()));
     }
 
     @MessageMapping("/heartbeat")
