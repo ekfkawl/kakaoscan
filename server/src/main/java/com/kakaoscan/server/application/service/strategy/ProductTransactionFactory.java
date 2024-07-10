@@ -16,10 +16,6 @@ public class ProductTransactionFactory {
 
     public ProductTransactionFactory(List<ProductTransactionProcessor<ProductTransaction>> processorList) {
         for (ProductTransactionProcessor<ProductTransaction> processor : processorList) {
-            if (!(processor instanceof PointTransactionProcessor)) {
-                continue;
-            }
-
             try {
                 processorMap.put(processor.getProductType(), processor);
             } catch (UnsupportedOperationException e) {

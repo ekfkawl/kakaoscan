@@ -1,5 +1,6 @@
 package com.kakaoscan.server.domain.user.entity;
 
+import com.kakaoscan.server.domain.item.entity.UserItem;
 import com.kakaoscan.server.domain.point.entity.PointWallet;
 import com.kakaoscan.server.domain.search.entity.NewPhoneNumber;
 import com.kakaoscan.server.domain.search.entity.SearchHistory;
@@ -78,6 +79,10 @@ public class User {
     @OrderBy("createdAt DESC")
     private List<NewPhoneNumber> newPhoneNumbers = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("expiredAt DESC")
+    private List<UserItem> items = new ArrayList<>();
+
     protected User() {
     }
 
@@ -107,5 +112,10 @@ public class User {
     public void addNewPhoneNumbers(NewPhoneNumber newPhoneNumber) {
         newPhoneNumber.setUser(this);
         this.newPhoneNumbers.add(newPhoneNumber);
+    }
+
+    public void addUserItem(UserItem userItem) {
+        userItem.setUser(this);
+        this.items.add(userItem);
     }
 }
