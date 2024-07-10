@@ -11,6 +11,7 @@ public enum ProductType {
     P2000("2,000 P"),
     P5000("5,000 P"),
     P10000("10,000 P"),
+    SNAPSHOT_PRESERVATION("스냅샷 보존권 (30일)"),
     UNKNOWN("Unknown");
 
     private final String displayName;

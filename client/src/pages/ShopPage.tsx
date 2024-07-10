@@ -31,6 +31,23 @@ const ShopPage = () => {
         });
     };
 
+    const snapshotPreservation = async () => {
+        if (isLoading) {
+            return;
+        }
+
+        const amount = 10000;
+
+        await sendRequest({
+            url: '/api/payment',
+            method: 'POST',
+            data: JSON.stringify({
+                type: 'snapshotPreservationPayment',
+                amount,
+            }),
+        });
+    };
+
     useEffect(() => {
         if (data && data.success) {
             navigate('/payment-history');
@@ -44,7 +61,7 @@ const ShopPage = () => {
         <div className="mx-auto max-w-screen-lg">
             <div className="bg-white rounded-lg divide-y divide-gray-200 shadow dark:divide-gray-700 lg:divide-y-0 lg:divide-x lg:grid lg:grid-cols-3 dark:bg-gray-800">
                 <div className="col-span-2 p-6 lg:p-8">
-                    <Tabs style="fullWidth" onActiveTabChange={(tab) => setActiveTab(tab)}>
+                    <Tabs style="default" onActiveTabChange={(tab) => setActiveTab(tab)}>
                         <Tabs.Item active title="1,000 P">
                             <AboutPoint />
                         </Tabs.Item>
@@ -54,23 +71,31 @@ const ShopPage = () => {
                         <Tabs.Item title="5,000 P">
                             <AboutPoint />
                         </Tabs.Item>
+                        <Tabs.Item title="스냅샷 보존권 (30일)">
+                            <AboutSnapshotPreservation />
+                        </Tabs.Item>
                     </Tabs>
                 </div>
                 <div className="flex p-6 lg:p-8">
                     <div className={`self-center w-full ${activeTab === 0 ? '' : 'hidden'}`}>
                         <div className="text-gray-500 dark:text-gray-400">가격</div>
                         <div className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white">1,000원</div>
-                        <BuyPoint pointPayment={pointPayment} />
+                        <BuyProduct productPayment={pointPayment} />
                     </div>
                     <div className={`self-center w-full ${activeTab === 1 ? '' : 'hidden'}`}>
                         <div className="text-gray-500 dark:text-gray-400">가격</div>
                         <div className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white">2,000원</div>
-                        <BuyPoint pointPayment={pointPayment} />
+                        <BuyProduct productPayment={pointPayment} />
                     </div>
                     <div className={`self-center w-full ${activeTab === 2 ? '' : 'hidden'}`}>
                         <div className="text-gray-500 dark:text-gray-400">가격</div>
                         <div className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white">5,000원</div>
-                        <BuyPoint pointPayment={pointPayment} />
+                        <BuyProduct productPayment={pointPayment} />
+                    </div>
+                    <div className={`self-center w-full ${activeTab === 3 ? '' : 'hidden'}`}>
+                        <div className="text-gray-500 dark:text-gray-400">가격</div>
+                        <div className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white">10,000원</div>
+                        <BuyProduct productPayment={snapshotPreservation} />
                     </div>
                 </div>
             </div>
@@ -98,9 +123,20 @@ const AboutPoint: React.FC = () => (
     </div>
 );
 
-const BuyPoint: React.FC<{ pointPayment: () => Promise<void> }> = ({ pointPayment }) => (
+const AboutSnapshotPreservation: React.FC = () => (
     <div>
-        <Button fullSized color="blue" className="my-4 inline-flex" onClick={() => pointPayment()}>
+        <div className="mt-6 mb-2 font-medium text-gray-900 dark:text-white">스냅샷 보존권은 무엇인가요?</div>
+        <p className="text-gray-500 dark:text-gray-400 mb-2 break-all">
+            스냅샷 보존권 보유 기간 동안 모든 프로필 조회 내역이 만료되지 않습니다.
+            일반적으로 프로필 조회 결과는 조회 시점으로부터 48시간 동안만 조회 내역에 저장됩니다.
+        </p>
+        <LearnMore to="/policy" text="자세히 알아보기" />
+    </div>
+);
+
+const BuyProduct: React.FC<{ productPayment: () => Promise<void> }> = ({ productPayment }) => (
+    <div>
+        <Button fullSized color="blue" className="my-4 inline-flex" onClick={() => productPayment()}>
             지금 구매
         </Button>
         <p className="text-sm text-gray-500 dark:text-gray-400 break-all">

@@ -33,7 +33,7 @@ public class ProductTransactions {
         transactions.forEach(transaction -> {
                 productTransactions.addTransaction(new ProductTransactionResponse(
                         transaction.getId(),
-                        transaction.getWallet().getUser().getEmail(),
+                        transaction.getUser().getEmail(),
                         transaction.getTransactionStatus().getDisplayName(),
                         transaction.getProductType().getDisplayName(),
                         transaction.getAmount(),

@@ -1,8 +1,6 @@
 package com.kakaoscan.server.domain.point.entity;
 
 import com.kakaoscan.server.domain.product.entity.ProductTransaction;
-import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
-import com.kakaoscan.server.domain.product.model.PaymentRequest;
 import com.kakaoscan.server.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -58,17 +56,4 @@ public class PointWallet {
         this.balance += balance;
     }
 
-    public ProductTransaction addPendingTransaction(PaymentRequest paymentRequest, String depositor) {
-        ProductTransaction transaction = ProductTransaction.builder()
-                .amount(paymentRequest.getAmount())
-                .productType(paymentRequest.getProductType())
-                .transactionStatus(ProductTransactionStatus.PENDING)
-                .depositor(depositor)
-                .wallet(this)
-                .build();
-
-        this.productTransaction.add(transaction);
-
-        return transaction;
-    }
 }

@@ -33,7 +33,6 @@ public class ProductController extends ApiEndpointPrefix {
         return new ResponseEntity<>(ApiResponse.success(), HttpStatus.OK);
     }
 
-
     @PutMapping("/payment")
     public ResponseEntity<ApiResponse<Void>> cancelPointPayment(@RequestBody Map<String, Long> payload) {
         Long transactionId = payload.get("transactionId");
