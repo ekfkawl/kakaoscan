@@ -75,7 +75,7 @@ public class ProductService extends ProductTransactionProcessor<Long> {
                             .collect(Collectors.toSet())
             );
 
-            ProductTransaction productTransaction = user.getPointWallet().addPendingTransaction(request, uniqueDepositor);
+            ProductTransaction productTransaction = user.addPendingTransaction(request, uniqueDepositor);
             productTransaction = productTransactionRepository.save(productTransaction);
 
             productOrderClient.createProductOrder(WebhookProductOrderRequest.builder()
@@ -99,7 +99,7 @@ public class ProductService extends ProductTransactionProcessor<Long> {
             log.info("cancel transactionId: " + productTransactionId);
         }, transaction -> {
             Long localId = authenticationService.getCurrentUserDetails().getId();
-            if (!localId.equals(transaction.getWallet().getUser().getId())) {
+            if (!localId.equals(transaction.getUser().getId())) {
                 throw new IllegalStateException(String.format("trying to cancel another user transaction (%d, %d)", localId, productTransactionId));
             }
             if (EARNED.equals(transaction.getTransactionStatus())) {
@@ -119,7 +119,7 @@ public class ProductService extends ProductTransactionProcessor<Long> {
             transaction.approve();
 
             eventPublisher.publish(OTHER_EVENT_TOPIC.getTopic(), new ProductPurchaseCompleteEvent(
-                    transaction.getWallet().getUser().getEmail(),
+                    transaction.getUser().getEmail(),
                     transaction.getProductType().getDisplayName(),
                     System.getenv("CURRENT_BASE_URL"))
             );

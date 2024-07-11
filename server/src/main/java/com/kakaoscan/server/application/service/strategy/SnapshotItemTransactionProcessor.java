@@ -34,7 +34,7 @@ public class SnapshotItemTransactionProcessor extends ProductTransactionProcesso
 
     @Override
     public void approve(ProductTransaction transaction) {
-        transaction.getWallet().getUser().addUserItem(UserItem.builder()
+        transaction.getUser().addUserItem(UserItem.builder()
                 .productType(ProductType.SNAPSHOT_PRESERVATION)
                 .expiredAt(LocalDateTime.now().plusDays(30))
                 .build());

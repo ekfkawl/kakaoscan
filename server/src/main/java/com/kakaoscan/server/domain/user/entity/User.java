@@ -2,6 +2,9 @@ package com.kakaoscan.server.domain.user.entity;
 
 import com.kakaoscan.server.domain.item.entity.UserItem;
 import com.kakaoscan.server.domain.point.entity.PointWallet;
+import com.kakaoscan.server.domain.product.entity.ProductTransaction;
+import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
+import com.kakaoscan.server.domain.product.model.PaymentRequest;
 import com.kakaoscan.server.domain.search.entity.NewPhoneNumber;
 import com.kakaoscan.server.domain.search.entity.SearchHistory;
 import com.kakaoscan.server.domain.user.enums.AuthenticationType;
@@ -83,6 +86,10 @@ public class User {
     @OrderBy("expiredAt DESC")
     private List<UserItem> items = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OrderBy("createdAt DESC")
+    private List<ProductTransaction> productTransactions = new ArrayList<>();
+
     protected User() {
     }
 
@@ -117,5 +124,20 @@ public class User {
     public void addUserItem(UserItem userItem) {
         userItem.setUser(this);
         this.items.add(userItem);
+    }
+
+    public ProductTransaction addPendingTransaction(PaymentRequest paymentRequest, String depositor) {
+        ProductTransaction transaction = ProductTransaction.builder()
+                .amount(paymentRequest.getAmount())
+                .productType(paymentRequest.getProductType())
+                .transactionStatus(ProductTransactionStatus.PENDING)
+                .depositor(depositor)
+                .user(this)
+                .wallet(this.pointWallet)
+                .build();
+
+        this.productTransactions.add(transaction);
+
+        return transaction;
     }
 }
