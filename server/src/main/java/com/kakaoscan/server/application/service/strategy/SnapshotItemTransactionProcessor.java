@@ -4,13 +4,12 @@ import com.kakaoscan.server.domain.item.entity.UserItem;
 import com.kakaoscan.server.domain.item.repository.UserItemRepository;
 import com.kakaoscan.server.domain.product.entity.ProductTransaction;
 import com.kakaoscan.server.domain.product.enums.ProductType;
-import com.kakaoscan.server.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
-import org.redisson.api.RedissonClient;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 import static com.kakaoscan.server.infrastructure.constants.RedisKeyPrefixes.LOCK_SNAPSHOT_PRESERVATION_PAYMENT_KEY_PREFIX;
 
@@ -18,9 +17,7 @@ import static com.kakaoscan.server.infrastructure.constants.RedisKeyPrefixes.LOC
 @Service
 @RequiredArgsConstructor
 public class SnapshotItemTransactionProcessor extends ProductTransactionProcessor<ProductTransaction> {
-    private final UserRepository userRepository;
     private final UserItemRepository userItemRepository;
-    private final RedissonClient redissonClient;
 
     @Override
     public ProductType getProductType() {
@@ -34,14 +31,23 @@ public class SnapshotItemTransactionProcessor extends ProductTransactionProcesso
 
     @Override
     public void approve(ProductTransaction transaction) {
-        transaction.getUser().addUserItem(UserItem.builder()
-                .productType(ProductType.SNAPSHOT_PRESERVATION)
-                .expiredAt(LocalDateTime.now().plusDays(30))
-                .build());
+        Optional<UserItem> optionalUserItem = userItemRepository.findByUserAndProductType(transaction.getUser(), this.getProductType());
+        if (optionalUserItem.isEmpty()) {
+            transaction.getUser().addUserItem(UserItem.builder()
+                    .productType(this.getProductType())
+                    .expiredAt(LocalDateTime.now().plusDays(30))
+                    .build());
+        }else {
+            optionalUserItem.get().renew();
+        }
     }
 
     @Override
     public void cancelApproval(ProductTransaction transaction) {
-
+        userItemRepository.findByUserAndProductType(transaction.getUser(), this.getProductType())
+                .ifPresent(userItem -> {
+                    userItem.getUser().removeUserItem(userItem);
+                    userItemRepository.delete(userItem);
+                });
     }
 }

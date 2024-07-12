@@ -16,7 +16,6 @@ import static com.kakaoscan.server.infrastructure.constants.RedisKeyPrefixes.LOC
 @Service
 @RequiredArgsConstructor
 public class PointTransactionProcessor extends ProductTransactionProcessor<ProductTransaction> {
-    private final ProductOrderClient productOrderClient;
     private final CacheUpdateObserver cacheUpdateObserver;
 
     @Override

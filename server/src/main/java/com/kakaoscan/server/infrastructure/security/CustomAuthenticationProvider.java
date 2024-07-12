@@ -1,8 +1,10 @@
 package com.kakaoscan.server.infrastructure.security;
 
+import com.kakaoscan.server.application.dto.response.UserItem;
 import com.kakaoscan.server.application.exception.DeletedUserException;
 import com.kakaoscan.server.application.exception.EmailNotVerifiedException;
 import com.kakaoscan.server.common.utils.PasswordEncoderSingleton;
+import com.kakaoscan.server.domain.product.enums.ProductType;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.model.CustomUserDetails;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
@@ -13,6 +15,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
+
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -38,7 +43,12 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
             throw new EmailNotVerifiedException("email is not verified for: " + username);
         }
 
-        CustomUserDetails userDetails = new CustomUserDetails(user.getId(), user.getEmail(), user.getPassword(), user.getAuthenticationType(), user.getAuthorities(), null);
+        List<UserItem> userItems = user.getItems().stream()
+                .filter(userItem -> ProductType.SNAPSHOT_PRESERVATION.equals(userItem.getProductType()) && userItem.getExpiredAt().isAfter(LocalDateTime.now()))
+                .map(userItem -> new UserItem(userItem.getProductType(), userItem.getProductType().getDisplayName(), userItem.getExpiredAt()))
+                .toList();
+
+        CustomUserDetails userDetails = new CustomUserDetails(user.getId(), user.getEmail(), user.getPassword(), userItems, user.getAuthenticationType(), user.getAuthorities(), null);
 
         return new UsernamePasswordAuthenticationToken(userDetails, password, userDetails.getAuthorities());
     }

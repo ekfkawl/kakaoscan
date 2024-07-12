@@ -4,6 +4,7 @@ import com.kakaoscan.server.domain.item.entity.UserItem;
 import com.kakaoscan.server.domain.point.entity.PointWallet;
 import com.kakaoscan.server.domain.product.entity.ProductTransaction;
 import com.kakaoscan.server.domain.product.enums.ProductTransactionStatus;
+import com.kakaoscan.server.domain.product.enums.ProductType;
 import com.kakaoscan.server.domain.product.model.PaymentRequest;
 import com.kakaoscan.server.domain.search.entity.NewPhoneNumber;
 import com.kakaoscan.server.domain.search.entity.SearchHistory;
@@ -82,7 +83,7 @@ public class User {
     @OrderBy("createdAt DESC")
     private List<NewPhoneNumber> newPhoneNumbers = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OrderBy("expiredAt DESC")
     private List<UserItem> items = new ArrayList<>();
 
@@ -126,6 +127,10 @@ public class User {
         this.items.add(userItem);
     }
 
+    public void removeUserItem(UserItem userItem) {
+        this.items.remove(userItem);
+    }
+
     public ProductTransaction addPendingTransaction(PaymentRequest paymentRequest, String depositor) {
         ProductTransaction transaction = ProductTransaction.builder()
                 .amount(paymentRequest.getAmount())
@@ -139,5 +144,11 @@ public class User {
         this.productTransactions.add(transaction);
 
         return transaction;
+    }
+
+    public boolean hasSnapshotPreservation() {
+        return this.getItems().stream().anyMatch(
+                userItem -> ProductType.SNAPSHOT_PRESERVATION.equals(userItem.getProductType()) &&
+                userItem.getExpiredAt().isAfter(LocalDateTime.now()));
     }
 }

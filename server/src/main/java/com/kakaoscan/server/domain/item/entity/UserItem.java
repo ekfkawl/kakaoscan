@@ -37,4 +37,14 @@ public class UserItem {
 
     @Column(nullable = false, columnDefinition = "DATETIME(6)")
     private LocalDateTime expiredAt;
+
+    public void renew() {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (now.isAfter(expiredAt)) {
+            expiredAt = now.plusDays(30);
+        }else {
+            expiredAt = expiredAt.plusDays(30);
+        }
+    }
 }

@@ -7,11 +7,13 @@ import TimeSince from '../components/TimeSince';
 import { useNavigate } from 'react-router-dom';
 import { useFetchData } from '../hooks/useFetchData';
 import { FaCoins } from 'react-icons/fa';
+import useUser from '../hooks/auth/useUser';
 
 const SearchHistoryPage = () => {
     const navigate = useNavigate();
     const { data: searchHistories, isLoading } = useFetchData<any>('/api/search-histories', {});
     const [isCopied, setIsCopied] = useState(false);
+    const user = useUser();
 
     return (
         <div className="mx-auto max-w-screen-lg">
@@ -97,7 +99,13 @@ const SearchHistoryPage = () => {
                                                 ></path>
                                             </svg>
                                         </div>
-                                        <p className="text-gray-900 dark:text-white">
+                                        <p
+                                            className={
+                                                user?.hasSnapshotPreservation
+                                                    ? 'line-through text-gray-500 dark:text-gray-400'
+                                                    : 'text-gray-900 dark:text-white'
+                                            }
+                                        >
                                             만료일: {formatDate(addDays(history.createdAt, 2))}
                                         </p>
                                     </div>

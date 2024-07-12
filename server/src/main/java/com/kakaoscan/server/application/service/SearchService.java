@@ -26,12 +26,15 @@ public class SearchService {
     private final SearchHistoryRepository searchHistoryRepository;
 
     @Transactional(readOnly = true)
-    public SearchHistories findUserSearchHistories(String userId) {
-        User user = userRepository.findByEmailOrThrow(userId);
+    public SearchHistories findUserSearchHistories(Long userId) {
+        User user = userRepository.findByIdOrThrow(userId);
 
         SearchHistories result = new SearchHistories();
 
         LocalDateTime threshold = LocalDateTime.now().minusDays(2);
+        if (user.hasSnapshotPreservation()) {
+            threshold = LocalDateTime.now().minusDays(10000L);
+        }
         List<SearchHistory> searchHistories = searchHistoryRepository.findRecentSearchHistories(user, threshold);
 
         for (SearchHistory searchHistory : searchHistories) {

@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Checkbox, Label, TextInput } from 'flowbite-react';
+import { Button, Checkbox, Label, List, TextInput } from 'flowbite-react';
 import usePasswordValidation from '../hooks/validation/usePasswordValidation';
 import { useHttp } from '../hooks/useHttp';
 import { ApiResponse } from '../types/apiResponse';
 import { useNavigate } from 'react-router-dom';
 import useUser from '../hooks/auth/useUser';
 import MessagePopup from '../components/Popup/MessagePopup';
-import useLogout from "../hooks/auth/useLogout";
+import useLogout from '../hooks/auth/useLogout';
+import { formatDate } from '../utils/format/format';
 
 const MyPage = () => {
     const navigate = useNavigate();
@@ -55,11 +56,34 @@ const MyPage = () => {
     return (
         <div className="flex justify-center mx-auto max-w-screen-lg">
             <div className="pl-2 pr-2 w-full sm:w-1/2">
+                {user?.items && user.items.length > 0 && (
+                    <>
+                        <h2 className="text-xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white md:text-2xl">
+                            기간제 상품
+                        </h2>
+                        <hr className="dark:border-gray-800 border-gray-100 mt-4" />
+                        <div className="mt-4 flex items-center mb-8">
+                            <div>
+                                <List>
+                                    {user?.items.map((item, index) => (
+                                        <List.Item className="text-gray-900 dark:text-white" key={index}>
+                                            {item.productName.replace(/\s*\(\d+일\)$/, '')}
+                                            <List unstyled nested>
+                                                <List.Item>만료일: {formatDate(new Date(item.expiredAt))}</List.Item>
+                                            </List>
+                                        </List.Item>
+                                    ))}
+                                </List>
+                            </div>
+                        </div>
+                    </>
+                )}
                 {user?.authenticationType === 'LOCAL' && (
                     <>
-                        <h2 className="mb-1 text-xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white md:text-2xl">
+                        <h2 className="mb-text-xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white md:text-2xl">
                             비밀번호 변경
                         </h2>
+                        <hr className="dark:border-gray-800 border-gray-100 mt-4" />
                         <form className="mt-4 space-y-4 md:space-y-5 lg:mt-5" onSubmit={handleSubmit}>
                             <div className="grid grid-cols-1 gap-2">
                                 <Label htmlFor="password" className="dark:text-white">
@@ -105,9 +129,11 @@ const MyPage = () => {
                         </form>
                     </>
                 )}
-                <h2 className="mb-1 text-xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white md:text-2xl">
+
+                <h2 className="text-xl font-bold leading-tight tracking-tight text-gray-900 dark:text-white md:text-2xl">
                     회원탈퇴
                 </h2>
+                <hr className="dark:border-gray-800 border-gray-100 mt-4" />
                 <div className="mt-4 flex items-center">
                     <Checkbox id="accept" checked={isAgreed} onChange={(e) => setIsAgreed(e.target.checked)} />
                     <Label htmlFor="accept" className="ml-2 flex">

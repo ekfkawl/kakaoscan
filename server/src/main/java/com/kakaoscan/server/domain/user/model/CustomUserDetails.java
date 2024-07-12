@@ -1,15 +1,16 @@
 package com.kakaoscan.server.domain.user.model;
 
 import com.kakaoscan.server.application.dto.response.UserData;
+import com.kakaoscan.server.application.dto.response.UserItem;
 import com.kakaoscan.server.domain.user.enums.AuthenticationType;
 import com.kakaoscan.server.domain.user.enums.Role;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.parameters.P;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -17,14 +18,16 @@ public class CustomUserDetails implements UserDetails {
     private final Long id;
     private final String email;
     private final String password;
+    private final List<UserItem> items;
     private final AuthenticationType authenticationType;
     private final Collection<GrantedAuthority> authorities;
     private final Map<String, Object> attributes;
 
-    public CustomUserDetails(Long id, String email, String password, AuthenticationType authenticationType, Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes) {
+    public CustomUserDetails(Long id, String email, String password, List<UserItem> items, AuthenticationType authenticationType, Collection<? extends GrantedAuthority> authorities, Map<String, Object> attributes) {
         this.id = id;
         this.email = email;
         this.password = password;
+        this.items = items;
         this.authenticationType = authenticationType;
         this.authorities = new ArrayList<>(authorities);
         this.attributes = attributes;
@@ -38,7 +41,7 @@ public class CustomUserDetails implements UserDetails {
 
         Role role = Role.fromAuthority(authority);
 
-        return new UserData(this.email, role, this.getImageUrl(), this.authenticationType);
+        return new UserData(this.email, role, this.getItems(), this.getImageUrl(), this.authenticationType);
     }
 
     @Override
