@@ -25,7 +25,7 @@ const usePhoneNumberFormat = (): [
     };
 
     const handleChangeForId = (event: React.ChangeEvent<HTMLInputElement>): void => {
-        const validInput = event.target.value.replace(/[^a-zA-Z0-9]/g, '');
+        const validInput = event.target.value.replace(/[^a-zA-Z0-9._-]/g, '');
         setPhoneNumber(validInput);
     };
 

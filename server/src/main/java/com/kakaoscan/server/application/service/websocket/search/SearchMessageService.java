@@ -34,7 +34,7 @@ public class SearchMessageService {
             throw new UserNotVerifiedException("websocket principal is empty");
         }
 
-        final String phoneNumber = originMessage.getContent().trim().replace("-", "");
+        final String phoneNumber = originMessage.getContent().trim().replace("-", "").toLowerCase();
 
         SearchMessage searchMessage = new SearchMessage(principal.getName(), phoneNumber);
         searchMessage.setId(originMessage.isId());
