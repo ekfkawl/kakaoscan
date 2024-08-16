@@ -58,7 +58,7 @@ procedure TForm1.Button2Click(Sender: TObject);
 var
   Future: IFuture<TKakaoResponse>;
 begin
-  Future:= KakaoCtrl.AddFriend(Edit1.Text, rtNumber);
+  Future:= KakaoCtrl.AddFriend(Edit1.Text, rtId);
 end;
 
 procedure TForm1.Button3Click(Sender: TObject);
@@ -70,7 +70,7 @@ var
   ViewFriendFuture: IFuture<TViewFriendInfo>;
 procedure TForm1.Button4Click(Sender: TObject);
 begin
-  ViewFriendFuture:= KakaoCtrl.ViewFriend(0);
+  ViewFriendFuture:= KakaoCtrl.ViewFriend(1);
   Writeln(ViewFriendFuture.Value.Handle);
   Writeln(ViewFriendFuture.Value.Name);
 //  Writeln(Future.Value.ScreenToBase64);
@@ -109,6 +109,7 @@ var
   Future: IFuture<TOpenIdResult>;
 begin
   Future:= KakaoCtrl.OpenId;
+  Writeln(Future.Value.HasFriendId);
 end;
 
 procedure TForm1.CheckBox1Click(Sender: TObject);
