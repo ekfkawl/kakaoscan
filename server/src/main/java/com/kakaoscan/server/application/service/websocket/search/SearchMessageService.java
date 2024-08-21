@@ -3,6 +3,7 @@ package com.kakaoscan.server.application.service.websocket.search;
 import com.kakaoscan.server.application.service.PointService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
 import com.kakaoscan.server.common.validation.ValidationPatterns;
+import com.kakaoscan.server.domain.point.model.PointValidationResult;
 import com.kakaoscan.server.domain.point.model.SearchCost;
 import com.kakaoscan.server.domain.search.entity.NewPhoneNumber;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
@@ -61,16 +62,16 @@ public class SearchMessageService {
         return Optional.empty();
     }
 
-    public boolean validatePoints(SearchMessage message) {
+    public PointValidationResult validatePoints(SearchMessage message) {
         try {
             int points = pointService.getPoints(message.getEmail());
 
             SearchCost searchCost = pointService.getTargetSearchCost(message.getEmail(), message.getContent());
-            return points >= searchCost.getCost();
+            return new PointValidationResult(points >= searchCost.getCost(), searchCost.getCost() - points);
 
         } catch (ConcurrentModificationException e) {
             messageDispatcher.sendToUser(new SearchMessage(message.getEmail(), CONCURRENT_MODIFICATION_POINTS, false));
-            return false;
+            return new PointValidationResult(false, -1);
         }
     }
 

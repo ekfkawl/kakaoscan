@@ -8,6 +8,7 @@ import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher
 import com.kakaoscan.server.application.service.websocket.search.SearchEventManagerService;
 import com.kakaoscan.server.application.service.websocket.search.SearchMessageService;
 import com.kakaoscan.server.domain.events.model.EventStatus;
+import com.kakaoscan.server.domain.point.model.PointValidationResult;
 import com.kakaoscan.server.domain.search.model.InvalidPhoneNumber;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.infrastructure.cache.CacheUpdateObserver;
@@ -23,10 +24,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
 import java.security.Principal;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.text.NumberFormat;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
@@ -65,8 +64,9 @@ public class WebSocketController {
             return;
         }
 
-        if (!searchMessageService.validatePoints(message)) {
-            sendToUser.accept(NOT_ENOUGH_POINTS);
+        PointValidationResult vr = searchMessageService.validatePoints(message);
+        if (!vr.isValid()) {
+            sendToUser.accept(String.format(NOT_ENOUGH_POINTS, NumberFormat.getNumberInstance(Locale.US).format(vr.deficitPoints())));
             return;
         }
 

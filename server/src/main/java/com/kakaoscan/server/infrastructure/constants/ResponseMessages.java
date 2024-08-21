@@ -11,7 +11,7 @@ public class ResponseMessages {
     public static final String SEARCH_NOT_KAKAO_ID_FORMAT = "올바른 아이디 형식이 아닙니다.";
     public static final String SEARCH_CONTINUE = "이전의 작업을 이어서 진행합니다.. %s";
     public static final String SEARCH_TOO_MANY_INVALID_PHONE_NUMBER = "죄송합니다, 조회가 불가능한 전화번호의 요청이 과도하게 감지되어 최대 2시간 동안 사용이 제한됩니다.";
-    public static final String NOT_ENOUGH_POINTS = "포인트가 부족합니다.";
+    public static final String NOT_ENOUGH_POINTS = "%s 포인트가 부족합니다.";
     public static final String MAX_DAILY_NEW_NUMBER_SEARCH = "죄송합니다, 오늘의 신규 번호 조회 가능 횟수가 모두 소진되었습니다. 내일 다시 확인해주세요.";
     public static final String CONCURRENT_MODIFICATION_POINTS = "잠시 후 다시 시도해 주세요.";
 
