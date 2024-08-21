@@ -46,17 +46,6 @@ const Faq = () => {
                             </p>
                         </Accordion.Content>
                     </Accordion.Panel>
-                    <Accordion.Panel>
-                        <Accordion.Title className="bg-transparent dark:bg-transparent">
-                            <p className="mr-2">서비스가 유료인 이유는 무엇인가요?</p>
-                        </Accordion.Title>
-                        <Accordion.Content>
-                            <p className="mb-2 text-gray-800 dark:text-white">
-                                개인적인 이윤을 추구하려는게 아닌, 사용자분들에게 더 나은 서비스를 지속적으로 제공하기
-                                위해 발생하는 최소한의 서버 유지 비용을 도움받고자이니 양해 부탁드립니다.😊
-                            </p>
-                        </Accordion.Content>
-                    </Accordion.Panel>
                 </Accordion>
             </div>
         </div>
