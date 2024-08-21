@@ -106,10 +106,10 @@ const PaymentHistory = () => {
                                                 />
                                             </div>
 
-                                            <p className="mt-3 text-sm font-normal text-pink-500 dark:text-pink-400">
-                                                <strong>* 중요:</strong> 입금 시, 입금자명을{' '}
-                                                <span className="font-semibold">{product.depositor}</span> (으)로 정확히
-                                                기재해 주셔야 결제 처리됩니다.
+                                            <p className="mt-3 text-sm font-normal text-red-500 dark:text-red-400">
+                                                <strong>* 중요:</strong> 입금자명을{' '}
+                                                <span className="text-indigo-600 dark:text-indigo-400 font-semibold">{product.depositor}</span> (으)로 정확히
+                                                기재해 주셔야 정상 결제 처리됩니다.
                                             </p>
                                         </div>
                                         <div className="flex justify-end items-center">
