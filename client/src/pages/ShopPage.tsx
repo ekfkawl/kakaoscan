@@ -18,7 +18,7 @@ const ShopPage = () => {
             return;
         }
 
-        const amounts = [1000, 2000, 5000];
+        const amounts = [1500, 3000, 5000];
         const amount = amounts[activeTab];
 
         await sendRequest({
@@ -62,10 +62,10 @@ const ShopPage = () => {
             <div className="bg-white rounded-lg divide-y divide-gray-200 shadow dark:divide-gray-700 lg:divide-y-0 lg:divide-x lg:grid lg:grid-cols-3 dark:bg-gray-800">
                 <div className="col-span-2 p-6 lg:p-8">
                     <Tabs style="default" onActiveTabChange={(tab) => setActiveTab(tab)}>
-                        <Tabs.Item active title="1,000 P">
+                        <Tabs.Item active title="1,500 P">
                             <AboutPoint />
                         </Tabs.Item>
-                        <Tabs.Item title="2,000 P">
+                        <Tabs.Item title="3,000 P">
                             <AboutPoint />
                         </Tabs.Item>
                         <Tabs.Item title="5,000 P">
@@ -79,12 +79,12 @@ const ShopPage = () => {
                 <div className="flex p-6 lg:p-8">
                     <div className={`self-center w-full ${activeTab === 0 ? '' : 'hidden'}`}>
                         <div className="text-gray-500 dark:text-gray-400">가격</div>
-                        <div className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white">1,000원</div>
+                        <div className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white">1,500원</div>
                         <BuyProduct productPayment={pointPayment} />
                     </div>
                     <div className={`self-center w-full ${activeTab === 1 ? '' : 'hidden'}`}>
                         <div className="text-gray-500 dark:text-gray-400">가격</div>
-                        <div className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white">2,000원</div>
+                        <div className="mb-4 text-3xl font-extrabold text-gray-900 dark:text-white">3,000원</div>
                         <BuyProduct productPayment={pointPayment} />
                     </div>
                     <div className={`self-center w-full ${activeTab === 2 ? '' : 'hidden'}`}>

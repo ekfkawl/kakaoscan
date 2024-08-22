@@ -2,7 +2,6 @@ package com.kakaoscan.server.application.service.strategy;
 
 import com.kakaoscan.server.domain.product.entity.ProductTransaction;
 import com.kakaoscan.server.domain.product.enums.ProductType;
-import com.kakaoscan.server.domain.product.model.ProductOrderClient;
 import com.kakaoscan.server.infrastructure.cache.CacheUpdateObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -20,7 +19,7 @@ public class PointTransactionProcessor extends ProductTransactionProcessor<Produ
 
     @Override
     public List<ProductType> getProductTypes() {
-        return List.of(ProductType.P500, ProductType.P1000, ProductType.P2000, ProductType.P5000, ProductType.P10000);
+        return List.of(ProductType.P500, ProductType.P1000, ProductType.P1500, ProductType.P2000, ProductType.P3000, ProductType.P5000, ProductType.P10000);
     }
 
     @Override

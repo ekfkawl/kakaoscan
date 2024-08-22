@@ -25,7 +25,9 @@ public class PointPaymentRequest implements PaymentRequest {
         return switch (amount) {
             case 500 -> ProductType.P500;
             case 1000 -> ProductType.P1000;
+            case 1500 -> ProductType.P1500;
             case 2000 -> ProductType.P2000;
+            case 3000 -> ProductType.P3000;
             case 5000 -> ProductType.P5000;
             case 10000 -> ProductType.P10000;
             default -> ProductType.UNKNOWN;
