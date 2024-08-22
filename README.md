@@ -43,7 +43,7 @@ services:
     command: redis-server --requirepass ${REDIS_PASSWORD}
 
   kakaoscan-server:
-    image: ekfkawl/kakaoscan-server:v240416180547
+    image: ekfkawl/kakaoscan-server:v240822140817
     ports:
       - "8080:8080"
     environment:
@@ -69,7 +69,7 @@ services:
 version: '3.8'
 services:
   kakaoscan-client:
-    image: ekfkawl/kakaoscan-client:v240416180902
+    image: ekfkawl/kakaoscan-client:v240822140815
     ports:
       - "3000:3000"
     environment:
