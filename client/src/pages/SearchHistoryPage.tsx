@@ -115,7 +115,10 @@ const SearchHistoryPage = () => {
                                             outline
                                             onClick={() => {
                                                 navigate('/search-history/detail', {
-                                                    state: { targetHistory: history },
+                                                    state: {
+                                                        targetHistory: history,
+                                                        createdAt: formatDate(new Date(history.createdAt)),
+                                                    },
                                                 });
                                             }}
                                         >

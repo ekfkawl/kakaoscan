@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Tabs, TabsRef } from 'flowbite-react';
+import {Alert, Tabs, TabsRef} from 'flowbite-react';
 import useScrollToComponent from '../hooks/ui/useScrollToComponent';
 import { useGalleryItems } from '../hooks/ui/useGalleryItems';
 import { useProfileData } from '../hooks/profile/useProfileData';
@@ -12,7 +12,7 @@ import ProfileThumbPopup from '../components/Popup/ProfileThumbPopup';
 
 const SearchHistoryDetailPage = () => {
     const location = useLocation();
-    const { targetHistory } = location.state || {};
+    const { targetHistory, createdAt } = location.state || {};
     const tabsRef = useRef<TabsRef>(null);
     const scrollTopRef = useRef<HTMLDivElement>(null);
     const { isVisible: isVisibleScrollToTop } = useScrollToComponent(scrollTopRef);
@@ -47,6 +47,10 @@ const SearchHistoryDetailPage = () => {
 
     return (
         <div className="mx-auto max-w-screen-lg">
+            <Alert className="mb-8 text-left text-orange-700 bg-orange-100 dark:bg-gray-700 dark:text-orange-300">
+                <span className="font-medium">{createdAt} 시점의 스냅샷입니다.</span>
+            </Alert>
+
             <div ref={scrollTopRef}>{!isVisibleScrollToTop && <ScrollToTopButton />}</div>
             <ProfileCard
                 profileImageUrl={targetHistory.profile.profileImageUrl}
