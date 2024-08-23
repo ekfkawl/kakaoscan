@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, System.Threading, System.Classes, System.SysUtils,
   KakaoHandle, KakaoCtrl, KakaoResponse, KakaoFriend, KakaoId, KakaoParent, KakaoHook, KakaoProfile, RedisUtil, SearchEvent, EventStatus, Test, GuardObjectUtil,
-  InvalidPhoneNumber, SearchNewPhoneNumberEvent, RedisConfig, KakaoEnumCallback;
+  InvalidPhoneNumber, SearchNewPhoneNumberEvent, RedisConfig, KakaoEnumCallback, LogUtil;
 
 procedure Initialize;
 procedure RunEvent(const EventId, Email, PhoneNumber: string; IsId: boolean);
@@ -48,6 +48,7 @@ var
   StatusResponse: TStatusResponse;
   ViewFriendInfo: TViewFriendInfo;
   EventStatus: TEventStatus;
+  LogMsg: String;
 begin
   const SetEventStatusAndPublish: TProc<string, string> = procedure(EventStatus, ResponseMessage: string)
   begin
@@ -65,8 +66,12 @@ begin
   TTask.Run(
     procedure
     begin
+      LogMsg:= '';
+      LogMsg:= LogMsg + Format('searchEvent'#10#9'eventId: %s'#10#9'email: %s'#10#9'phoneNumber: %s', [EventId, Email, PhoneNumber]) + sLineBreak;
+
       EnumInfo:= TEnumInfo.Create(TKakaoHandle.GetInstance.Kakao);
       EnumWindows(@CloseDialogWindow, LPARAM(@EnumInfo));
+      EnumWindows(@CloseAddFriendWindow, LPARAM(@EnumInfo));
 
       const StartTick = GetTickCount64;
       try
@@ -94,7 +99,7 @@ begin
             if StatusResponse.Message = INVALID_PHONE_NUMBER then
             begin
               Redis.CacheInvalidPhoneNumber(PhoneNumber, TInvalidPhoneNumber.CreateInstance(Email));
-              Writeln(#9'isInvalid: TRUE');
+              LogMsg:= LogMsg + #9'isInvalid: TRUE' + sLineBreak;
             end;
 
             Exit;
@@ -103,7 +108,7 @@ begin
           begin
             Guard(SearchNewNumberEvent, TSearchNewPhoneNumberEvent.Create(Email, PhoneNumber));
             Redis.Publish(OTHER_EVENT_TOPIC, SearchNewNumberEvent.ToEventJSON);
-            Writeln(#9'isNewPhoneNumber: TRUE');
+            LogMsg:= LogMsg + #9'isNewPhoneNumber: TRUE' + sLineBreak;
 
             if not KakaoCtrl.SearchFriend(PhoneNumber).Value then
             begin
@@ -130,7 +135,7 @@ begin
           begin
             SetEventStatusAndPublish(EVENT_FAILURE, INVALID_KAKAO_ID);
             Redis.CacheInvalidPhoneNumber(PhoneNumber, TInvalidPhoneNumber.CreateInstance(Email));
-            Writeln(#9'isInvalid: TRUE');
+            LogMsg:= LogMsg + #9'isInvalid: TRUE' + sLineBreak;
             Exit;
           end;
 
@@ -146,7 +151,7 @@ begin
           begin
             Guard(SearchNewNumberEvent, TSearchNewPhoneNumberEvent.Create(Email, '@' + PhoneNumber));
             Redis.Publish(OTHER_EVENT_TOPIC, SearchNewNumberEvent.ToEventJSON);
-            Writeln(#9'isNewKakaoId: TRUE');
+            LogMsg:= LogMsg + #9'isNewKakaoId: TRUE' + sLineBreak;
           end;
         end;
 
@@ -180,7 +185,8 @@ begin
         end;
       finally
         Guard(EventStatus, Redis.GetEventStatus(EventId));
-        Writeln(Format(#9'sec: %s'#10#9'result: %s', [FloatToStr((GetTickCount64 - StartTick) / 1000), EventStatus.Status]));
+        LogMsg:= LogMsg + Format(#9'sec: %s'#10#9'result: %s', [FloatToStr((GetTickCount64 - StartTick) / 1000), EventStatus.Status]) + sLineBreak;
+        Log(LogMsg);
         IsRunning:= False;
       end;
     end

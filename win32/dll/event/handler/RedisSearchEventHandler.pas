@@ -17,7 +17,6 @@ var
 begin
   try
     Guard(SearchEvent, TSearchEvent.Create(JsonMessage));
-    Writeln(Format('searchEvent'#10#9'createdAt: %s'#10#9'eventId: %s'#10#9'email: %s'#10#9'phoneNumber: %s', [DateTimeToStr(SearchEvent.CreatedAt), SearchEvent.EventId, SearchEvent.Email, SearchEvent.PhoneNumber]));
     Main.RunEvent(SearchEvent.EventId, SearchEvent.Email, SearchEvent.PhoneNumber, SearchEvent.IsId);
   except
     on E: Exception do
