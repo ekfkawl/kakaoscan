@@ -6,6 +6,7 @@ public class ResponseMessages {
     public static final String SEARCH_STARTING = "프로필 조회를 시작합니다..";
     public static final String SEARCH_ERROR_PING_PONG = "서버 연결에 실패하였습니다. 잠시 후 재시도 해주세요.";
     public static final String SEARCH_INVALID_PHONE_NUMBER = "입력하신 번호를 조회할 수 없습니다.";
+    public static final String SEARCH_INVALID_KAKAO_ID = "입력하신 아이디를 조회할 수 없습니다.";
     public static final String SEARCH_INVALID_PHONE_NUMBER_EX = "입력하신 번호를 조회할 수 없습니다, 상대방의 '전화번호로 친구 추가 허용' 옵션이 비활성화 상태면 조회가 불가능합니다.";
     public static final String SEARCH_NOT_PHONE_NUMBER_FORMAT = "올바른 번호 형식이 아닙니다.";
     public static final String SEARCH_NOT_KAKAO_ID_FORMAT = "올바른 아이디 형식이 아닙니다.";

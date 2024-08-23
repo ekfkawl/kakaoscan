@@ -55,7 +55,7 @@ public class WebSocketController {
 
         boolean isInvalidPhoneNumberCached = cacheStorePort.containsKey(INVALID_PHONE_NUMBER_KEY_PREFIX + message.getContent(), InvalidPhoneNumber.class);
         if (isInvalidPhoneNumberCached) {
-            sendToUser.accept(SEARCH_INVALID_PHONE_NUMBER);
+            sendToUser.accept(message.isId() ? SEARCH_INVALID_KAKAO_ID : SEARCH_INVALID_PHONE_NUMBER);
             return;
         }
 
