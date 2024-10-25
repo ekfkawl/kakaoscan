@@ -8,10 +8,7 @@ import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Getter
 public class CustomUserDetails implements UserDetails {
@@ -41,7 +38,7 @@ public class CustomUserDetails implements UserDetails {
 
         Role role = Role.fromAuthority(authority);
 
-        return new UserData(this.email, role, this.getItems(), this.getImageUrl(), this.authenticationType);
+        return new UserData(this.email, role, this.getItems(), this.getImageUrl(), this.getNickName(), this.authenticationType);
     }
 
     @Override
@@ -80,6 +77,20 @@ public class CustomUserDetails implements UserDetails {
     }
 
     public String getImageUrl() {
-        return this.attributes != null ? (String) this.attributes.get("picture") : null;
+        return Optional.ofNullable(this.attributes)
+                .map(attr -> (String) attr.get("picture"))
+                .orElseGet(() -> Optional.ofNullable(this.attributes)
+                        .map(attr -> (String) attr.get("profile_image"))
+                        .orElse(null)
+                );
+    }
+
+    public String getNickName() {
+        return Optional.ofNullable(this.attributes)
+                .map(attr -> (String) attr.get("name"))
+                .orElseGet(() -> Optional.ofNullable(this.attributes)
+                        .map(attr -> (String) attr.get("nickname"))
+                        .orElse(null)
+                );
     }
 }

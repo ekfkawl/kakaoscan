@@ -16,5 +16,6 @@ public class UserData {
     private List<UserItem> items;
     @Nullable
     private String profileUrl;
+    private String nickName;
     private AuthenticationType authenticationType;
 }

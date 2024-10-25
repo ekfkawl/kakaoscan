@@ -6,13 +6,13 @@ import com.kakaoscan.server.application.dto.response.ApiResponse;
 import com.kakaoscan.server.application.dto.response.LoginResponse;
 import com.kakaoscan.server.application.dto.response.UserData;
 import com.kakaoscan.server.application.port.AuthPort;
-import com.kakaoscan.server.application.service.PointService;
-import com.kakaoscan.server.domain.point.model.PointBalanceObserver;
 import com.kakaoscan.server.domain.user.model.CustomUserDetails;
 import com.kakaoscan.server.domain.user.model.oauth2.GoogleOAuth2User;
+import com.kakaoscan.server.domain.user.model.oauth2.NaverOAuth2User;
 import com.kakaoscan.server.infrastructure.security.GoogleUserDetailsService;
 import com.kakaoscan.server.infrastructure.security.JwtTokenProvider;
 import com.kakaoscan.server.infrastructure.security.JwtTokenUtils;
+import com.kakaoscan.server.infrastructure.security.NaverUserDetailsService;
 import io.jsonwebtoken.JwtException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -23,10 +23,9 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Map;
 
 @Log4j2
@@ -38,6 +37,7 @@ public class AuthController extends ApiEndpointPrefix {
     private final JwtTokenProvider jwtTokenProvider;
     private final AuthPort authPort;
     private final GoogleUserDetailsService googleUserDetailsService;
+    private final NaverUserDetailsService naverUserDetailsService;
 
     @PostMapping("/login")
     @Operation(summary = "Returns AccessToken and RefreshToken", description = "AccessToken validity is 1 hour")
@@ -49,7 +49,7 @@ public class AuthController extends ApiEndpointPrefix {
     }
 
     @PostMapping("/login/oauth2/google")
-    @Operation(summary = "Returns AccessToken and RefreshToken with Google AccessToken", description = "AccessToken validity is 1 hour")
+    @Operation(summary = "Returns AccessToken and RefreshToken with Google AccessToken")
     public ResponseEntity<ApiResponse<LoginResponse>> authenticateGoogleUser(@RequestBody Map<String, String> googleToken, HttpServletResponse response) {
         String accessToken = googleToken.get("code");
 
@@ -60,6 +60,18 @@ public class AuthController extends ApiEndpointPrefix {
         jwtTokenUtils.saveRefreshTokenInCookie(loginResponse.getRefreshToken(), response);
 
         return new ResponseEntity<>(ApiResponse.success(loginResponse), HttpStatus.OK);
+    }
+
+    @GetMapping("/login/oauth2/naver")
+    @Operation(summary = "Returns AccessToken and RefreshToken with Naver AccessToken")
+    public void authenticateNaverUser(@RequestParam String code, @RequestParam String state, HttpServletResponse response) throws IOException {
+        NaverOAuth2User naverOAuth2User = naverUserDetailsService.loadUserByCode(code, state);
+        CustomUserDetails customUserDetails = naverOAuth2User.convertToCustomUserDetails();
+
+        LoginResponse loginResponse = authPort.authenticate(customUserDetails);
+        jwtTokenUtils.saveRefreshTokenInCookie(loginResponse.getRefreshToken(), response);
+
+        response.sendRedirect(System.getenv("CURRENT_BASE_URL"));
     }
 
     @PostMapping("/logout")

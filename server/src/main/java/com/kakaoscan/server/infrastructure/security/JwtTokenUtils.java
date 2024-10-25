@@ -20,6 +20,7 @@ public class JwtTokenUtils {
         if (Arrays.asList(env.getActiveProfiles()).contains("prod")) {
             refreshCookie.setSecure(true);
         }
+        refreshCookie.setMaxAge(12 * 60 * 60);
         refreshCookie.setHttpOnly(true);
         refreshCookie.setPath("/");
         response.addCookie(refreshCookie);

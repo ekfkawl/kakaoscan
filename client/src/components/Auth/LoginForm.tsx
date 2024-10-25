@@ -8,6 +8,7 @@ import useRedirectIfAuthenticated from '../../hooks/auth/useRedirectIfAuthentica
 import { GoogleOAuthProvider } from '@react-oauth/google';
 import GoogleLoginButton from './GoogleLoginButton';
 import useRememberUserId from '../../hooks/useRememberUserId';
+import NaverLoginButton from './NaverLoginButton';
 
 const LoginForm = () => {
     useRedirectIfAuthenticated('/');
@@ -39,6 +40,7 @@ const LoginForm = () => {
                         <GoogleLoginButton />
                     </GoogleOAuthProvider>
                 )}
+                {process.env.REACT_APP_NAVER_OAUTH_CLIENT_ID && <NaverLoginButton />}
             </div>
             <div className="h-0.5 w-full bg-gray-200 dark:bg-gray-700"></div>
             {loginError && <Alert color="red">{loginError}</Alert>}

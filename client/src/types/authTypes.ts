@@ -3,7 +3,8 @@ export interface User {
     email: string;
     items: UserItem[];
     profileUrl: string;
-    authenticationType: 'LOCAL' | 'GOOGLE';
+    nickName: string;
+    authenticationType: 'LOCAL' | 'GOOGLE' | 'NAVER';
 }
 
 export interface AuthState {
