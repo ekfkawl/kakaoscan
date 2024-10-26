@@ -31,7 +31,7 @@ const AuthPage: React.FC<PropsWithChildren<{}>> = ({ children }) => {
                         View and download kakaotalk profiles
                     </h1>
                     <p className="mb-4 text-[#CCCCCC] lg:mb-8">
-                        카카오스캔은 클라우드 인스턴스 환경에서 카카오톡 프로필을 대신 조회해주는 서비스입니다.
+                        카카오스캔은 가상 환경에서 카카오톡 프로필을 대신 조회해주는 서비스입니다.
                     </p>
                 </div>
             </div>
