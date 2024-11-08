@@ -81,7 +81,7 @@ const HeaderWithUser = () => {
                             >
                                 <strong className="block text-sm">
                                     <FontAwesomeIcon icon={faUser} className="mr-2" />
-                                    {user?.nickName.padEnd(10, '⠀')}
+                                    {user?.nickName?.padEnd(10, '⠀') || user?.email}
                                 </strong>
                             </Dropdown.Item>
                             <Dropdown.Header>
