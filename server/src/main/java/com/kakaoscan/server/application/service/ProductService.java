@@ -59,7 +59,7 @@ public class ProductService extends ProductTransactionProcessor<Long> {
     @Transactional
     @Override
     public void request(Long id, PaymentRequest request) {
-        ProductTransactionProcessor<?> processor = productTransactionFactory.getProcessor(request.getProductType());
+        ProductTransactionProcessor<ProductTransaction> processor = productTransactionFactory.getProcessor(request.getProductType());
         RLock lock = redissonClient.getLock(processor.getLockPrefix() + id);
 
         if (!RedissonLockUtil.withLock(lock, () -> {
