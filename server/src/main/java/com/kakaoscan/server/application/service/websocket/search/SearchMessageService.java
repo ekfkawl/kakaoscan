@@ -76,12 +76,12 @@ public class SearchMessageService {
     }
 
     public boolean canAttemptNumberSearch(SearchMessage message) {
-        List<NewPhoneNumber> newPhoneNumbers = newPhoneNumberRepository.findNewPhoneNumbersByDate(LocalDate.now());
-        if (newPhoneNumbers.size() < 50) {
+        Optional<NewPhoneNumber> targetPhoneNumberOptional = newPhoneNumberRepository.findByTargetPhoneNumber(message.getContent());
+        if (targetPhoneNumberOptional.isPresent()) {
             return true;
         }
 
-        Optional<NewPhoneNumber> targetPhoneNumberOptional = newPhoneNumberRepository.findByTargetPhoneNumber(message.getContent());
-        return targetPhoneNumberOptional.isPresent();
+        List<NewPhoneNumber> newPhoneNumbers = newPhoneNumberRepository.findNewPhoneNumbersByDate(LocalDate.now());
+        return newPhoneNumbers.size() < 100;
     }
 }
