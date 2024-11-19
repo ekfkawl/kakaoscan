@@ -40,7 +40,7 @@ const LoginForm = () => {
                         <GoogleLoginButton />
                     </GoogleOAuthProvider>
                 )}
-                {process.env.REACT_APP_NAVER_OAUTH_CLIENT_ID && <NaverLoginButton />}
+                {/*{process.env.REACT_APP_NAVER_OAUTH_CLIENT_ID && <NaverLoginButton />}*/}
             </div>
             <div className="h-0.5 w-full bg-gray-200 dark:bg-gray-700"></div>
             {loginError && <Alert color="red">{loginError}</Alert>}
