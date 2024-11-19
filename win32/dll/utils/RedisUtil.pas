@@ -158,6 +158,7 @@ begin
     on E: Exception do
     begin
       Log(Format('redis get fail (eventId: %s)', [EventId]), E);
+      Reconnect;
     end;
   end;
 end;
