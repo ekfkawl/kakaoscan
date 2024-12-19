@@ -3,7 +3,7 @@ unit RedisUtil;
 interface
 
 uses
-  Redis.Client, Redis.Commons, Redis.NetLib.INDY, System.SysUtils, LogUtil, RedisConfig, EventStatus, InvalidPhoneNumber;
+  Winapi.Windows, Redis.Client, Redis.Commons, Redis.NetLib.INDY, System.SysUtils, LogUtil, RedisConfig, EventStatus, InvalidPhoneNumber;
 
 const
   EVENT_KEY_PREFIX = 'eventStatus:';
@@ -158,7 +158,7 @@ begin
     on E: Exception do
     begin
       Log(Format('redis get fail (eventId: %s)', [EventId]), E);
-      Reconnect;
+      ExitProcess(0);
     end;
   end;
 end;

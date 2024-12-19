@@ -176,7 +176,7 @@ begin
   begin
     Sleep(1000);
 
-    if ExistsProcess('CrashReporter.exe') then
+    if ExistsProcess('CrashReporter.exe') or (not ExistsProcess('KakaoTalk.exe')) then
     begin
       Writeln(FormatDateTime('[yy-mm-dd hh:nn:ss] ', Now), 'redo..');
 
