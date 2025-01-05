@@ -5,7 +5,7 @@ __recovery/
 
 # 환경 설정 파일
 docker-compose.yml
-.env*
+*.env*
 *.dproj
 .DS_Store
 client/src/pages/PolicyPage.tsx
