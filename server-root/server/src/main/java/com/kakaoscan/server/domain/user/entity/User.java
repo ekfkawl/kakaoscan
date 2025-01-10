@@ -70,6 +70,7 @@ public class User {
 
     @Column(nullable = false)
     @Setter
+    @Builder.Default
     private boolean isDeleted = false;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
@@ -77,18 +78,22 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("createdAt DESC")
+    @Builder.Default
     private List<SearchHistory> searchHistories = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("createdAt DESC")
+    @Builder.Default
     private List<NewPhoneNumber> newPhoneNumbers = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @OrderBy("expiredAt DESC")
+    @Builder.Default
     private List<UserItem> items = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("createdAt DESC")
+    @Builder.Default
     private List<ProductTransaction> productTransactions = new ArrayList<>();
 
     protected User() {

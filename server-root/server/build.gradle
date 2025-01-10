@@ -1,15 +1,11 @@
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '3.2.0'
-    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.springframework.boot'
+    id 'io.spring.dependency-management'
 }
 
 group = 'com.kakaoscan'
 version = '0.0.1-SNAPSHOT'
-
-java {
-    sourceCompatibility = '17'
-}
 
 configurations {
     compileOnly {
@@ -19,10 +15,6 @@ configurations {
     all {
         exclude group: 'org.springframework.boot', module: 'spring-boot-starter-logging'
     }
-}
-
-repositories {
-    mavenCentral()
 }
 
 dependencies {
@@ -70,12 +62,4 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine
     testImplementation 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
-}
-
-jar {
-    enabled = false
-}
-
-tasks.named('test') {
-    useJUnitPlatform()
 }

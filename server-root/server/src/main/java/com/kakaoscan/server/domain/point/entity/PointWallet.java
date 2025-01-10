@@ -40,6 +40,7 @@ public class PointWallet {
 
     @OneToMany(mappedBy = "wallet", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @OrderBy("createdAt DESC")
+    @Builder.Default
     private List<ProductTransaction> productTransaction = new ArrayList<>();
 
     protected PointWallet() {
