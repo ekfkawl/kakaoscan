@@ -1,13 +1,12 @@
-package com.kakaoscan.server.infrastructure.serialization;
+package io.ekfkawl.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kakaoscan.server.common.utils.ObjectMapperSingleton;
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-import static com.kakaoscan.server.common.utils.ExceptionHandler.handleException;
+import static io.ekfkawl.ExceptionSupportUtils.handleException;
 
-@Log4j2
+@Slf4j
 public class JsonSerialize {
     private static final ObjectMapper objectMapper = ObjectMapperSingleton.getInstance();
 
@@ -15,8 +14,7 @@ public class JsonSerialize {
         try {
             return objectMapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
-            handleException("error serializing Json: ", e);
-            return null;
+            return handleException("error serializing Json: ", e);
         }
     }
 }

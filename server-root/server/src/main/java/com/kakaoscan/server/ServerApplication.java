@@ -7,11 +7,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @EnableFeignClients
 @EnableScheduling
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.kakaoscan", "io.ekfkawl"})
 public class ServerApplication {
-
     public static void main(String[] args) {
         SpringApplication.run(ServerApplication.class, args);
     }
-
 }

@@ -9,7 +9,6 @@ import com.kakaoscan.server.domain.search.model.SearchResult;
 import com.kakaoscan.server.domain.search.repository.SearchHistoryRepository;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
-import com.kakaoscan.server.infrastructure.serialization.JsonDeserialize;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -17,6 +16,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+
+import static io.ekfkawl.json.JsonDeserialize.deserialize;
 
 @Log4j2
 @Service
@@ -38,7 +39,7 @@ public class SearchService {
         List<SearchHistory> searchHistories = searchHistoryRepository.findRecentSearchHistories(user, threshold);
 
         for (SearchHistory searchHistory : searchHistories) {
-            SearchResult searchResult = JsonDeserialize.deserialize(searchHistory.getData(), SearchResult.class);
+            SearchResult searchResult = deserialize(searchHistory.getData(), SearchResult.class);
             result.addHistory(searchResult, searchHistory.getTargetPhoneNumber(), searchHistory.getCostType().getCost(), searchHistory.getCreatedAt());
         }
 

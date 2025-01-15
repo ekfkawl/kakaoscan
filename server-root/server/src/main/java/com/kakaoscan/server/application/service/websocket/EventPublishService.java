@@ -1,8 +1,8 @@
 package com.kakaoscan.server.application.service.websocket;
 
 import com.kakaoscan.server.application.port.EventStatusPort;
-import com.kakaoscan.server.domain.events.enums.EventStatusEnum;
-import com.kakaoscan.server.domain.events.model.EventStatus;
+import io.ekfkawl.enums.EventStatusEnum;
+import io.ekfkawl.model.EventStatus;
 import com.kakaoscan.server.domain.events.model.SearchEvent;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.infrastructure.redis.enums.Topics;

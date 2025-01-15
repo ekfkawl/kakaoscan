@@ -1,16 +1,15 @@
-package com.kakaoscan.server.common.utils;
+package io.ekfkawl;
 
-import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
 
-@Log4j2
-public class ExceptionHandler {
-
-    public static void handleException(String message, Exception exception) {
+@Slf4j
+public class ExceptionSupportUtils {
+    public static <T> T handleException(String message, Exception exception) {
         log.error(message, exception);
         throw new RuntimeException(message, exception);
     }
 
-    public static <T extends RuntimeException> void handleException(String message, Exception exception, Class<T> exceptionClass) {
+    public static <T extends RuntimeException, R> R handleException(String message, Exception exception, Class<T> exceptionClass) {
         log.error(message, exception);
         try {
             throw exceptionClass.getConstructor(String.class, Throwable.class).newInstance(message, exception);

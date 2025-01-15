@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static com.kakaoscan.server.common.utils.ExceptionHandler.handleException;
+import static io.ekfkawl.ExceptionSupportUtils.handleException;
 
 @Service
 @RequiredArgsConstructor
@@ -29,8 +29,7 @@ public class GoogleUserDetailsService {
             return new GoogleOAuth2User(userInfo, user.getAuthorities());
 
         } catch (FeignException e) {
-            handleException("failed to retrieve user info from Google", e, SecurityException.class);
-            return null;
+            return handleException("failed to retrieve user info from Google", e, SecurityException.class);
         }
     }
 }

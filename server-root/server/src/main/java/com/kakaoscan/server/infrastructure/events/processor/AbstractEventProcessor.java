@@ -5,7 +5,7 @@ import com.kakaoscan.server.domain.events.model.EventMetadata;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
-import static com.kakaoscan.server.infrastructure.serialization.JsonDeserialize.deserialize;
+import static io.ekfkawl.json.JsonDeserialize.deserialize;
 
 public abstract class AbstractEventProcessor<T extends EventMetadata> implements EventProcessor {
     private final Class<T> eventType;

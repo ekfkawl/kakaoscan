@@ -3,7 +3,7 @@ package com.kakaoscan.server.application.service.websocket.search;
 import com.kakaoscan.server.application.port.EventStatusPort;
 import com.kakaoscan.server.application.service.websocket.EventPublishService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
-import com.kakaoscan.server.domain.events.model.EventStatus;
+import io.ekfkawl.model.EventStatus;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.infrastructure.websocket.queue.SearchInMemoryQueue;
 import lombok.RequiredArgsConstructor;
@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static com.kakaoscan.server.domain.events.enums.EventStatusEnum.PROCESSING;
-import static com.kakaoscan.server.domain.events.enums.EventStatusEnum.WAITING;
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEARCH_ERROR_PING_PONG;
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.SEARCH_QUEUE_WAITING;
 import static com.kakaoscan.server.infrastructure.redis.enums.Topics.SEARCH_EVENT_TOPIC;
+import static io.ekfkawl.enums.EventStatusEnum.PROCESSING;
+import static io.ekfkawl.enums.EventStatusEnum.WAITING;
 import static java.lang.String.format;
 
 @Log4j2

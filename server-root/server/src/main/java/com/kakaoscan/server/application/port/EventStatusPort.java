@@ -1,7 +1,7 @@
 package com.kakaoscan.server.application.port;
 
 import com.kakaoscan.server.domain.events.model.EventMetadata;
-import com.kakaoscan.server.domain.events.model.EventStatus;
+import io.ekfkawl.model.EventStatus;
 
 import java.util.Optional;
 

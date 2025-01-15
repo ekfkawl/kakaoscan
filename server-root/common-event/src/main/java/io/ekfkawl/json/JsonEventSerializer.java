@@ -1,16 +1,16 @@
-package com.kakaoscan.server.infrastructure.serialization;
+package io.ekfkawl.json;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.kakaoscan.server.common.utils.ObjectMapperSingleton;
-import com.kakaoscan.server.domain.events.model.EventMetadata;
+import io.ekfkawl.model.EventBase;
 
-import static com.kakaoscan.server.common.utils.ExceptionHandler.handleException;
+import static io.ekfkawl.ExceptionSupportUtils.handleException;
+
 
 public class JsonEventSerializer {
     private static final ObjectMapper objectMapper = ObjectMapperSingleton.getInstance();
 
-    public static String serialize(EventMetadata event) {
+    public static String serialize(EventBase event) {
         try {
             ObjectNode rootNode = objectMapper.createObjectNode();
             rootNode.put("eventType", event.getClass().getSimpleName());
@@ -18,8 +18,7 @@ public class JsonEventSerializer {
 
             return rootNode.toString();
         } catch (Exception e) {
-            handleException("serialization error", e);
-            return null;
+            return handleException("serialization error", e);
         }
     }
 }

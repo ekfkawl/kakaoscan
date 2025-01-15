@@ -15,7 +15,7 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
 
-import static com.kakaoscan.server.common.utils.ExceptionHandler.handleException;
+import static io.ekfkawl.ExceptionSupportUtils.handleException;
 
 @Service
 @RequiredArgsConstructor

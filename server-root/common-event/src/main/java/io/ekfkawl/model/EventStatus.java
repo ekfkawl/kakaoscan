@@ -1,11 +1,10 @@
-package com.kakaoscan.server.domain.events.model;
+package io.ekfkawl.model;
 
-import com.kakaoscan.server.domain.events.enums.EventStatusEnum;
+import io.ekfkawl.enums.EventStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.lang.Nullable;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -20,7 +19,7 @@ public class EventStatus implements Serializable {
 
     private EventStatusEnum status;
 
-    @Nullable
+//    @Nullable
     private String message;
 
     public EventStatus(EventStatusEnum status) {

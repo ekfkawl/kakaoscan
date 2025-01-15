@@ -4,7 +4,6 @@ import com.kakaoscan.server.application.port.EventStatusPort;
 import com.kakaoscan.server.application.service.PointService;
 import com.kakaoscan.server.application.service.SearchService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
-import com.kakaoscan.server.domain.events.model.EventStatus;
 import com.kakaoscan.server.domain.events.model.SearchEvent;
 import com.kakaoscan.server.domain.point.model.SearchCost;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
@@ -12,6 +11,7 @@ import com.kakaoscan.server.domain.search.model.SearchResult;
 import com.kakaoscan.server.infrastructure.events.processor.AbstractEventProcessor;
 import com.kakaoscan.server.infrastructure.service.RateLimitService;
 import com.kakaoscan.server.infrastructure.websocket.queue.SearchInMemoryQueue;
+import io.ekfkawl.model.EventStatus;
 import io.github.bucket4j.Bucket;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
@@ -20,10 +20,10 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.Optional;
 
-import static com.kakaoscan.server.domain.events.enums.EventStatusEnum.SUCCESS;
 import static com.kakaoscan.server.infrastructure.constants.ResponseMessages.*;
-import static com.kakaoscan.server.infrastructure.serialization.JsonDeserialize.deserialize;
-import static com.kakaoscan.server.infrastructure.serialization.JsonSerialize.serialize;
+import static io.ekfkawl.enums.EventStatusEnum.SUCCESS;
+import static io.ekfkawl.json.JsonDeserialize.deserialize;
+import static io.ekfkawl.json.JsonSerialize.serialize;
 
 // pub: win32 dll
 @Component

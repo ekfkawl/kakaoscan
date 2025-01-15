@@ -1,5 +1,6 @@
 package com.kakaoscan.server.domain.events.model;
 
+import io.ekfkawl.model.EventBase;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +9,7 @@ import java.util.UUID;
 
 @Getter
 @Setter
-public class EventMetadata {
+public class EventMetadata implements EventBase {
     protected String eventId;
     protected LocalDateTime createdAt;
 

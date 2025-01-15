@@ -8,7 +8,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.kakaoscan.server.common.utils.ExceptionHandler.handleException;
+import static io.ekfkawl.ExceptionSupportUtils.handleException;
 
 @Component
 public class ProductTransactionFactory {

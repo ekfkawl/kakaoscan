@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
-import static com.kakaoscan.server.common.utils.ExceptionHandler.handleException;
+import static io.ekfkawl.ExceptionSupportUtils.handleException;
 
 @Service
 @RequiredArgsConstructor
@@ -38,8 +38,7 @@ public class NaverUserDetailsService {
             return new NaverOAuth2User(response, user.getAuthorities());
 
         } catch (FeignException e) {
-            handleException("failed to retrieve user info from Naver", e, SecurityException.class);
-            return null;
+            return handleException("failed to retrieve user info from Naver", e, SecurityException.class);
         }
     }
 }

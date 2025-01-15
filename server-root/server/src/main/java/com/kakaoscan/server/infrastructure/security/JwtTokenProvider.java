@@ -15,7 +15,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
 import java.util.*;
 
-import static com.kakaoscan.server.common.utils.ExceptionHandler.handleException;
+import static io.ekfkawl.ExceptionSupportUtils.handleException;
 
 @RequiredArgsConstructor
 @Component
@@ -63,8 +63,7 @@ public class JwtTokenProvider {
             String tokenType = claims.getBody().get("token_type", String.class);
             return expectedTokenType.equals(tokenType);
         } catch (JwtException | IllegalArgumentException e) {
-            handleException("expired or invalid jwt token", e);
-            return false;
+            return handleException("expired or invalid jwt token", e);
         }
     }
 
@@ -88,8 +87,7 @@ public class JwtTokenProvider {
 
             return new UsernamePasswordAuthenticationToken(customUserDetails, null, userDetails.getAuthorities());
         } catch (JwtException e) {
-            handleException("failed to authenticate using the provided refresh token", e);
-            return null;
+            return handleException("failed to authenticate using the provided refresh token", e);
         }
     }
 

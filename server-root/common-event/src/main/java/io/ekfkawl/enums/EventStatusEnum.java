@@ -1,7 +1,10 @@
-package com.kakaoscan.server.domain.events.enums;
+package io.ekfkawl.enums;
 
 public enum EventStatusEnum {
-    WAITING, PROCESSING, SUCCESS, FAILURE;
+    WAITING,
+    PROCESSING,
+    SUCCESS,
+    FAILURE;
 
     public static EventStatusEnum fromString(String status) {
         try {
