@@ -52,7 +52,7 @@ public class WebhookProductOrderRequest {
         this.orderAmount = orderAmount;
         this.orderDate = OffsetDateTime.now(ZoneId.of("Asia/Seoul")).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
         this.ordererName = ordererName;
-        this.ordererPhoneNumber = "Empty";
+//        this.ordererPhoneNumber = "Empty";
         this.ordererEmail = ordererEmail;
         this.billingName = billingName;
     }
