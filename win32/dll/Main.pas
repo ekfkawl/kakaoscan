@@ -87,24 +87,21 @@ begin
         if (not IsId) and (not KakaoCtrl.SearchFriend(PhoneNumber).Value) then
         begin
           KakaoResponse:= KakaoCtrl.AddFriend(PhoneNumber, rtNumber).Value;
-          Guard(KakaoParent, TKakaoParent.Create(KakaoResponse.Json));
+          Guard(KakaoParent, TKakaoParent.Create(KakaoResponse.ParentJson));
           StatusResponse:= KakaoParent.GetStatusResponse;
 
           KakaoCtrl.SynchronizationFriend;
 
-          if KakaoParent.Status = STATUS_FAILURE then
+          if StatusResponse.Status = STATUS_FAILURE then
           begin
             SetEventStatusAndPublish(EVENT_FAILURE, StatusResponse.Message);
 
-            if StatusResponse.Message = INVALID_PHONE_NUMBER then
-            begin
-              Redis.CacheInvalidPhoneNumber(PhoneNumber, TInvalidPhoneNumber.CreateInstance(Email));
-              LogMsg:= LogMsg + #9'isInvalid: TRUE' + sLineBreak;
-            end;
+            Redis.CacheInvalidPhoneNumber(PhoneNumber, TInvalidPhoneNumber.CreateInstance(Email));
+            LogMsg:= LogMsg + #9'isInvalid: TRUE' + sLineBreak;
 
             Exit;
           end
-          else if KakaoParent.Status = STATUS_OK then
+          else if StatusResponse.Status = STATUS_OK then
           begin
             Guard(SearchNewNumberEvent, TSearchNewPhoneNumberEvent.Create(Email, PhoneNumber));
             Redis.Publish(OTHER_EVENT_TOPIC, SearchNewNumberEvent.ToEventJSON);
@@ -130,7 +127,7 @@ begin
             Exit;
           end;
 
-          Guard(KakaoParent, TKakaoParent.Create(KakaoResponse.Json));
+          Guard(KakaoParent, TKakaoParent.Create(KakaoResponse.ParentJson));
           if (KakaoParent.Status = STATUS_FAILURE_QUERY) or (not KakaoParent.IsQueryPresent) then
           begin
             SetEventStatusAndPublish(EVENT_FAILURE, INVALID_KAKAO_ID);
@@ -169,7 +166,7 @@ begin
           const HasProfile = KakaoResponse.HasProfile;
           const HasBackground = KakaoResponse.HasBackground;
 
-          Guard(KakaoProfile, TKakaoProfile.Create(KakaoResponse.Json));
+          Guard(KakaoProfile, TKakaoProfile.Create(KakaoResponse.ProfileJson));
           KakaoProfile.Profile.NickName:= ViewFriendInfo.Name;
           KakaoProfile.Profile.ScreenBase64:= ViewFriendInfo.ScreenToBase64;
 

@@ -12,7 +12,7 @@ type
     ResponseType: TResponseType;
     HasProfile: boolean;
     HasBackground: boolean;
-    Json: string;
+    FriendJson, ParentJson, ProfileJson, FeedsJson: string;
     CalledTick: UInt64;
 
     class function Initialize: TKakaoResponse; static;
@@ -25,7 +25,10 @@ begin
   Result.ResponseType:= rtUnknown;
   Result.HasProfile:= False;
   Result.HasBackground:= False;
-  Result.Json:= '';
+  Result.FriendJson:= '';
+  Result.ParentJson:= '';
+  Result.ProfileJson:= '';
+  Result.FeedsJson:= '';
 end;
 
 end.
