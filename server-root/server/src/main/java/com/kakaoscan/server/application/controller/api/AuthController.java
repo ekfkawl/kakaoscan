@@ -95,7 +95,6 @@ public class AuthController extends ApiEndpointPrefix {
         }
 
         Authentication authentication = jwtTokenProvider.getAuthentication(refreshToken);
-
         String newAccessToken = jwtTokenProvider.createAccessToken(authentication);
         UserData userData = ((CustomUserDetails) authentication.getPrincipal()).convertToUserData();
 

@@ -1,5 +1,6 @@
 package com.kakaoscan.server.infrastructure.config;
 
+import com.kakaoscan.server.infrastructure.utils.ProfileUtils;
 import lombok.RequiredArgsConstructor;
 import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
@@ -7,14 +8,11 @@ import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.env.Environment;
-
-import java.util.Arrays;
 
 @Configuration
 @RequiredArgsConstructor
 public class RedissonConfig {
-    private final Environment env;
+    private final ProfileUtils profileUtils;
 
     @Value("${spring.data.redis.host}")
     private String redisHost;
@@ -32,7 +30,7 @@ public class RedissonConfig {
         config.useSingleServer()
                 .setAddress(redisUrl);
 
-        if (!Arrays.asList(env.getActiveProfiles()).contains("dev")) {
+        if (profileUtils.isProd()) {
             config.useSingleServer().setPassword(System.getenv("REDIS_PASSWORD"));
         }
 

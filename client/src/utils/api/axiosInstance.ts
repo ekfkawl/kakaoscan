@@ -4,6 +4,7 @@ import { getAPIBaseURL } from '../web/url';
 
 const axiosInstance = axios.create({
     baseURL: getAPIBaseURL(),
+    withCredentials: true,
 });
 
 axiosInstance.interceptors.request.use((config) => {
