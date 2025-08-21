@@ -1,8 +1,9 @@
 import React, { createContext, ReactNode, useContext, useEffect, useRef, useState } from 'react';
+import { useSelector } from 'react-redux';
 import { Client, IFrame } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import store from '../redux/store';
-import { getAPIBaseURL } from '../utils/web/url';
+import type { RootState } from '../redux/store';
+import {getAPIBaseURL} from "../utils/web/url";
 
 interface WebSocketContextType {
     client: Client | null;
@@ -10,83 +11,82 @@ interface WebSocketContextType {
 }
 
 export const WebSocketContext = createContext<WebSocketContextType | null>(null);
+export const useWebSocket = () => useContext(WebSocketContext);
 
-export const useWebSocket = (): WebSocketContextType | null => useContext(WebSocketContext);
+interface Props { children: ReactNode; }
 
-interface WebSocketProviderProps {
-    children: ReactNode;
-}
+export const WebSocketProvider: React.FC<Props> = ({ children }) => {
+    const token = useSelector((s: RootState) => s.auth.token ?? '');
+    const isInitialized = useSelector((s: RootState) => s.auth.isInitialized);
 
-export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }) => {
+    const [client, setClient] = useState<Client | null>(null);
     const [isConnected, setIsConnected] = useState(false);
-    const clientRef = useRef<Client | null>(null);
-    const heartbeatRef = useRef<number | null>(null);
-    const [, setClient] = useState<Client | null>(null);
+
+    const genRef = useRef(0);
 
     useEffect(() => {
-        const connect = () => {
-            const newClient = new Client({
-                webSocketFactory: () => new SockJS(`${getAPIBaseURL()}/ws`),
-                connectHeaders: {
-                    Authorization: `Bearer ${store.getState().auth.token ?? ''}`,
-                },
-                onConnect: () => {
-                    setIsConnected(true);
-                    startHeartbeat();
-                    console.log('connected');
-                },
-                onDisconnect: () => {
-                    setIsConnected(false);
-                    console.log('disconnected');
-                },
-                onStompError: (frame: IFrame) => {
-                    setIsConnected(false);
-                    setTimeout(connect, 5000);
-                    console.error('broker reported error: ' + frame.headers['message']);
-                    console.error('details: ' + frame.body);
-                },
-            });
+        if (!isInitialized) return;
 
-            newClient.activate();
-            clientRef.current = newClient;
-            setClient(newClient);
-        };
-
-        connect();
-
-        const startHeartbeat = () => {
-            if (heartbeatRef.current !== null) {
-                clearInterval(heartbeatRef.current);
+        if (!token) {
+            if (client) {
+                const toClose = client;
+                setClient(null);
+                setIsConnected(false);
+                toClose.deactivate().catch(() => {});
             }
+            return;
+        }
 
-            const intervalId = setInterval(() => {
-                if (clientRef.current && clientRef.current.connected) {
-                    clientRef.current.publish({ destination: '/pub/heartbeat' });
+        const myGen = ++genRef.current;
 
-                    const subscription = clientRef.current.subscribe('/user/queue/message/heartbeat', (message) => {
-                        if (message.body === 'PONG') {
-                            subscription.unsubscribe();
-                        } else {
-                            connect();
-                        }
-                    });
-                } else {
-                    connect();
-                }
-            }, 1000);
+        const c = new Client({
+            webSocketFactory: () => new SockJS(`${getAPIBaseURL()}/ws`),
+            connectHeaders: { Authorization: `Bearer ${token}` },
 
-            heartbeatRef.current = intervalId as unknown as number;
-        };
+            heartbeatOutgoing: 10000,
+            heartbeatIncoming: 10000,
+
+            reconnectDelay: 3000,
+
+            debug: () => {},
+
+            onConnect: () => {
+                if (genRef.current !== myGen) return;
+                setIsConnected(true);
+            },
+            onDisconnect: () => {
+                if (genRef.current !== myGen) return;
+                setIsConnected(false);
+            },
+            onWebSocketClose: () => {
+                if (genRef.current !== myGen) return;
+                setIsConnected(false);
+            },
+            onWebSocketError: () => {
+                if (genRef.current !== myGen) return;
+                setIsConnected(false);
+            },
+            onStompError: (frame: IFrame) => {
+                if (genRef.current !== myGen) return;
+                setIsConnected(false);
+                console.error('STOMP error:', frame.headers['message'], frame.body);
+            },
+        });
+
+        c.activate();
+        setClient(c);
 
         return () => {
-            if (clientRef.current) {
-                clientRef.current.deactivate();
+            if (genRef.current === myGen) {
+                setIsConnected(false);
+                setClient(null);
+                c.deactivate().catch(() => {});
             }
         };
-    }, []);
+    }, [token, isInitialized]);
 
     return (
-        <WebSocketContext.Provider value={{ client: clientRef.current, isConnected }}>
+        <WebSocketContext.Provider value={{ client, isConnected }}>
             {children}
         </WebSocketContext.Provider>
     );

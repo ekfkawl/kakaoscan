@@ -1,6 +1,6 @@
 import { useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
-import {User, UserWrapper} from '../../types/authTypes';
+import { UserWrapper } from '../../types/authTypes';
 
 const useUser = (): UserWrapper | null => {
     const user = useSelector((state: RootState) => state.auth.user);

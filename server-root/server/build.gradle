@@ -19,7 +19,7 @@ dependencies {
     implementation project(':common-utils')
 
     implementation 'org.springframework.boot:spring-boot-starter'
-    implementation('org.springframework.boot:spring-boot-starter-web')
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
@@ -50,8 +50,6 @@ dependencies {
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
     // https://mvnrepository.com/artifact/com.h2database/h2
     testImplementation 'com.h2database:h2:2.2.224'
-
-    implementation 'org.eclipse.angus:jakarta.mail:2.0.3'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
