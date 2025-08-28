@@ -45,7 +45,7 @@ public class PointService {
             User user = userRepository.findByEmailOrThrow(userId);
             return user.getPointWallet().getBalance();
         };
-        return RedisCacheUtil.getFromCacheOrSupplier(integerCacheStorePort, key, Integer.class, supplier, 5, TimeUnit.MINUTES);
+        return RedisCacheUtil.getFromCacheOrSupplier(integerCacheStorePort, key, Integer.class, supplier, 3, TimeUnit.MINUTES);
     }
 
     @Transactional

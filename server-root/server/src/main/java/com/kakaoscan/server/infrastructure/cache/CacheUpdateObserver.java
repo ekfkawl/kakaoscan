@@ -21,7 +21,7 @@ public class CacheUpdateObserver implements PointBalanceObserver {
 
     @Override
     public void update(String userId, int points) {
-        integerCacheStorePort.put(POINT_CACHE_KEY_PREFIX + userId, points, 5, TimeUnit.MINUTES);
+        integerCacheStorePort.put(POINT_CACHE_KEY_PREFIX + userId, points, 3, TimeUnit.MINUTES);
 
         try {
             messageDispatcher.sendToUser(new PointMessage(userId, points));

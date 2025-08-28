@@ -126,6 +126,37 @@ export const WebSocketProvider: React.FC<Props> = ({ children }) => {
         };
     }, [token, isInitialized]);
 
+    useEffect(() => {
+        const ensureHealthyConnection = (reason: string) => {
+            const c = client;
+            if (!c) return;
+            if (!c.connected) { c.activate(); return; }
+
+            const age = Date.now() - lastPongAtRef.current;
+            if (age > 30000) {
+                c.deactivate().finally(() => c.activate());
+            } else {
+                c.publish({ destination: '/pub/heartbeat' });
+            }
+        };
+
+        const onVisible = () => {
+            if (document.visibilityState === 'visible') ensureHealthyConnection('visible');
+        };
+        const onPageShow = () => ensureHealthyConnection('pageshow');
+        const onOnline = () => ensureHealthyConnection('online');
+
+        document.addEventListener('visibilitychange', onVisible);
+        window.addEventListener('pageshow', onPageShow);
+        window.addEventListener('online', onOnline);
+
+        return () => {
+            document.removeEventListener('visibilitychange', onVisible);
+            window.removeEventListener('pageshow', onPageShow);
+            window.removeEventListener('online', onOnline);
+        };
+    }, [client]);
+
     return (
         <WebSocketContext.Provider value={{ client, isConnected }}>
             {children}
