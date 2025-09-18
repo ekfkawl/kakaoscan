@@ -34,7 +34,6 @@ public class PointTransactionProcessor extends ProductTransactionProcessor<Produ
     @Override
     public void approve(ProductTransaction transaction) {
         transaction.getWallet().addBalance(transaction.getAmount());
-        cacheUpdateObserver.update(transaction.getUser().getEmail(), transaction.getWallet().getBalance());
     }
 
     @Override
@@ -44,6 +43,5 @@ public class PointTransactionProcessor extends ProductTransactionProcessor<Produ
         }
 
         transaction.getWallet().deductBalance(transaction.getAmount());
-        cacheUpdateObserver.update(transaction.getUser().getEmail(), transaction.getWallet().getBalance());
     }
 }

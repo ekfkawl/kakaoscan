@@ -6,6 +6,7 @@ import com.kakaoscan.server.application.exception.PendingTransactionExistsExcept
 import com.kakaoscan.server.application.exception.TransactionIllegalStateException;
 import com.kakaoscan.server.application.service.strategy.ProductTransactionFactory;
 import com.kakaoscan.server.application.service.strategy.ProductTransactionProcessor;
+import com.kakaoscan.server.domain.events.model.PointBalanceUpdatedEvent;
 import com.kakaoscan.server.domain.events.model.ProductPurchaseCompleteEvent;
 import com.kakaoscan.server.domain.point.repository.PointWalletRepository;
 import com.kakaoscan.server.domain.product.entity.ProductTransaction;
@@ -25,6 +26,7 @@ import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -52,6 +54,7 @@ public class ProductService extends ProductTransactionProcessor<Long> {
     private final RedissonClient redissonClient;
     private final EventPublisher eventPublisher;
     private final WordProperties wordProperties;
+    private final ApplicationEventPublisher events;
 
     @Value("${bank.account}")
     private String backAccount;
@@ -118,6 +121,11 @@ public class ProductService extends ProductTransactionProcessor<Long> {
             processor.approve(transaction);
             transaction.approve();
 
+            events.publishEvent(new PointBalanceUpdatedEvent(
+                    transaction.getUser().getEmail(),
+                    transaction.getWallet().getBalance()
+            ));
+
             eventPublisher.publish(OTHER_EVENT_TOPIC.getTopic(), new ProductPurchaseCompleteEvent(
                     transaction.getUser().getEmail(),
                     transaction.getProductType().getDisplayName(),
@@ -140,6 +148,11 @@ public class ProductService extends ProductTransactionProcessor<Long> {
         processProductTransaction(productTransactionId, (processor, transaction) -> {
             processor.cancelApproval(transaction);
             transaction.cancel();
+
+            events.publishEvent(new PointBalanceUpdatedEvent(
+                    transaction.getUser().getEmail(),
+                    transaction.getWallet().getBalance()
+            ));
 
             log.info("cancel transactionId: " + productTransactionId);
         }, transaction -> {

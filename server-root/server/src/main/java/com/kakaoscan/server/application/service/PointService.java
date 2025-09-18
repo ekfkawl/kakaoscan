@@ -1,18 +1,19 @@
 package com.kakaoscan.server.application.service;
 
 import com.kakaoscan.server.application.port.CacheStorePort;
+import com.kakaoscan.server.domain.events.model.PointBalanceUpdatedEvent;
 import com.kakaoscan.server.domain.point.entity.PointWallet;
 import com.kakaoscan.server.domain.point.model.SearchCost;
 import com.kakaoscan.server.domain.search.repository.SearchHistoryRepository;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
-import com.kakaoscan.server.infrastructure.cache.CacheUpdateObserver;
 import com.kakaoscan.server.infrastructure.redis.utils.RedisCacheUtil;
 import com.kakaoscan.server.infrastructure.redis.utils.RedissonLockUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,7 @@ public class PointService {
     private final CacheStorePort<Integer> integerCacheStorePort;
     private final CacheStorePort<SearchCost> costCacheStorePort;
     private final SearchHistoryRepository searchHistoryRepository;
-    private final CacheUpdateObserver cacheUpdateObserver;
+    private final ApplicationEventPublisher events;
 
     @Transactional(readOnly = true)
     public int getPoints(String userId) {
@@ -61,7 +62,11 @@ public class PointService {
             }
 
             pointWallet.deductBalance(value);
-            cacheUpdateObserver.update(userId, pointWallet.getBalance());
+
+            events.publishEvent(new PointBalanceUpdatedEvent(
+                    userId,
+                    pointWallet.getBalance())
+            );
         });
     }
 
