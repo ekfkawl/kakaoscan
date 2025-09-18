@@ -3,14 +3,16 @@ import {useSelector} from 'react-redux';
 import {Client, IFrame, StompSubscription} from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import type {RootState} from '../redux/store';
-import {getAPIBaseURL} from "../utils/web/url";
+import {getAPIBaseURL} from '../utils/web/url';
+import {publishSafe} from "../utils/stomp/publish";
 
 interface WebSocketContextType {
     client: Client | null;
     isConnected: boolean;
 }
-export const WebSocketContext = createContext<WebSocketContextType | null>(null);
-export const useWebSocket = () => useContext(WebSocketContext);
+export const WebSocketProvider = createContext<WebSocketContextType | null>(null);
+export const useWebSocket = () => useContext(WebSocketProvider);
+
 interface Props { children: ReactNode; }
 
 export const WebSocketProvider: React.FC<Props> = ({ children }) => {
@@ -21,7 +23,6 @@ export const WebSocketProvider: React.FC<Props> = ({ children }) => {
     const [isConnected, setIsConnected] = useState(false);
 
     const genRef = useRef(0);
-
     const hbSubRef = useRef<StompSubscription | null>(null);
     const hbTimerRef = useRef<number | null>(null);
     const lastPongAtRef = useRef<number>(0);
@@ -57,10 +58,10 @@ export const WebSocketProvider: React.FC<Props> = ({ children }) => {
             webSocketFactory: () => new SockJS(`${getAPIBaseURL()}/ws`),
             connectHeaders: { Authorization: `Bearer ${token}` },
 
-            heartbeatOutgoing: 10000,
-            heartbeatIncoming: 10000,
+            heartbeatOutgoing: 10_000,
+            heartbeatIncoming: 10_000,
 
-            reconnectDelay: 3000,
+            reconnectDelay: 3_000,
             debug: () => {},
 
             onConnect: () => {
@@ -80,14 +81,16 @@ export const WebSocketProvider: React.FC<Props> = ({ children }) => {
                     lastPongAtRef.current = Date.now();
                     hbTimerRef.current = window.setInterval(() => {
                         if (c.connected) {
-                            c.publish({ destination: '/pub/heartbeat' });
+                            publishSafe(c, true, '/pub/heartbeat');
                             const now = Date.now();
-                            if (now - lastPongAtRef.current > 40000) {
+                            if (now - lastPongAtRef.current > 40_000) {
                                 c.deactivate().finally(() => c.activate());
                             }
                         }
-                    }, 1000) as unknown as number;
+                    }, 1_000) as unknown as number;
                 }
+
+                publishSafe(c, true, '/pub/points');
             },
 
             onDisconnect: () => {
@@ -127,24 +130,24 @@ export const WebSocketProvider: React.FC<Props> = ({ children }) => {
     }, [token, isInitialized]);
 
     useEffect(() => {
-        const ensureHealthyConnection = (reason: string) => {
+        const ensureHealthyConnection = () => {
             const c = client;
             if (!c) return;
+
             if (!c.connected) { c.activate(); return; }
 
             const age = Date.now() - lastPongAtRef.current;
-            if (age > 30000) {
+            if (age > 30_000) {
                 c.deactivate().finally(() => c.activate());
             } else {
-                c.publish({ destination: '/pub/heartbeat' });
+                publishSafe(c, true, '/pub/heartbeat');
+                publishSafe(c, true, '/pub/points');
             }
         };
 
-        const onVisible = () => {
-            if (document.visibilityState === 'visible') ensureHealthyConnection('visible');
-        };
-        const onPageShow = () => ensureHealthyConnection('pageshow');
-        const onOnline = () => ensureHealthyConnection('online');
+        const onVisible = () => document.visibilityState === 'visible' && ensureHealthyConnection();
+        const onPageShow = () => ensureHealthyConnection();
+        const onOnline = () => ensureHealthyConnection();
 
         document.addEventListener('visibilitychange', onVisible);
         window.addEventListener('pageshow', onPageShow);
@@ -158,8 +161,8 @@ export const WebSocketProvider: React.FC<Props> = ({ children }) => {
     }, [client]);
 
     return (
-        <WebSocketContext.Provider value={{ client, isConnected }}>
+        <WebSocketProvider.Provider value={{ client, isConnected }}>
             {children}
-        </WebSocketContext.Provider>
+        </WebSocketProvider.Provider>
     );
 };

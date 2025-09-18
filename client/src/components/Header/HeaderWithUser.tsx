@@ -30,13 +30,14 @@ const HeaderWithUser = () => {
     const [stompPointResponse, setStompPointResponse] = useState<StompPoint | null>(null);
 
     useSubscription<StompPoint>('/user/queue/message/point', setStompPointResponse);
-    const handleSendPoint = useCallback(() => {
+
+    const requestPoints = useCallback(() => {
         sendMessage('/pub/points');
     }, [sendMessage]);
 
     useEffect(() => {
-        handleSendPoint();
-    }, [handleSendPoint]);
+        requestPoints();
+    }, [requestPoints]);
 
     const isActive = (path: string) => location.pathname === path;
 

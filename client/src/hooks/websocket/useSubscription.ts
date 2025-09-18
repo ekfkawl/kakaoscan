@@ -1,24 +1,49 @@
-import { useEffect, useState } from 'react';
-import { useWebSocket } from '../../components/WebSocketContext';
+import {useEffect, useRef} from 'react';
+import {StompSubscription} from '@stomp/stompjs';
+import {useWebSocket} from '../../provider/WebSocketProvider';
 
-export function useSubscription<T>(dest: string, onMessage: (data: T) => void) {
+export function useSubscription<T>(
+    dest: string,
+    onMessage: (data: T) => void
+): void {
     const context = useWebSocket();
-    const [attempt, setAttempt] = useState(0);
+    const handlerRef = useRef(onMessage);
+    const subRef = useRef<StompSubscription | null>(null);
 
     useEffect(() => {
-        if (context?.client && context.isConnected && context.client.connected) {
-            const subscription = context.client.subscribe(dest, (message) => {
-                const data: T = JSON.parse(message.body);
-                onMessage(data);
-            });
+        handlerRef.current = onMessage;
+    }, [onMessage]);
 
-            return () => subscription.unsubscribe();
-        } else {
-            const timer = setTimeout(() => {
-                setAttempt(attempt + 1);
-            }, 250);
+    useEffect(() => {
+        const client = context?.client;
+        const isConnected = !!context?.isConnected && !!client?.connected;
 
-            return () => clearTimeout(timer);
+        if (!isConnected || !client) {
+            if (subRef.current) {
+                try { subRef.current.unsubscribe(); } catch {}
+                subRef.current = null;
+            }
+            return;
         }
-    }, [context?.client, context?.isConnected, dest, onMessage, attempt]);
+
+        if (subRef.current) return;
+
+        subRef.current = client.subscribe(dest, (message) => {
+            try {
+                const body = (message.body ?? '').trim();
+                if (!body) return;
+                const data = JSON.parse(body) as T;
+                handlerRef.current?.(data);
+            } catch (err) {
+                console.error('[useSubscription] message handling error:', err);
+            }
+        });
+
+        return () => {
+            if (subRef.current) {
+                try { subRef.current.unsubscribe(); } catch {}
+                subRef.current = null;
+            }
+        };
+    }, [context?.client, context?.isConnected, context?.client?.connected, dest]);
 }
