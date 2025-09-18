@@ -10,8 +10,8 @@ interface WebSocketContextType {
     client: Client | null;
     isConnected: boolean;
 }
-export const WebSocketProvider = createContext<WebSocketContextType | null>(null);
-export const useWebSocket = () => useContext(WebSocketProvider);
+export const StompProvider = createContext<WebSocketContextType | null>(null);
+export const useWebSocket = () => useContext(StompProvider);
 
 interface Props { children: ReactNode; }
 
@@ -161,8 +161,8 @@ export const WebSocketProvider: React.FC<Props> = ({ children }) => {
     }, [client]);
 
     return (
-        <WebSocketProvider.Provider value={{ client, isConnected }}>
+        <StompProvider.Provider value={{ client, isConnected }}>
             {children}
-        </WebSocketProvider.Provider>
+        </StompProvider.Provider>
     );
 };

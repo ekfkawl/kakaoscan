@@ -1,5 +1,5 @@
 import {useCallback} from 'react';
-import {useWebSocket} from '../../provider/WebSocketProvider';
+import {useWebSocket} from '../../providers/StompProvider';
 import type {StompHeaders} from '@stomp/stompjs';
 import {publishSafe} from "../../utils/stomp/publish"; // ← 추가
 

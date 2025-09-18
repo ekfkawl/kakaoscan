@@ -3,7 +3,7 @@ import { Outlet } from 'react-router-dom';
 import HeaderWithUser from './Header/HeaderWithUser';
 import Header from './Header/Header';
 import useAuth from '../hooks/auth/useAuth';
-import { WebSocketProvider } from '../provider/WebSocketProvider';
+import { WebSocketProvider } from '../providers/StompProvider';
 import ChannelService from '../ChannelService';
 import useUser from '../hooks/auth/useUser';
 import { enc, HmacSHA256 } from 'crypto-js';

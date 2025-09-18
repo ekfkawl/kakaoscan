@@ -1,6 +1,6 @@
 import {useEffect, useRef} from 'react';
 import {StompSubscription} from '@stomp/stompjs';
-import {useWebSocket} from '../../provider/WebSocketProvider';
+import {useWebSocket} from '../../providers/StompProvider';
 
 export function useSubscription<T>(
     dest: string,
