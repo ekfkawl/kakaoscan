@@ -1,6 +1,6 @@
 package com.kakaoscan.server.infrastructure.events.processor;
 
-import com.kakaoscan.server.domain.events.model.EventMetadata;
+import com.kakaoscan.server.domain.events.model.common.EventMetadata;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;

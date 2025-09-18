@@ -1,6 +1,7 @@
 package com.kakaoscan.server.domain.events.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.kakaoscan.server.domain.events.model.common.EventMetadata;
 import lombok.*;
 
 @Getter

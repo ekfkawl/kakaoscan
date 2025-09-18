@@ -1,6 +1,6 @@
 package com.kakaoscan.server.infrastructure.redis.publisher;
 
-import com.kakaoscan.server.domain.events.model.EventMetadata;
+import com.kakaoscan.server.domain.events.model.common.EventMetadata;
 import io.ekfkawl.json.JsonEventSerializer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;

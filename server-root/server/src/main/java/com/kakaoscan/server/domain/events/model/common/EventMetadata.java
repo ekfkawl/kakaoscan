@@ -1,4 +1,4 @@
-package com.kakaoscan.server.domain.events.model;
+package com.kakaoscan.server.domain.events.model.common;
 
 import io.ekfkawl.model.EventBase;
 import lombok.Getter;

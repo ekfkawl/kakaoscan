@@ -2,7 +2,7 @@ package com.kakaoscan.server.infrastructure.adapter;
 
 import com.kakaoscan.server.application.port.CacheStorePort;
 import com.kakaoscan.server.application.port.EventStatusPort;
-import com.kakaoscan.server.domain.events.model.EventMetadata;
+import com.kakaoscan.server.domain.events.model.common.EventMetadata;
 import io.ekfkawl.model.EventStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
