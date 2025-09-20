@@ -1,24 +1,24 @@
-package com.kakaoscan.server.application.service.websocket;
+package com.kakaoscan.server.application.events.publisher;
 
 import com.kakaoscan.server.application.port.EventStatusPort;
-import io.ekfkawl.enums.EventStatusEnum;
-import io.ekfkawl.model.EventStatus;
 import com.kakaoscan.server.domain.events.model.SearchEvent;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.infrastructure.redis.enums.Topics;
 import com.kakaoscan.server.infrastructure.redis.publisher.EventPublisher;
+import io.ekfkawl.enums.EventStatusEnum;
+import io.ekfkawl.model.EventStatus;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
+import lombok.extern.log4j.Log4j2;
+import org.springframework.stereotype.Component;
 
-import static com.kakaoscan.server.infrastructure.redis.enums.Topics.SEARCH_EVENT_TOPIC;
-
-@Service
+@Log4j2
+@Component
 @RequiredArgsConstructor
-public class EventPublishService {
+public class SearchEventPublisher {
     private final EventPublisher eventPublisher;
     private final EventStatusPort eventStatusPort;
 
-    public void publishSearchEvent(Topics topic, SearchMessage searchMessage) {
+    public void publish(Topics topic, SearchMessage searchMessage) {
         SearchEvent event = SearchEvent.builder()
                 .eventId(searchMessage.getMessageId())
                 .email(searchMessage.getEmail())
@@ -26,9 +26,7 @@ public class EventPublishService {
                 .isId(searchMessage.isId())
                 .build();
 
-        if (topic == SEARCH_EVENT_TOPIC) {
-            eventStatusPort.setEventStatus(event.getEventId(), new EventStatus(EventStatusEnum.WAITING));
-        }
+        eventStatusPort.setEventStatus(event.getEventId(), new EventStatus(EventStatusEnum.WAITING));
         eventPublisher.publish(topic.getTopic(), event);
     }
 }

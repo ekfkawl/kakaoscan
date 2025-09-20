@@ -1,11 +1,11 @@
 package com.kakaoscan.server.application.service.websocket.search;
 
+import com.kakaoscan.server.application.events.publisher.SearchEventPublisher;
 import com.kakaoscan.server.application.port.EventStatusPort;
-import com.kakaoscan.server.application.service.websocket.EventPublishService;
 import com.kakaoscan.server.application.service.websocket.StompMessageDispatcher;
-import io.ekfkawl.model.EventStatus;
 import com.kakaoscan.server.domain.search.model.SearchMessage;
 import com.kakaoscan.server.infrastructure.websocket.queue.SearchInMemoryQueue;
+import io.ekfkawl.model.EventStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -26,11 +26,11 @@ import static java.lang.String.format;
 public class SearchEventManagerService {
 
     private final EventStatusPort eventStatusPort;
-    private final EventPublishService eventPublishService;
+    private final SearchEventPublisher searchEventPublisher;
     private final SearchInMemoryQueue queue;
     private final StompMessageDispatcher messageDispatcher;
 
-    private static final int PROCESSING_TIMEOUT_SECONDS = 20;
+    private static final int PROCESSING_TIMEOUT_SECONDS = 30;
 
     public boolean checkUserTurnAndNotify(SearchMessage searchMessage, SearchMessage peekSearchMessage) {
         boolean isUserTurn = searchMessage.getEmail().equals(peekSearchMessage.getEmail());
@@ -61,9 +61,8 @@ public class SearchEventManagerService {
 
     public void publishAndTraceEvent(SearchMessage peekSearchMessage) {
         Optional<EventStatus> optionalEventStatus = eventStatusPort.getEventStatus(peekSearchMessage.getMessageId());
-
         if (optionalEventStatus.isEmpty()) {
-            eventPublishService.publishSearchEvent(SEARCH_EVENT_TOPIC, peekSearchMessage);
+            searchEventPublisher.publish(SEARCH_EVENT_TOPIC, peekSearchMessage);
         }
     }
 
