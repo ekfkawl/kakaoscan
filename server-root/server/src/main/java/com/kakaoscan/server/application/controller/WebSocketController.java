@@ -121,7 +121,9 @@ public class WebSocketController {
 
     @MessageMapping("/heartbeat")
     @SendToUser("/queue/message/heartbeat")
-    public String handleSearchProfileHeartbeat() {
+    public String handleSearchProfileHeartbeat(Principal principal) {
+        handlePointBalance(principal);
+
         queue.peek().ifPresent(searchMessage -> {
             if (searchMessage.getEventStartedAt() == null) {
                 handleSearchProfile(new SimplePrincipal(searchMessage.getEmail()), new SearchMessage.OriginMessage(searchMessage.getContent(), searchMessage.isId()));
