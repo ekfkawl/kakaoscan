@@ -7,7 +7,7 @@ spring:
 
     hikari:
       poolName: HikariPool
-      maximumPoolSize: 25
+      maximumPoolSize: 14
       minimumIdle: 10
       idleTimeout: 600000
       connectionTimeout: 30000
