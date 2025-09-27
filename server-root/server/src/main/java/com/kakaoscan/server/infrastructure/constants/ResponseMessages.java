@@ -17,4 +17,5 @@ public class ResponseMessages {
     public static final String CONCURRENT_MODIFICATION_POINTS = "잠시 후 다시 시도해 주세요.";
 
     public static final String LOADING_POINTS_BALANCE = "로딩 중..";
+    public static final String LOADING_POINTS_BALANCE_ERROR = "로딩 오류..";
 }

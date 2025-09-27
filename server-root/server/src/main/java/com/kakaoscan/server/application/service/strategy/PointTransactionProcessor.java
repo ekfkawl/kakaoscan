@@ -2,7 +2,6 @@ package com.kakaoscan.server.application.service.strategy;
 
 import com.kakaoscan.server.domain.product.entity.ProductTransaction;
 import com.kakaoscan.server.domain.product.enums.ProductType;
-import com.kakaoscan.server.infrastructure.cache.CacheUpdateObserver;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
@@ -15,7 +14,6 @@ import static com.kakaoscan.server.infrastructure.constants.RedisKeyPrefixes.LOC
 @Service
 @RequiredArgsConstructor
 public class PointTransactionProcessor extends ProductTransactionProcessor<ProductTransaction> {
-    private final CacheUpdateObserver cacheUpdateObserver;
 
     @Override
     public List<ProductType> getProductTypes() {

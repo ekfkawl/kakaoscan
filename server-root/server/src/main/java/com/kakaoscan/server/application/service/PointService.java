@@ -63,10 +63,7 @@ public class PointService {
 
             pointWallet.deductBalance(value);
 
-            events.publishEvent(new PointBalanceUpdatedEvent(
-                    userId,
-                    pointWallet.getBalance())
-            );
+            events.publishEvent(new PointBalanceUpdatedEvent(userId));
         });
     }
 

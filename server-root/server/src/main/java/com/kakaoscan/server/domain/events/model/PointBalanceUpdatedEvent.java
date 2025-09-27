@@ -10,5 +10,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PointBalanceUpdatedEvent extends EventMetadata {
     private String email;
-    private int newBalance;
 }

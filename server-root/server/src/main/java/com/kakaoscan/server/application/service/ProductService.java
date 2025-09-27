@@ -121,10 +121,7 @@ public class ProductService extends ProductTransactionProcessor<Long> {
             processor.approve(transaction);
             transaction.approve();
 
-            events.publishEvent(new PointBalanceUpdatedEvent(
-                    transaction.getUser().getEmail(),
-                    transaction.getWallet().getBalance()
-            ));
+            events.publishEvent(new PointBalanceUpdatedEvent(transaction.getUser().getEmail()));
 
             eventPublisher.publish(OTHER_EVENT_TOPIC.getTopic(), new ProductPurchaseCompleteEvent(
                     transaction.getUser().getEmail(),
@@ -149,10 +146,7 @@ public class ProductService extends ProductTransactionProcessor<Long> {
             processor.cancelApproval(transaction);
             transaction.cancel();
 
-            events.publishEvent(new PointBalanceUpdatedEvent(
-                    transaction.getUser().getEmail(),
-                    transaction.getWallet().getBalance()
-            ));
+            events.publishEvent(new PointBalanceUpdatedEvent(transaction.getUser().getEmail()));
 
             log.info("cancel transactionId: " + productTransactionId);
         }, transaction -> {
