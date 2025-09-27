@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static com.kakaoscan.server.infrastructure.config.RedissonConfig.LOCK_LEASE_TIME;
 import static com.kakaoscan.server.infrastructure.config.RedissonConfig.LOCK_WAIT_TIME;
 
-public class RedissonLockUtil {
+public class RedissonLockUtils {
 
     public static boolean withLock(RLock lock, Runnable runnable) {
         try {

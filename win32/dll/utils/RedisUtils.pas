@@ -1,9 +1,9 @@
-unit RedisUtil;
+unit RedisUtils;
 
 interface
 
 uses
-  Winapi.Windows, Redis.Client, Redis.Commons, Redis.NetLib.INDY, System.SysUtils, LogUtil, RedisConfig, EventStatus, InvalidPhoneNumber;
+  Winapi.Windows, Redis.Client, Redis.Commons, Redis.NetLib.INDY, System.SysUtils, LogUtils, RedisConfig, EventStatus, InvalidPhoneNumber;
 
 const
   EVENT_KEY_PREFIX = 'eventStatus:';

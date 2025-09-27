@@ -4,8 +4,8 @@ interface
 
 uses
   Winapi.Windows, System.Threading, System.Classes, System.SysUtils,
-  KakaoHandle, KakaoCtrl, KakaoResponse, KakaoFriend, KakaoId, KakaoParent, KakaoHook, KakaoProfile, RedisUtil, SearchEvent, EventStatus, Test, GuardObjectUtil,
-  InvalidPhoneNumber, SearchNewPhoneNumberEvent, RedisConfig, KakaoEnumCallback, LogUtil;
+  KakaoHandle, KakaoCtrl, KakaoResponse, KakaoFriend, KakaoId, KakaoParent, KakaoHook, KakaoProfile, RedisUtils, SearchEvent, EventStatus, Test, GuardObjectUtils,
+  InvalidPhoneNumber, SearchNewPhoneNumberEvent, RedisConfig, KakaoEnumCallback, LogUtils;
 
 procedure Initialize;
 procedure RunEvent(const EventId, Email, PhoneNumber: string; IsId: boolean);

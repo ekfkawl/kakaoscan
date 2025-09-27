@@ -1,4 +1,4 @@
-unit LogUtil;
+unit LogUtils;
 
 interface
 

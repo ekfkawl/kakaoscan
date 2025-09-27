@@ -1,4 +1,4 @@
-unit MemoryUtil;
+unit MemoryUtils;
 
 interface
 
@@ -6,8 +6,8 @@ uses
   Winapi.Windows;
 
 function GetCallAddress(const Address: DWORD): DWORD;
-procedure CallHook(const HookAddress: DWORD; DestAddress: Pointer);
-procedure JumpHook(const HookAddress: DWORD; DestAddress: Pointer);
+procedure CallHook(const HookAddress: DWORD; DestAddress: Pointer; NopCount: Byte = 0);
+procedure JumpHook(const HookAddress: DWORD; DestAddress: Pointer; NopCount: Byte = 0);
 procedure WriteProtectedMemory1(const Address: DWORD; dbValue: Byte);
 procedure WriteProtectedMemory2(const Address: DWORD; dwValue: Word);
 procedure WriteProtectedMemory4(const Address, ddValue: DWORD);
@@ -19,23 +19,34 @@ begin
   Result:= Integer(Address) + PInteger(Address + 1)^ + 5;
 end;
 
-procedure CallHook(const HookAddress: DWORD; DestAddress: Pointer);
+procedure CallHook(const HookAddress: DWORD; DestAddress: Pointer; NopCount: Byte = 0);
 var
-  dOldProtect: DWORD;
+  dOldProtect, i: DWORD;
 begin
   VirtualProtect(Ptr(HookAddress), 8, PAGE_EXECUTE_READWRITE, dOldProtect);
   PBYTE(HookAddress)^:= $E8;
   PDWORD(HookAddress + 1)^:= DWORD(DestAddress) - HookAddress - 5;
+  if NopCount > 0 then
+  begin
+    for i:= 0 to NopCount - 1 do
+      PByte(HookAddress + 5 + i)^:= $90;
+  end;
   VirtualProtect(Ptr(HookAddress), 8, dOldProtect, dOldProtect);
 end;
 
-procedure JumpHook(const HookAddress: DWORD; DestAddress: Pointer);
+procedure JumpHook(const HookAddress: DWORD; DestAddress: Pointer; NopCount: Byte = 0);
 var
-  dOldProtect: DWORD;
+  dOldProtect, i: DWORD;
 begin
   VirtualProtect(Ptr(HookAddress), 8, PAGE_EXECUTE_READWRITE, dOldProtect);
   PBYTE(HookAddress)^:= $E9;
   PDWORD(HookAddress + 1)^:= DWORD(DestAddress) - HookAddress - 5;
+  if NopCount > 0 then
+  begin
+    for i:= 0 to NopCount - 1 do
+      PByte(HookAddress + 5 + i)^:= $90;
+  end;
+  VirtualProtect(Ptr(HookAddress), 8, dOldProtect, dOldProtect);
   VirtualProtect(Ptr(HookAddress), 8, dOldProtect, dOldProtect);
 end;
 

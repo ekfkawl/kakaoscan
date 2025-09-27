@@ -18,7 +18,7 @@ import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
 import com.kakaoscan.server.infrastructure.config.WordProperties;
 import com.kakaoscan.server.infrastructure.redis.publisher.EventPublisher;
-import com.kakaoscan.server.infrastructure.redis.utils.RedissonLockUtil;
+import com.kakaoscan.server.infrastructure.redis.utils.RedissonLockUtils;
 import com.kakaoscan.server.infrastructure.service.AuthenticationService;
 import com.querydsl.core.QueryResults;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +65,7 @@ public class ProductService extends ProductTransactionProcessor<Long> {
         ProductTransactionProcessor<ProductTransaction> processor = productTransactionFactory.getProcessor(request.getProductType());
         RLock lock = redissonClient.getLock(processor.getLockPrefix() + id);
 
-        if (!RedissonLockUtil.withLock(lock, () -> {
+        if (!RedissonLockUtils.withLock(lock, () -> {
             User user = userRepository.findByIdOrThrow(id);
             if (productTransactionRepository.existsPendingTransaction(user.getPointWallet())) {
                 throw new PendingTransactionExistsException("대기 중인 결제 요청이 존재합니다. 이전 결제를 완료 또는 취소 후 신청해 주세요.");

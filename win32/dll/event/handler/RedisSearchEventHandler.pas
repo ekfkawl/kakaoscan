@@ -3,8 +3,8 @@ unit RedisSearchEventHandler;
 interface
 
 uses
-  Winapi.Windows, System.Classes, System.SysUtils, LogUtil, System.Threading,
-  Main, EventMetadata, SearchEvent, EventStatus, GuardObjectUtil, RedisConfig, RedisUtil;
+  Winapi.Windows, System.Classes, System.SysUtils, LogUtils, System.Threading,
+  Main, EventMetadata, SearchEvent, EventStatus, GuardObjectUtils, RedisConfig, RedisUtils;
 
 implementation
 

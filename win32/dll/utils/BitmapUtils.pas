@@ -1,4 +1,4 @@
-unit BitmapUtil;
+unit BitmapUtils;
 
 interface
 

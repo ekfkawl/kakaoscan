@@ -7,8 +7,8 @@ import com.kakaoscan.server.domain.point.model.SearchCost;
 import com.kakaoscan.server.domain.search.repository.SearchHistoryRepository;
 import com.kakaoscan.server.domain.user.entity.User;
 import com.kakaoscan.server.domain.user.repository.UserRepository;
-import com.kakaoscan.server.infrastructure.redis.utils.RedisCacheUtil;
-import com.kakaoscan.server.infrastructure.redis.utils.RedissonLockUtil;
+import com.kakaoscan.server.infrastructure.redis.utils.RedisCacheUtils;
+import com.kakaoscan.server.infrastructure.redis.utils.RedissonLockUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
@@ -46,14 +46,14 @@ public class PointService {
             User user = userRepository.findByEmailOrThrow(userId);
             return user.getPointWallet().getBalance();
         };
-        return RedisCacheUtil.getFromCacheOrSupplier(integerCacheStorePort, key, Integer.class, supplier, 3, TimeUnit.MINUTES);
+        return RedisCacheUtils.getFromCacheOrSupplier(integerCacheStorePort, key, Integer.class, supplier, 3, TimeUnit.MINUTES);
     }
 
     @Transactional
     public boolean deductPoints(String userId, int value) {
         RLock lock = redissonClient.getLock(LOCK_USER_POINTS_KEY_PREFIX + userId);
 
-        return RedissonLockUtil.withLock(lock, () -> {
+        return RedissonLockUtils.withLock(lock, () -> {
             User user = userRepository.findByEmailOrThrow(userId);
 
             PointWallet pointWallet = user.getPointWallet();
@@ -82,6 +82,6 @@ public class PointService {
             User user = userRepository.findByEmailOrThrow(userId);
             return searchHistoryRepository.getTargetSearchCost(user, targetPhoneNumber);
         };
-        return RedisCacheUtil.getFromCacheOrSupplier(costCacheStorePort, key, SearchCost.class, supplier, 1, TimeUnit.MINUTES);
+        return RedisCacheUtils.getFromCacheOrSupplier(costCacheStorePort, key, SearchCost.class, supplier, 1, TimeUnit.MINUTES);
     }
 }
