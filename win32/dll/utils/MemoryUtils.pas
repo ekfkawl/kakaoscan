@@ -47,7 +47,6 @@ begin
       PByte(HookAddress + 5 + i)^:= $90;
   end;
   VirtualProtect(Ptr(HookAddress), 8, dOldProtect, dOldProtect);
-  VirtualProtect(Ptr(HookAddress), 8, dOldProtect, dOldProtect);
 end;
 
 procedure WriteProtectedMemory1(const Address: DWORD; dbValue: Byte);
