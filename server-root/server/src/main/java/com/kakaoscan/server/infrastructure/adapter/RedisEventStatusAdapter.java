@@ -10,8 +10,6 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-import static com.kakaoscan.server.infrastructure.constants.RedisKeyPrefixes.EVENT_KEY_PREFIX;
-
 @Service
 @RequiredArgsConstructor
 public class RedisEventStatusAdapter implements EventStatusPort {
@@ -20,19 +18,19 @@ public class RedisEventStatusAdapter implements EventStatusPort {
 
     @Override
     public void setEventStatus(String eventId, EventStatus status) {
-        cacheStorePort.put(EVENT_KEY_PREFIX + eventId, status, 10, TimeUnit.MINUTES);
+        cacheStorePort.put(eventId, status, 10, TimeUnit.MINUTES);
     }
 
     @Override
     public Optional<EventStatus> getEventStatus(String eventId) {
-        EventStatus eventStatus = cacheStorePort.get(EVENT_KEY_PREFIX + eventId, EventStatus.class);
+        EventStatus eventStatus = cacheStorePort.get(eventId, EventStatus.class);
 
         return (eventStatus == null) ? Optional.empty() : Optional.of(eventStatus);
     }
 
     @Override
     public void deleteEventStatus(String eventId) {
-        cacheStorePort.deleteKey(EVENT_KEY_PREFIX + eventId, EventStatus.class);
+        cacheStorePort.deleteKey(eventId, EventStatus.class);
     }
 
     @Override

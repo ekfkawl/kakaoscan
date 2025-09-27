@@ -68,13 +68,13 @@ public class PointService {
     }
 
     public void cacheTargetSearchCost(String userId, String targetPhoneNumber, SearchCost searchCost) {
-        final String key = TARGET_SEARCH_COST_KEY_PREFIX + userId + targetPhoneNumber;
+        final String key = TARGET_SEARCH_COST_KEY_PREFIX.concat(userId.concat(":").concat(targetPhoneNumber));
         costCacheStorePort.put(key, searchCost, 1, TimeUnit.MINUTES);
     }
 
     @Transactional(readOnly = true)
     public SearchCost getTargetSearchCost(String userId, String targetPhoneNumber) {
-        final String key = TARGET_SEARCH_COST_KEY_PREFIX + userId + targetPhoneNumber;
+        final String key = TARGET_SEARCH_COST_KEY_PREFIX.concat(userId.concat(":").concat(targetPhoneNumber));
         Supplier<SearchCost> supplier = () -> {
             User user = userRepository.findByEmailOrThrow(userId);
             return searchHistoryRepository.getTargetSearchCost(user, targetPhoneNumber);
