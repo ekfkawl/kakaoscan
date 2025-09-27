@@ -6,7 +6,6 @@ uses
   System.Classes,
   System.Threading,
   RedisUtils in 'utils\RedisUtils.pas',
-  RedisConfig in 'config\RedisConfig.pas',
   RedisSearchEventHandler in 'event\handler\RedisSearchEventHandler.pas',
   EventMetadata in 'event\model\EventMetadata.pas',
   SearchEvent in 'event\model\SearchEvent.pas',
@@ -32,7 +31,8 @@ uses
   KakaoCtrl in 'kakao\private\KakaoCtrl.pas',
   SaveFileOverride in 'kakao\override\SaveFileOverride.pas',
   GuardObjectUtils in 'utils\GuardObjectUtils.pas',
-  LogUtils in 'utils\LogUtils.pas';
+  LogUtils in 'utils\LogUtils.pas',
+  Redis.Config in 'config\Redis.Config.pas';
 
 {$R *.res}
 

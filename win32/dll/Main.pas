@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, System.Threading, System.Classes, System.SysUtils,
   KakaoHandle, KakaoCtrl, KakaoResponse, KakaoFriend, KakaoId, KakaoParent, KakaoHook, KakaoProfile, RedisUtils, SearchEvent, EventStatus, Test, GuardObjectUtils,
-  InvalidPhoneNumber, SearchNewPhoneNumberEvent, RedisConfig, KakaoEnumCallback, LogUtils;
+  InvalidPhoneNumber, SearchNewPhoneNumberEvent, Redis.Config, KakaoEnumCallback, LogUtils;
 
 procedure Initialize;
 procedure RunEvent(const EventId, Email, PhoneNumber: string; IsId: boolean);
@@ -16,6 +16,16 @@ var
   IsRunning: Boolean;
   KakaoCtrl: TKakaoCtrl;
   Redis: TRedis;
+  KV: IKeyValueStore;
+
+const
+  INVALID_PHONE_NUMBER_KEY_PREFIX = 'invalidPhoneNumber:';
+  EVENT_WAITING = 'WAITING';
+  EVENT_PROCESSING = 'PROCESSING';
+  EVENT_SUCCESS = 'SUCCESS';
+  EVENT_FAILURE = 'FAILURE';
+  EVENT_TTL = 600;
+  INVALID_PHONE_TTL = 3600 * 12;
 
 procedure MergeFeeds(HasFeeds: Boolean; hViewFriendWindow: THandle; ImageViewerType: TProfileImageViewerType; var KakaoProfile: TKakaoProfile);
 var
@@ -50,11 +60,31 @@ var
   EventStatus: TEventStatus;
   LogMsg: String;
 begin
+  const SetEventStatus: TProc<string, string> = procedure(EventStatus, ResponseMessage: string)
+  begin
+    KV.SetEX(EventId, TEventStatus.CreateInstance(EventStatus, ResponseMessage).ToJSON, EVENT_TTL);
+  end;
+
   const SetEventStatusAndPublish: TProc<string, string> = procedure(EventStatus, ResponseMessage: string)
   begin
-    Redis.SetEventStatus(EventId, TEventStatus.CreateInstance(EventStatus, ResponseMessage));
+    SetEventStatus(EventStatus, ResponseMessage);
     Guard(SearchEvent, TSearchEvent.Create(EventId, Email, PhoneNumber, IsId));
     Redis.Publish(EVENT_TRACE_TOPIC, SearchEvent.ToEventJSON);
+  end;
+
+  const GetEventStatus: TFunc<string, TEventStatus> = function(EventId: string): TEventStatus
+  var
+    Json: string;
+  begin
+    Result:= nil;
+    Json:= KV.Get(EventId);
+    if Json <> '' then
+      Result:= TEventStatus.FromJSON(Json);
+  end;
+
+  const CacheInvalidPhoneNumber: TFunc<string, TInvalidPhoneNumber, Boolean> = function(PhoneNumber: string; InvalidPhoneNumber: TInvalidPhoneNumber): Boolean
+  begin
+    Result:= KV.SetEX(INVALID_PHONE_NUMBER_KEY_PREFIX + PhoneNumber, InvalidPhoneNumber.ToJSON, INVALID_PHONE_TTL);
   end;
 
   SetEventStatusAndPublish(EVENT_PROCESSING, '');
@@ -75,14 +105,7 @@ begin
 
       const StartTick = GetTickCount64;
       try
-        const Tick = GetTickCount64 + 1000;
-        while Tick > GetTickCount64 do
-        begin
-          Guard(EventStatus, Redis.GetEventStatus(EventId));
-          if Assigned(Redis.GetEventStatus(EventId)) then
-            break;
-          Sleep(1);
-        end;
+        Guard(EventStatus, TEventStatus.FromJSON(KV.Get(EventId)));
 
         if (not IsId) and (not KakaoCtrl.SearchFriend(PhoneNumber).Value) then
         begin
@@ -96,7 +119,7 @@ begin
           begin
             SetEventStatusAndPublish(EVENT_FAILURE, StatusResponse.Message);
 
-            Redis.CacheInvalidPhoneNumber(PhoneNumber, TInvalidPhoneNumber.CreateInstance(Email));
+            CacheInvalidPhoneNumber(PhoneNumber, TInvalidPhoneNumber.CreateInstance(Email));
             LogMsg:= LogMsg + #9'isInvalid: TRUE' + sLineBreak;
 
             Exit;
@@ -131,7 +154,7 @@ begin
           if (KakaoParent.Status = STATUS_FAILURE_QUERY) or (not KakaoParent.IsQueryPresent) then
           begin
             SetEventStatusAndPublish(EVENT_FAILURE, INVALID_KAKAO_ID);
-            Redis.CacheInvalidPhoneNumber(PhoneNumber, TInvalidPhoneNumber.CreateInstance(Email));
+            CacheInvalidPhoneNumber(PhoneNumber, TInvalidPhoneNumber.CreateInstance(Email));
             LogMsg:= LogMsg + #9'isInvalid: TRUE' + sLineBreak;
             Exit;
           end;
@@ -181,7 +204,7 @@ begin
           SetEventStatusAndPublish(EVENT_SUCCESS, KakaoProfile.ToJSON);
         end;
       finally
-        Guard(EventStatus, Redis.GetEventStatus(EventId));
+        Guard(EventStatus, GetEventStatus(EventId));
         LogMsg:= LogMsg + Format(#9'sec: %s'#10#9'result: %s', [FloatToStr((GetTickCount64 - StartTick) / 1000), EventStatus.Status]) + sLineBreak;
         Log(LogMsg);
         IsRunning:= False;
@@ -194,6 +217,7 @@ procedure Initialize;
 begin
   KakaoCtrl:= TKakaoCtrl.GetInstance;
   Redis:= TRedis.GetInstance;
+  KV:= Redis.KV;
 
   {$IFDEF DEBUG}
   TThread.CreateAnonymousThread(
