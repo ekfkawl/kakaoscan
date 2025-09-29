@@ -13,32 +13,45 @@ import static com.kakaoscan.server.infrastructure.config.RedissonConfig.LOCK_WAI
 public class RedissonLockUtils {
 
     public static boolean withLock(RLock lock, Runnable runnable) {
+        boolean locked = false;
         try {
-            if (!lock.tryLock(LOCK_WAIT_TIME, LOCK_LEASE_TIME, TimeUnit.SECONDS)) {
+            locked = lock.tryLock(LOCK_WAIT_TIME, LOCK_LEASE_TIME, TimeUnit.SECONDS);
+            if (!locked) {
                 return false;
             }
 
-            AtomicReference<Exception> exception = new AtomicReference<>(null);
-            try {
-                runnable.run();
-            } catch (Exception e) {
-                exception.set(e);
-            } finally {
+            if (TransactionSynchronizationManager.isSynchronizationActive()) {
                 TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
                     @Override
-                    public void afterCommit() {
-                        lock.unlock();
-                        if (exception.get() != null) {
-                            throw new RuntimeException(exception.get());
-                        }
+                    public void afterCompletion(int status) {
+                        try {
+                            if (lock.isHeldByCurrentThread()) {
+                                lock.unlock();
+                            }
+                        } catch (Exception ignore) { }
                     }
                 });
             }
 
+            runnable.run();
             return true;
+
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new IllegalStateException("Lock acquisition interrupted", e);
+        } catch (RuntimeException | Error e) {
+            throw e;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        } finally {
+            if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+                try {
+                    if (locked && lock.isHeldByCurrentThread()) {
+                        lock.unlock();
+                    }
+                } catch (Exception ignore) { }
+            }
         }
     }
+
 }

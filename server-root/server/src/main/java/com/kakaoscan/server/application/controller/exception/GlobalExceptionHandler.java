@@ -2,10 +2,7 @@ package com.kakaoscan.server.application.controller.exception;
 
 import com.kakaoscan.server.application.dto.request.RegisterRequest;
 import com.kakaoscan.server.application.dto.response.ApiResponse;
-import com.kakaoscan.server.application.exception.DeletedUserException;
-import com.kakaoscan.server.application.exception.EmailNotVerifiedException;
-import com.kakaoscan.server.application.exception.PendingTransactionExistsException;
-import com.kakaoscan.server.application.exception.TransactionIllegalStateException;
+import com.kakaoscan.server.application.exception.*;
 import com.kakaoscan.server.infrastructure.exception.DataNotFoundException;
 import com.kakaoscan.server.infrastructure.exception.UserNotFoundException;
 import io.jsonwebtoken.JwtException;
@@ -64,6 +61,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(PendingTransactionExistsException.class)
     public ResponseEntity<ApiResponse<Void>> handlePendingTransactionExistsException(PendingTransactionExistsException e) {
         return new ResponseEntity<>(ApiResponse.failure(e.getMessage()), HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler(PayBadRequestException.class)
+    public ResponseEntity<ApiResponse<Void>> handlePayBadRequestException(PayBadRequestException e) {
+        return new ResponseEntity<>(ApiResponse.failure(e.getMessage()), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(DataNotFoundException.class)

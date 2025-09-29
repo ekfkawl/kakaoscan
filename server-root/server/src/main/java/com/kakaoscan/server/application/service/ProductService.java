@@ -2,6 +2,7 @@ package com.kakaoscan.server.application.service;
 
 import com.kakaoscan.server.application.dto.request.WebhookProductOrderRequest;
 import com.kakaoscan.server.application.dto.response.ProductTransactions;
+import com.kakaoscan.server.application.exception.PayBadRequestException;
 import com.kakaoscan.server.application.exception.PendingTransactionExistsException;
 import com.kakaoscan.server.application.exception.TransactionIllegalStateException;
 import com.kakaoscan.server.application.service.strategy.ProductTransactionFactory;
@@ -21,6 +22,7 @@ import com.kakaoscan.server.infrastructure.redis.publisher.EventPublisher;
 import com.kakaoscan.server.infrastructure.redis.utils.RedissonLockUtils;
 import com.kakaoscan.server.infrastructure.service.AuthenticationService;
 import com.querydsl.core.QueryResults;
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.redisson.api.RLock;
@@ -81,12 +83,16 @@ public class ProductService extends ProductTransactionProcessor<Long> {
             ProductTransaction productTransaction = user.addPendingTransaction(request, uniqueDepositor);
             productTransaction = productTransactionRepository.save(productTransaction);
 
-            productOrderClient.createProductOrder(WebhookProductOrderRequest.builder()
-                    .orderNumber(productTransaction.getId().toString())
-                    .orderAmount(request.getAmount())
-                    .ordererName(uniqueDepositor)
-                    .billingName(uniqueDepositor)
-                    .build());
+            try {
+                productOrderClient.createProductOrder(WebhookProductOrderRequest.builder()
+                        .orderNumber(productTransaction.getId().toString())
+                        .orderAmount(request.getAmount())
+                        .ordererName(uniqueDepositor)
+                        .billingName(uniqueDepositor)
+                        .build());
+            } catch (FeignException e) {
+                throw new PayBadRequestException("일시적인 결제 서버 부하로 인해 구매 신청에 실패하였습니다. 나중에 재시도 해주세요.");
+            }
         })) {
             throw new PendingTransactionExistsException("결제 신청 중 입니다.");
         }
@@ -129,7 +135,10 @@ public class ProductService extends ProductTransactionProcessor<Long> {
                     System.getenv("CURRENT_BASE_URL"))
             );
 
-            productOrderClient.excludeProductOrder(new WebhookProductOrderRequest(transaction.getId().toString()));
+            try {
+                productOrderClient.excludeProductOrder(new WebhookProductOrderRequest(transaction.getId().toString()));
+            }catch (Exception ignored){
+            }
 
             log.info("approval transactionId: " + productTransactionId);
         }, transaction -> {
