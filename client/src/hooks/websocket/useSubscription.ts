@@ -16,9 +16,9 @@ export function useSubscription<T>(
 
     useEffect(() => {
         const client = context?.client;
-        const isConnected = !!context?.isConnected && !!client?.connected;
+        const connected = !!context?.isConnected && !!client?.connected;
 
-        if (!isConnected || !client) {
+        if (!connected || !client) {
             if (subRef.current) {
                 try { subRef.current.unsubscribe(); } catch {}
                 subRef.current = null;
@@ -28,6 +28,7 @@ export function useSubscription<T>(
 
         if (subRef.current) return;
 
+        const subId = `sub:${dest}`;
         subRef.current = client.subscribe(dest, (message) => {
             try {
                 const body = (message.body ?? '').trim();
@@ -37,7 +38,7 @@ export function useSubscription<T>(
             } catch (err) {
                 console.error('[useSubscription] message handling error:', err);
             }
-        });
+        }, { id: subId, ack: 'auto' });
 
         return () => {
             if (subRef.current) {
@@ -45,5 +46,5 @@ export function useSubscription<T>(
                 subRef.current = null;
             }
         };
-    }, [context?.client, context?.isConnected, context?.client?.connected, dest]);
+    }, [context?.client, context?.isConnected, dest]);
 }

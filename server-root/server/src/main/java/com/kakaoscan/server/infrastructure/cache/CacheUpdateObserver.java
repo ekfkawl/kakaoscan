@@ -22,7 +22,7 @@ public class CacheUpdateObserver implements PointBalanceObserver {
 
     @Override
     public void update(String userId, int points) {
-        integerCacheStorePort.put(POINT_CACHE_KEY_PREFIX + userId.toLowerCase(), points, 3, TimeUnit.MINUTES);
+        integerCacheStorePort.put(POINT_CACHE_KEY_PREFIX + userId.toLowerCase(), points, 1, TimeUnit.MINUTES);
 
         try {
             messageDispatcher.sendToUser(new PointMessage(userId, points));
@@ -31,5 +31,9 @@ public class CacheUpdateObserver implements PointBalanceObserver {
         } catch (Exception e) {
             messageDispatcher.sendToUser(new PointMessage(userId, -1, LOADING_POINTS_BALANCE_ERROR));
         }
+    }
+
+    public void remove(String userId) {
+        integerCacheStorePort.deleteKey(POINT_CACHE_KEY_PREFIX + userId.toLowerCase(), Integer.class);
     }
 }

@@ -21,6 +21,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 import org.springframework.web.socket.messaging.SessionSubscribeEvent;
 
 import java.security.Principal;
@@ -96,11 +97,15 @@ public class WebSocketController {
     }
 
     @EventListener
-    public void handleWebSocketConnectListener(SessionSubscribeEvent event) {
+    public void handleSessionSubscribe(SessionSubscribeEvent event) {
         String sessionId = event.getMessage().getHeaders().get(SimpMessageHeaderAccessor.SESSION_ID_HEADER, String.class);
         String destination = event.getMessage().getHeaders().get(SimpMessageHeaderAccessor.DESTINATION_HEADER, String.class);
 
         if (!"/user/queue/message/heartbeat".equals(destination)) {
+            return;
+        }
+
+        if (event.getUser() == null) {
             return;
         }
 
@@ -112,6 +117,17 @@ public class WebSocketController {
         }
 
         continueSearchEvent(event);
+    }
+
+    @EventListener
+    public void handleSessionDisconnect(SessionDisconnectEvent event) {
+        String sessionId = event.getMessage().getHeaders().get(SimpMessageHeaderAccessor.SESSION_ID_HEADER, String.class);
+        if (sessionId != null) {
+            sessionSubscriptions.remove(sessionId);
+        }
+        if (event.getUser() != null) {
+            cacheUpdateObserver.remove(event.getUser().getName());
+        }
     }
 
     @MessageMapping("/points")
@@ -136,10 +152,6 @@ public class WebSocketController {
     }
 
     private void continueSearchEvent(SessionSubscribeEvent event) {
-        if (event.getUser() == null) {
-            return;
-        }
-
         Optional<SearchMessage> optionalMessage = searchMessageService.findSearchMessage(event.getUser().getName());
         optionalMessage.ifPresent(message -> {
             boolean removedMessage = searchEventManagerService.removeTimeoutEventAndNotify(message);

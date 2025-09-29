@@ -26,18 +26,18 @@ const HeaderWithUser = () => {
         navigate('/login');
     };
     const user = useUser();
-    const sendMessage = useSendMessage();
+    // const sendMessage = useSendMessage();
     const [stompPointResponse, setStompPointResponse] = useState<StompPoint | null>(null);
 
     useSubscription<StompPoint>('/user/queue/message/point', setStompPointResponse);
+    //
+    // const requestPoints = useCallback(() => {
+    //     sendMessage('/pub/points');
+    // }, [sendMessage]);
 
-    const requestPoints = useCallback(() => {
-        sendMessage('/pub/points');
-    }, [sendMessage]);
-
-    useEffect(() => {
-        requestPoints();
-    }, [requestPoints]);
+    // useEffect(() => {
+    //     requestPoints();
+    // }, [requestPoints]);
 
     const isActive = (path: string) => location.pathname === path;
 
@@ -52,15 +52,15 @@ const HeaderWithUser = () => {
                     </span>
                 </Link>
                 <div className="flex items-center gap-1 lg:order-2 lg:gap-3">
-                    <DarkThemeToggle
-                        className="hidden 380px:block"
-                        iconDark={FaGithub}
-                        iconLight={FaGithub}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            window.open('https://github.com/ekfkawl/kakaoscan', '_blank');
-                        }}
-                    />
+                    {/*<DarkThemeToggle*/}
+                    {/*    className="hidden 380px:block"*/}
+                    {/*    iconDark={FaGithub}*/}
+                    {/*    iconLight={FaGithub}*/}
+                    {/*    onClick={(e) => {*/}
+                    {/*        e.preventDefault();*/}
+                    {/*        window.open('https://github.com/ekfkawl/kakaoscan', '_blank');*/}
+                    {/*    }}*/}
+                    {/*/>*/}
                     <DarkThemeToggle />
                     <div className="ml-1 mr-1 lg:mr-0">
                         <Dropdown
