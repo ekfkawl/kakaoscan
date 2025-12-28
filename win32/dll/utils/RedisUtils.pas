@@ -1,23 +1,14 @@
-unit RedisUtils;
+﻿unit RedisUtils;
 
 interface
 
 uses
-  Winapi.Windows,
-  System.Classes,
-  System.SysUtils,
-  System.SyncObjs,
-  System.Generics.Collections,
-  System.Threading,
-  Redis.Client,
-  Redis.Commons,
-  Redis.NetLib.INDY,
-  Redis.Config,
-  LogUtils;
+  Winapi.Windows, System.Classes, System.SysUtils, System.SyncObjs, System.Generics.Collections, System.Threading, System.JSON, REST.Json, DateUtils,
+  Redis.Client, Redis.Commons, Redis.NetLib.INDY, Redis.Config;
 
 type
   IKeyValueStore = interface
-    ['{D840CE1C-A7F0-49A2-9CA9-E4EE913FB18E}']
+    ['{00D3C654-F40A-4642-A3BD-1254EFD5E51C}']
     function Get(const Key: string): string;
     function SetEX(const Key, Value: string; const TTLSeconds: Integer): Boolean;
     function SetNXEX(const Key, Value: string; const TTLSeconds: Integer): Boolean;
@@ -33,6 +24,7 @@ type
 
     FIsDestroyed: Boolean;
     FLock: TCriticalSection;
+    FCmdLock: TCriticalSection;
     FSubscribedTopics: TList<string>;
     FCallbacks: TDictionary<string, TProc<string, string>>;
     FPingTask: ITask;
@@ -52,6 +44,7 @@ type
 
     function IsClientConnected: Boolean;
     class function Jitter(const BaseMs: Integer): Integer; static;
+    class function UnixNowSeconds: Double; static;
   public
     constructor Create;
     destructor Destroy; override;
@@ -62,15 +55,22 @@ type
     procedure Subscribe(const Topic: string; Callback: TProc<string, string>);
 
     property KV: IKeyValueStore read FKV;
+
+    procedure PublishServer(const Topic, Command: string; BodyValue: TJSONValue); overload;
+    procedure PublishServer(const Topic, Command, BodyJson: string); overload;
+    procedure PublishServer(const Topic, Command: string; BodyObject: TObject); overload;
+
   end;
+
+implementation
 
 var
   SingletonInstance: TRedis;
 
-implementation
-
 const
   CMD_TIMEOUT_MS = 3000;
+  SUB_TIMEOUT_MS  = 60000;
+
   PING_INTERVAL_MS = 5000;
   RECONNECT_BASE_MS = 1000;
 
@@ -105,7 +105,7 @@ begin
   Result:= False;
   NeedReconnect:= False;
 
-  FOwner.FLock.Enter;
+  FOwner.FCmdLock.Enter;
   try
     try
       if not Assigned(FOwner.FRedisClient) then
@@ -116,13 +116,14 @@ begin
       NeedReconnect:= True;
     end;
   finally
-    FOwner.FLock.Leave;
+    FOwner.FCmdLock.Leave;
   end;
 
   if NeedReconnect and (not FOwner.FIsDestroyed) then
   begin
     FOwner.ReconnectClientOnly;
-    FOwner.FLock.Enter;
+
+    FOwner.FCmdLock.Enter;
     try
       if Assigned(FOwner.FRedisClient) then
       begin
@@ -130,21 +131,19 @@ begin
         Result:= True;
       end;
     finally
-      FOwner.FLock.Leave;
+      FOwner.FCmdLock.Leave;
     end;
   end;
 end;
 
 function TRedisKeyValueAdapter.EnsureClientOrRetry<T>(const Func: TFunc<T>): T;
 var
-  NeedReconnect: Boolean;
-  HasValue: Boolean;
+  NeedReconnect, HasValue: Boolean;
   Value: T;
 begin
-  NeedReconnect:= False;
-  HasValue:= False;
+  NeedReconnect:= False; HasValue:= False;
 
-  FOwner.FLock.Enter;
+  FOwner.FCmdLock.Enter;
   try
     try
       if not Assigned(FOwner.FRedisClient) then
@@ -155,13 +154,14 @@ begin
       NeedReconnect:= True;
     end;
   finally
-    FOwner.FLock.Leave;
+    FOwner.FCmdLock.Leave;
   end;
 
   if NeedReconnect and (not FOwner.FIsDestroyed) then
   begin
     FOwner.ReconnectClientOnly;
-    FOwner.FLock.Enter;
+
+    FOwner.FCmdLock.Enter;
     try
       if Assigned(FOwner.FRedisClient) then
       begin
@@ -169,7 +169,7 @@ begin
         HasValue:= True;
       end;
     finally
-      FOwner.FLock.Leave;
+      FOwner.FCmdLock.Leave;
     end;
   end;
 
@@ -246,6 +246,7 @@ begin
   Randomize;
 
   FLock:= TCriticalSection.Create;
+  FCmdLock:= TCriticalSection.Create;
   FSubscribedTopics:= TList<string>.Create;
   FCallbacks:= TDictionary<string, TProc<string, string>>.Create;
 
@@ -262,28 +263,27 @@ destructor TRedis.Destroy;
 begin
   FIsDestroyed:= True;
 
-  FLock.Enter;
+  // 구독/클라이언트 소켓 종료
+  try if Assigned(FRedisSubscriber) then FRedisSubscriber.Disconnect; except end;
+
+  FCmdLock.Enter;
   try
-    try
-      if Assigned(FRedisSubscriber) then
-        FRedisSubscriber.Disconnect;
-    except end;
-    try
-      if Assigned(FRedisClient) then
-        FRedisClient.Disconnect;
-    except end;
+    try if Assigned(FRedisClient) then FRedisClient.Disconnect; except end;
   finally
-    FLock.Leave;
+    FCmdLock.Leave;
   end;
 
-  if Assigned(FSubscribeTask) then
-    FSubscribeTask.Wait;
-  if Assigned(FPingTask) then
-    FPingTask.Wait;
+  // 태스크 종료 대기
+  if Assigned(FSubscribeTask) then FSubscribeTask.Wait;
+  if Assigned(FPingTask)      then FPingTask.Wait;
 
+  // 상태 자료구조 정리
   FSubscribedTopics.Free;
   FCallbacks.Free;
   FTopicsChanged.Free;
+
+  // 락 해제
+  FCmdLock.Free;
   FLock.Free;
 
   inherited;
@@ -296,42 +296,33 @@ end;
 
 procedure TRedis.InitClient;
 begin
-  FLock.Enter;
+  FCmdLock.Enter;
   try
     if Assigned(FRedisClient) then
-    begin
-      try
-        FRedisClient.Disconnect;
-      except end;
-    end;
+      try FRedisClient.Disconnect; except end;
 
     FRedisClient:= NewRedisClient(GetRedisHost, GetRedisPort);
     FRedisClient.SetCommandTimeout(CMD_TIMEOUT_MS);
     if GetRedisPassword <> '' then
       FRedisClient.AUTH(GetRedisPassword);
   finally
-    FLock.Leave;
+    FCmdLock.Leave;
   end;
 end;
 
 procedure TRedis.InitSubscriber;
 begin
-  FLock.Enter;
-  try
-    if Assigned(FRedisSubscriber) then
-    begin
-      try
-        FRedisSubscriber.Disconnect;
-      except end;
-    end;
-
-    FRedisSubscriber:= NewRedisClient(GetRedisHost, GetRedisPort);
-    FRedisSubscriber.SetCommandTimeout(CMD_TIMEOUT_MS);
-    if GetRedisPassword <> '' then
-      FRedisSubscriber.AUTH(GetRedisPassword);
-  finally
-    FLock.Leave;
+  if Assigned(FRedisSubscriber) then
+  begin
+    try
+      FRedisSubscriber.Disconnect;
+    except end;
   end;
+
+  FRedisSubscriber:= NewRedisClient(GetRedisHost, GetRedisPort);
+  FRedisSubscriber.SetCommandTimeout(SUB_TIMEOUT_MS);
+  if GetRedisPassword <> '' then
+    FRedisSubscriber.AUTH(GetRedisPassword);
 end;
 
 procedure TRedis.ReconnectClientOnly;
@@ -354,7 +345,7 @@ end;
 
 function TRedis.IsClientConnected: Boolean;
 begin
-  FLock.Enter;
+  FCmdLock.Enter;
   try
     try
       Result:= Assigned(FRedisClient) and (FRedisClient.PING = 'PONG');
@@ -362,7 +353,7 @@ begin
       Result:= False;
     end;
   finally
-    FLock.Leave;
+    FCmdLock.Leave;
   end;
 end;
 
@@ -383,6 +374,8 @@ end;
 procedure TRedis.StartSubscribeLoop;
 var
   Backoff: Integer;
+const
+  MAX_IDLE_TIMEOUT_MS = 10 * 60 * 1000;
 begin
   if Assigned(FSubscribeTask) then
     Exit;
@@ -394,6 +387,7 @@ begin
     var
       Topics: TArray<string>;
       LocalVersion: Integer;
+      LastActiveTick: Int64;
     begin
       while not FIsDestroyed do
       begin
@@ -416,49 +410,80 @@ begin
         try
           InitSubscriber;
 
+          LastActiveTick:= GetTickCount64;
+
           FRedisSubscriber.SUBSCRIBE(
             Topics,
+            // 메시지 수신 시
             procedure(Topic, Msg: string)
+            var
+              cb: TProc<string, string>;
             begin
+              LastActiveTick:= GetTickCount64;
+
+              cb:= nil;
+              FLock.Enter;
               try
-                FLock.Enter;
+                FCallbacks.TryGetValue(Topic, cb);
+              finally
+                FLock.Leave;
+              end;
+
+              if Assigned(cb) then
+              begin
                 try
-                  if FCallbacks.ContainsKey(Topic) then
-                    FCallbacks[Topic](Topic, Msg);
-                finally
-                  FLock.Leave;
+                  cb(Topic, Msg);
+                except
                 end;
-              except
               end;
             end,
+
             function: Boolean
+            var
+              needReconnect: Boolean;
+              CurrentTick: Int64;
             begin
               Result:= not FIsDestroyed;
+              needReconnect:= False;
+              CurrentTick:= GetTickCount64;
 
               if Result then
               begin
                 FLock.Enter;
                 try
+                  // 토픽 목록이 변경되었으면 재구독
                   if LocalVersion <> FTopicsVersion then
                   begin
-                    try
-                      if Assigned(FRedisSubscriber) then
-                        FRedisSubscriber.Disconnect;
-                    except end;
                     Result:= False;
+                    needReconnect:= True;
                   end;
                 finally
                   FLock.Leave;
+                end;
+
+                if Result and ((CurrentTick - LastActiveTick) > MAX_IDLE_TIMEOUT_MS) then
+                begin
+                  Result:= False;
+                  needReconnect:= True;
+                end;
+              end;
+
+              if needReconnect then
+              begin
+                try
+                  if Assigned(FRedisSubscriber) then
+                    FRedisSubscriber.Disconnect;
+                except
                 end;
               end;
             end
           );
 
           Backoff:= RECONNECT_BASE_MS;
+
         except
           on E: Exception do
           begin
-            Log('Subscribe error: ' + E.Message);
             TThread.Sleep(Jitter(Backoff));
             if Backoff < 15000 then
               Backoff:= Backoff * 2;
@@ -474,7 +499,7 @@ var
 begin
   NeedReconnect:= False;
 
-  FLock.Enter;
+  FCmdLock.Enter;
   try
     try
       if not Assigned(FRedisClient) then
@@ -483,24 +508,92 @@ begin
     except
       on E: Exception do
       begin
-        Log('Publish error: ' + E.Message);
         NeedReconnect:= True;
       end;
     end;
   finally
-    FLock.Leave;
+    FCmdLock.Leave;
   end;
 
   if NeedReconnect and (not FIsDestroyed) then
   begin
     ReconnectClientOnly;
-    FLock.Enter;
+
+    FCmdLock.Enter;
     try
       if Assigned(FRedisClient) then
         FRedisClient.PUBLISH(Topic, Message);
     finally
-      FLock.Leave;
+      FCmdLock.Leave;
     end;
+  end;
+end;
+
+class function TRedis.UnixNowSeconds: Double;
+var
+  DT: TDateTime;
+  Sec: Int64;
+  Ms : Word;
+begin
+  DT:= Now;
+  Sec:= DateTimeToUnix(DT, False);
+  Ms := MilliSecondOf(DT);
+  Result:= Sec + (Ms / 1000.0);
+end;
+
+procedure TRedis.PublishServer(const Topic, Command: string; BodyValue: TJSONValue);
+var
+  Root : TJSONObject;
+  BodyC: TJSONValue;
+  Msg  : string;
+begin
+  if Assigned(BodyValue) then
+    BodyC:= BodyValue.Clone as TJSONValue
+  else
+    BodyC:= TJSONObject.Create;
+
+  Root:= TJSONObject.Create;
+  try
+    Root.AddPair('command', Command);
+    Root.AddPair('body', BodyC);
+    Root.AddPair('issuedAt', TJSONNumber.Create(UnixNowSeconds));
+
+    Msg:= Root.ToJSON;
+  finally
+    Root.Free;
+  end;
+
+  Publish(Topic, Msg);
+end;
+
+procedure TRedis.PublishServer(const Topic, Command, BodyJson: string);
+var
+  V: TJSONValue;
+begin
+  V:= TJSONObject.ParseJSONValue(BodyJson);
+  try
+    if Assigned(V) then
+      PublishServer(Topic, Command, V)
+    else
+      PublishServer(Topic, Command, TJSONString.Create(BodyJson));
+  finally
+    V.Free;
+  end;
+end;
+
+procedure TRedis.PublishServer(const Topic, Command: string; BodyObject: TObject);
+var
+  V: TJSONValue;
+begin
+  if Assigned(BodyObject) then
+    V:= TJson.ObjectToJsonObject(BodyObject)
+  else
+    V:= TJSONObject.Create;
+
+  try
+    PublishServer(Topic, Command, V);
+  finally
+    V.Free;
   end;
 end;
 
@@ -525,6 +618,8 @@ begin
     else
     begin
       FCallbacks[Topic]:= Callback;
+      Inc(FTopicsVersion);
+      FTopicsChanged.SetEvent;
     end;
   finally
     FLock.Leave;
