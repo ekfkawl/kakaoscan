@@ -7,6 +7,7 @@ import com.kakaoscan.server.application.exception.PendingTransactionExistsExcept
 import com.kakaoscan.server.application.exception.TransactionIllegalStateException;
 import com.kakaoscan.server.application.service.strategy.ProductTransactionFactory;
 import com.kakaoscan.server.application.service.strategy.ProductTransactionProcessor;
+import com.kakaoscan.server.domain.events.model.ApprovalSideEffectsEvent;
 import com.kakaoscan.server.domain.events.model.PointBalanceUpdatedEvent;
 import com.kakaoscan.server.domain.events.model.ProductPurchaseCompleteEvent;
 import com.kakaoscan.server.domain.point.repository.PointWalletRepository;
@@ -54,7 +55,6 @@ public class ProductService extends ProductTransactionProcessor<Long> {
     private final ProductTransactionFactory productTransactionFactory;
     private final AuthenticationService authenticationService;
     private final RedissonClient redissonClient;
-    private final EventPublisher eventPublisher;
     private final WordProperties wordProperties;
     private final ApplicationEventPublisher events;
 
@@ -127,23 +127,20 @@ public class ProductService extends ProductTransactionProcessor<Long> {
             processor.approve(transaction);
             transaction.approve();
 
-            events.publishEvent(new PointBalanceUpdatedEvent(transaction.getUser().getEmail()));
+            int newBalance = transaction.getWallet().getBalance();
 
-            eventPublisher.publish(OTHER_EVENT_TOPIC.getTopic(), new ProductPurchaseCompleteEvent(
+            events.publishEvent(new ApprovalSideEffectsEvent(
                     transaction.getUser().getEmail(),
+                    newBalance,
                     transaction.getProductType().getDisplayName(),
-                    System.getenv("CURRENT_BASE_URL"))
-            );
+                    System.getenv("CURRENT_BASE_URL"),
+                    transaction.getId()
+            ));
 
-            try {
-                productOrderClient.excludeProductOrder(new WebhookProductOrderRequest(transaction.getId().toString()));
-            }catch (Exception ignored){
-            }
-
-            log.info("approval transactionId: " + productTransactionId);
+            log.info("approval transactionId: {}", productTransactionId);
         }, transaction -> {
             if (!ProductTransactionStatus.PENDING.equals(transaction.getTransactionStatus())) {
-                throw new IllegalStateException(String.format("transaction status must be PENDING to approve (%d)", productTransactionId));
+                throw new IllegalStateException("transaction status must be PENDING to approve");
             }
         });
     }
